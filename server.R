@@ -3,26 +3,7 @@ library(shiny)
 library(ggplot2)
 library(RCurl)
 library(GGally)
-# 
-# sepExpr = function(allDataPre){
-#     for (i in 1:ncol(allDataPre)){
-#         if ('double'==typeof(allDataPre[,i])){
-#             expBound = i
-#             break
-#         }
-#     }
-#     geneData = allDataPre[,1:(expBound-1)]
-#     exprData = allDataPre[,expBound:ncol(allDataPre)]
-#     return(list(geneData,exprData))
-# }
-# 
-# read.exp = function(x){
-#     read.csv(x,header = T,stringsAsFactors=F)
-# }
-# 
-# read.design  = function(x){
-#     read.table(x,header=T,sep='\t',stringsAsFactors=F,quote="")
-# }
+
 
 eval( expr = parse( text = getURL(
     "https://raw.githubusercontent.com/oganm/toSource/master/ogbox.R",
