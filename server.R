@@ -157,6 +157,9 @@ shinyServer(function(input, output) {
     
     output$expressionPlot = renderPlot({
         selected = mouseGene$Gene.Symbol[tolower(mouseGene$Gene.Symbol) %in% tolower(input$geneSearch)]
+        if (len(selected)==0){
+            stop('Gene symbol not in the list')
+        }
         if (input$regionChoice =='.messy details'){
             plotSingle(selected, prop, coloring, field = 'Gene.Symbol')
         } else if (input$regionChoice =='All'){
