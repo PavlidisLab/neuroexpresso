@@ -99,7 +99,7 @@ plotSingle = function(gene, prop, coloring, field = 'Gene.Symbol'){
     p = p + geom_point(aes(color = prop,shape=region),size =4)
     
     p = p + manualColor +
-        theme(panel.background = element_rect(fill = "gray60"),legend.key = element_rect(fill = "gray60"))+
+        theme(panel.background = element_rect(fill = "gray80"),legend.key = element_rect(fill = "gray80"))+
         theme(panel.grid.major=element_blank())+
         xlab('')+
         ylab(paste(gene,"log2 expression"))+
@@ -114,7 +114,12 @@ plotSingle = function(gene, prop, coloring, field = 'Gene.Symbol'){
     return(p)
 }
 
-plotPretty = function(gene, prop, coloring, field = 'Gene.Symbol', regionSelect){
+plotPretty = function(gene, prop, coloring, field = 'Gene.Symbol', regionSelect, jitter){
+    if (jitter){
+        jitter = 'jitter'
+    } else {
+        jitter= 'identity'
+    }
     mouseExpr = mouseExpr[,!is.na(regionSelect)]
     mouseDes = mouseDes[!is.na(regionSelect),]
     
@@ -124,13 +129,13 @@ plotPretty = function(gene, prop, coloring, field = 'Gene.Symbol', regionSelect)
     
     names(frame) = c('gene','prop','Type')
     colors = toColor(mouseDes[,prop],coloring)
-    manualColor = scale_colour_manual(name='prop', values = colors$palette)
+    manualColor = scale_fill_manual(name='prop', values = colors$palette)
     pal = colors$palette[order(names(colors$palette))]
     p =  ggplot(frame, aes(x = prop,y=gene))
-    p = p + geom_point(aes(color = prop),size =4)
-    
+   # p = p + geom_point(size=5)
+    p = p + geom_point(aes(fill = prop),color='black',pch=21,size =4, position=jitter)
     p = p + manualColor +
-        theme(panel.background = element_rect(fill = "gray60"),legend.key = element_rect(fill = "gray60"))+
+        theme(panel.background = element_rect(fill = "gray80"),legend.key = element_rect(fill = "gray80"))+
         theme(panel.grid.major=element_blank())+
         xlab('')+
         ylab(paste(gene,"log2 expression"))+
@@ -151,13 +156,14 @@ shinyServer(function(input, output) {
     
     
     output$expressionPlot = renderPlot({
+        selected = mouseGene$Gene.Symbol[tolower(mouseGene$Gene.Symbol) %in% tolower(input$geneSearch)]
         if (input$regionChoice =='.messy details'){
-            plotSingle(input$geneSearch, prop, coloring, field = 'Gene.Symbol')
+            plotSingle(selected, prop, coloring, field = 'Gene.Symbol')
         } else if (input$regionChoice =='All'){
-            plotPretty(input$geneSearch, prop, coloring, field = 'Gene.Symbol', mouseDes[,prop])
+            plotPretty(selected, prop, coloring, field = 'Gene.Symbol', mouseDes[,prop], input$jitterBox)
         }else {
-            plotPretty(input$geneSearch, prop, coloring, field = 'Gene.Symbol', regionGroups[[input$regionChoice]])
+            plotPretty(selected, prop, coloring, field = 'Gene.Symbol', regionGroups[[input$regionChoice]], input$jitterBox)
         }
     }
-    , height = 800, width = 800)
+    , height = 700, width = 800)
 })

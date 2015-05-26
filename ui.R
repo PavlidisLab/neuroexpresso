@@ -1,4 +1,6 @@
 library(shiny)
+library(RCurl)
+
 # runbefore --------------------
 eval( expr = parse( text = getURL(
     "https://raw.githubusercontent.com/oganm/toSource/master/ogbox.R",
@@ -21,12 +23,17 @@ shinyUI(fluidPage(
     titlePanel("cell type expression"),
     sidebarLayout(
         sidebarPanel(
+            p('Wait until the plot renders then enter a gene symbol.'),
             textInput(inputId = 'geneSearch',value = 'Ogn',
                       label = 'Select Gene'),
             
             selectInput(inputId = "regionChoice",
-                        label= NULL,
-                        choices = c(regions,'All','.messy details'))
+                        label= 'Select region',
+                        choices = c(regions,'All','.messy details')),
+            
+            checkboxInput(inputId = 'jitterBox',
+                          label = 'Jitter?', 
+                          value = F)
         ),
         mainPanel(
             plotOutput('expressionPlot')
