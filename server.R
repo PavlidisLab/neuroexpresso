@@ -16,7 +16,7 @@ sourceGithub(oganm,masterOfCellTypes,runVars)
 # list[mouseGene, mouseExpr]=sepExpr(allDataPre)
 # rm(allDataPre)
 
-mouseExpr = read.csv('Data/mouseExpr')
+# mouseExpr = read.csv('Data/mouseExpr')
 mouseExpr =  fread('Data/mouseExpr')
 mouseGene = read.csv('Data/mouseGene')
 mouseDes = read.design('Data/meltedDesign.tsv')
