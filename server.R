@@ -17,6 +17,7 @@ sourceGithub(oganm,masterOfCellTypes,runVars)
 # rm(allDataPre)
 
 mouseExpr = read.csv('Data/mouseExpr')
+mouseExpr =  fread('Data/mouseExpr')
 mouseGene = read.csv('Data/mouseGene')
 mouseDes = read.design('Data/meltedDesign.tsv')
 mouseDes = mouseDes[match(colnames(mouseExpr),make.names(mouseDes$sampleName),),]
@@ -84,7 +85,7 @@ coloring = coloringPyramidal
 prop ='PyramidalDeep'
 
 plotSingle = function(gene, prop, coloring, field = 'Gene.Symbol'){
-    mouseExpr = mouseExpr[,!is.na(mouseDes[,prop])]
+    mouseExpr = mouseExpr[,!is.na(mouseDes[,prop]),with =F ]
     mouseDes = mouseDes[!is.na(mouseDes[,prop]),]
     
     mouseGene = mouseGene
@@ -120,7 +121,7 @@ plotPretty = function(gene, prop, coloring, field = 'Gene.Symbol', regionSelect,
     } else {
         jitter= 'identity'
     }
-    mouseExpr = mouseExpr[,!is.na(regionSelect)]
+    mouseExpr = mouseExpr[,!is.na(regionSelect),with = F]
     mouseDes = mouseDes[!is.na(regionSelect),]
     
     mouseGene = mouseGene
