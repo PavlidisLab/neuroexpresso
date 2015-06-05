@@ -151,7 +151,9 @@ plotPretty = function(gene, prop, coloring, field = 'Gene.Symbol', regionSelect,
 
 
 print('starting stuff')
-    
+
+# beginning of server -----------
+
 shinyServer(function(input, output) {
     
     
