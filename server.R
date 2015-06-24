@@ -171,8 +171,6 @@ print('starting stuff')
 
 shinyServer(function(input, output, session) {
     
-    session$onSessionEnded(function()stopApp())
-    
     output$expressionPlot = renderPlot({
         selected = mouseGene$Gene.Symbol[tolower(mouseGene$Gene.Symbol) %in% tolower(input$geneSearch)]
         if (len(selected)==0){
