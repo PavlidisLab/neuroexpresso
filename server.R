@@ -20,7 +20,7 @@ sourceGithub(oganm,masterOfCellTypes,runVars)
 mouseExpr =  fread('Data/mouseExpr')
 mouseGene = read.csv('Data/mouseGene')
 mouseDes = read.design('Data/meltedDesign.tsv')
-mouseDes = mouseDes[match(colnames(mouseExpr),make.names(mouseDes$sampleName),),]
+mouseDes = mouseDes[match(colnames(mouseExpr),make.names(mouseDes$sampleName)),]
 rownames(mouseExpr) = mouseGene$Gene.Symbol
 
 # load the region data -------
@@ -91,8 +91,10 @@ plotSingle = function(gene, prop, coloring, field = 'Gene.Symbol'){
     mouseGene = mouseGene
     isNeuron = unique(cbind(mouseDes$MajorType,mouseDes[,prop]))
     frame = data.frame(t(mouseExpr[mouseGene[,field] %in% gene,]),mouseDes[,prop],mouseDes$Region,mouseDes$MajorType)
-    
     names(frame) = c('gene','prop','region','Type')
+    frame$prop = as.character(frame$prop)
+    frame$prop = factor(frame$prop,levels = isNeuron[order(isNeuron[,1],isNeuron[,2]),2])
+
     colors = toColor(mouseDes[,prop],coloring)
     manualColor = scale_colour_manual(name='prop', values = colors$palette)
     pal = colors$palette[order(names(colors$palette))]
@@ -115,7 +117,7 @@ plotSingle = function(gene, prop, coloring, field = 'Gene.Symbol'){
     return(p)
 }
 
-plotPretty = function(gene, prop, coloring, field = 'Gene.Symbol', regionSelect, jitter){
+plotPretty = function(gene, prop, coloring, field = 'Gene.Symbol', regionSelect, jitter, pointSize, color,xSize ,ySize, yTitleSize, additionalGG){
     if (jitter){
         jitter = 'jitter'
     } else {
@@ -129,24 +131,36 @@ plotPretty = function(gene, prop, coloring, field = 'Gene.Symbol', regionSelect,
     frame = data.frame(t(mouseExpr[mouseGene[,field] %in% gene,]),mouseDes[,prop],mouseDes$MajorType)
     
     names(frame) = c('gene','prop','Type')
+    frame$prop = as.character(frame$prop)
+    frame$prop = factor(frame$prop,levels = isNeuron[order(isNeuron[,1],isNeuron[,2]),2])
+    
     colors = toColor(mouseDes[,prop],coloring)
     manualColor = scale_fill_manual(name='prop', values = colors$palette)
     pal = colors$palette[order(names(colors$palette))]
-    p =  ggplot(frame, aes(x = prop,y=gene))
+    
+    if (color){
+      p = ggplot(frame, aes(x = prop,y=gene, fill = prop, group=prop))
+      p = p + geom_point(color='black',pch=21,size = pointSize, position = jitter)
+    } else {
+      p =  ggplot(frame, aes(x = prop,y=gene))
+      p = p + geom_point(fill='black',color ='white', pch=21,size = pointSize, position = jitter)
+    }
    # p = p + geom_point(size=5)
-    p = p + geom_point(aes(fill = prop),color='black',pch=21,size =4, position=jitter)
+    
     p = p + manualColor +
         theme(panel.background = element_rect(fill = "gray80"),legend.key = element_rect(fill = "gray80"))+
         theme(panel.grid.major=element_blank())+
         xlab('')+
         ylab(paste(gene,"log2 expression"))+
-        theme(legend.title=element_blank()) + 
+        theme(legend.title=element_blank(),
+              legend.text = element_text(size=14)) + 
         theme(axis.ticks = element_blank(), axis.text.x = element_blank()) + 
         theme(axis.title.x = element_text(size=20),
-              axis.text.x  = element_text(angle=90, vjust=0.5, size=16)) + 
-        theme(axis.title.y = element_text(size=20)) + 
-        xlim(isNeuron[order(isNeuron[,1],isNeuron[,2]),2])
+              axis.text.x  = element_text(angle=90, vjust=0.5, size=xSize)) + 
+        theme(axis.title.y = element_text(size=yTitleSize),
+              axis.text.y = element_text(size=ySize))
     p = p +  theme(legend.box = "horizontal")
+    p = p + teval(additionalGG)
     return(p)
 }
 
@@ -155,8 +169,9 @@ print('starting stuff')
 
 # beginning of server -----------
 
-shinyServer(function(input, output) {
+shinyServer(function(input, output, session) {
     
+    session$onSessionEnded(function()stopApp())
     
     output$expressionPlot = renderPlot({
         selected = mouseGene$Gene.Symbol[tolower(mouseGene$Gene.Symbol) %in% tolower(input$geneSearch)]
@@ -166,10 +181,10 @@ shinyServer(function(input, output) {
         if (input$regionChoice =='.messy details'){
             plotSingle(selected, prop, coloring, field = 'Gene.Symbol')
         } else if (input$regionChoice =='All'){
-            plotPretty(selected, prop, coloring, field = 'Gene.Symbol', mouseDes[,prop], input$jitterBox)
+            plotPretty(selected, prop, coloring, field = 'Gene.Symbol', mouseDes[,prop], input$jitterBox, input$pointSize, input$color, input$ySize, input$yTitleSize, input$additionalGG)
         }else {
-            plotPretty(selected, prop, coloring, field = 'Gene.Symbol', regionGroups[[input$regionChoice]], input$jitterBox)
+            plotPretty(selected, prop, coloring, field = 'Gene.Symbol', regionGroups[[input$regionChoice]], input$jitterBox, input$pointSize, input$color,input$xSize, input$ySize, input$yTitleSize, input$additionalGG)
         }
     }
-    , height = 700, width = 800)
+    , height = 700, width = 900)
 })
