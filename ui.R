@@ -33,7 +33,33 @@ shinyUI(fluidPage(
             
             checkboxInput(inputId = 'jitterBox',
                           label = 'Jitter?', 
-                          value = F)
+                          value = F),
+            sliderInput(inputId = 'pointSize',
+                        label = 'Point size',
+                        min = 4,
+                        max = 20,
+                        value = 7),
+            sliderInput(inputId = 'ySize',
+                        label = 'y text size',
+                        min = 0,
+                        max = 36,
+                        value = 14),
+            sliderInput(inputId = 'yTitleSize',
+                        label = 'y title size',
+                        min = 0,
+                        max = 36,
+                        value = 20),
+            sliderInput(inputId = 'xSize',
+                        label = 'x text size',
+                        min = 0,
+                        max = 36,
+                        value = 20),
+            checkboxInput(inputId = 'color',
+                          label = 'Color?', 
+                          value = T),
+            textInput(inputId = 'additionalGG',value = '',
+                      label = 'More layers')
+            
         ),
         mainPanel(
             plotOutput('expressionPlot')
