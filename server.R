@@ -179,7 +179,7 @@ shinyServer(function(input, output, session) {
         if (input$regionChoice =='.messy details'){
             plotSingle(selected, prop, coloring, field = 'Gene.Symbol')
         } else if (input$regionChoice =='All'){
-            plotPretty(selected, prop, coloring, field = 'Gene.Symbol', mouseDes[,prop], input$jitterBox, input$pointSize, input$color, input$ySize, input$yTitleSize, input$additionalGG)
+            plotPretty(selected, prop, coloring, field = 'Gene.Symbol', mouseDes[,prop], input$jitterBox, input$pointSize, input$color,input$xSize, input$ySize, input$yTitleSize, input$additionalGG)
         }else {
             plotPretty(selected, prop, coloring, field = 'Gene.Symbol', regionGroups[[input$regionChoice]], input$jitterBox, input$pointSize, input$color,input$xSize, input$ySize, input$yTitleSize, input$additionalGG)
         }
