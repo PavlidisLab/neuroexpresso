@@ -26,6 +26,7 @@ shinyUI(fluidPage(
             p('Wait until the plot renders then enter a gene symbol.'),
             textInput(inputId = 'geneSearch',value = 'Ogn',
                       label = 'Select Gene'),
+            textOutput(outputId = 'didYouMean'),
             
             selectInput(inputId = "regionChoice",
                         label= 'Select region',

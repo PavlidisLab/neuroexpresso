@@ -170,7 +170,9 @@ print('starting stuff')
 # beginning of server -----------
 
 shinyServer(function(input, output, session) {
-    
+#     reactive({
+#         write.table( ,file = 'searchLog', append=T)
+#     })
     output$expressionPlot = renderPlot({
         selected = mouseGene$Gene.Symbol[tolower(mouseGene$Gene.Symbol) %in% tolower(input$geneSearch)]
         if (len(selected)==0){
@@ -185,4 +187,14 @@ shinyServer(function(input, output, session) {
         }
     }
     , height = 700, width = 900)
+    
+    output$didYouMean = renderText({
+        if(any(tolower(mouseGene$Gene.Symbol) %in% tolower(input$geneSearch))){
+            return('')
+        } else {
+            return(paste('Did you mean:\n',paste(mouseGene$Gene.Symbol[order(adist(tolower(input$geneSearch), 
+                                                           tolower(mouseGene$Gene.Symbol)))[1:5]],
+                         collapse=', ')))
+        }
+    })
 })
