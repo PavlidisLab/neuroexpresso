@@ -181,7 +181,7 @@ shinyServer(function(input, output, session) {
         print(searchedGenes)
         files = drop_dir(outputDir)
         if ((ncol(files)>0)&&(paste0(ipid,'.',fingerprint) %in% unlist(apply(files[,1],2,basename)))){
-            toWrite = drop_read_csv(unlist(files[unlist(apply(files[,1],2,basename)) %in% paste0(ipid,'-',fingerprint),1]), header=F)
+            toWrite = drop_read_csv(unlist(files[unlist(apply(files[,1],2,basename)) %in% paste0(ipid,'.',fingerprint),1]), header=F)
         } else{
             toWrite = data.frame(V1= character(0))
         }
