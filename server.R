@@ -4,6 +4,11 @@ library(ggplot2)
 library(RCurl)
 library(GGally)
 library(data.table)
+library(rdrop2)
+token <- readRDS("droptoken.rds")
+drop_acc(dtoken = token)
+outputDir = "Gene Searches"
+
 
 eval( expr = parse( text = getURL(
     "https://raw.githubusercontent.com/oganm/toSource/master/ogbox.R",
@@ -168,8 +173,29 @@ plotPretty = function(gene, prop, coloring, field = 'Gene.Symbol', regionSelect,
 print('starting stuff')
 
 # beginning of server -----------
-
+searchedGenes = NULL
 shinyServer(function(input, output, session) {
+    session$onSessionEnded(function(){
+        print(fingerprint)
+        print(ipid)
+        print(searchedGenes)
+        files = drop_dir(outputDir)
+        if ((ncol(files)>0)&&(paste0(ipid,'.',fingerprint) %in% unlist(apply(files[,1],2,basename)))){
+            toWrite = drop_read_csv(unlist(files[unlist(apply(files[,1],2,basename)) %in% paste0(ipid,'-',fingerprint),1]), header=F)
+        } else{
+            toWrite = data.frame(V1= character(0))
+        }
+        toWrite = rbind(toWrite, data.frame(V1=searchedGenes))
+        write.table(toWrite,paste0(ipid,'.',fingerprint) ,quote=F, row.names=F,col.names=F)
+        drop_upload(file=paste0(ipid,'.',fingerprint), dest = outputDir)
+        
+    })    
+    
+    observe({
+        fingerprint <<- input$fingerprint
+        ipid <<- input$ipid
+    })
+
 #     reactive({
 #         write.table( ,file = 'searchLog', append=T)
 #     })
@@ -178,6 +204,8 @@ shinyServer(function(input, output, session) {
         if (len(selected)==0){
             stop('Gene symbol not in the list')
         }
+        print(as.character(selected))
+        searchedGenes <<- c(searchedGenes, as.character(selected))
         if (input$regionChoice =='.messy details'){
             plotSingle(selected, prop, coloring, field = 'Gene.Symbol')
         } else if (input$regionChoice =='All'){
