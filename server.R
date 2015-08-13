@@ -5,10 +5,15 @@ library(RCurl)
 library(GGally)
 library(data.table)
 library(rdrop2)
-token <- readRDS("droptoken.rds")
-drop_acc(dtoken = token)
-outputDir = "Gene Searches"
 
+token <- readRDS("droptoken.rds")
+if ((Sys.info()["nodename"])=='kent.pavlab.chibi.ubc.ca'){
+    set_config(config(cainfo = '/home/omancarci/R/x86_64-unknown-linux-gnu-library/3.1/httr/cacert.pem')) 
+}
+
+drop_acc(dtoken = token)
+
+outputDir = "Gene Searches"
 
 eval( expr = parse( text = getURL(
     "https://raw.githubusercontent.com/oganm/toSource/master/ogbox.R",
@@ -204,6 +209,8 @@ shinyServer(function(input, output, session) {
         if (len(selected)==0){
             stop('Gene symbol not in the list')
         }
+        print(fingerprint)
+        print(ipid)
         print(as.character(selected))
         searchedGenes <<- c(searchedGenes, as.character(selected))
         if (input$regionChoice =='.messy details'){

@@ -1,6 +1,5 @@
 library(shiny)
 library(RCurl)
-
 # runbefore --------------------
 eval( expr = parse( text = getURL(
     "https://raw.githubusercontent.com/oganm/toSource/master/ogbox.R",
@@ -26,15 +25,18 @@ inputUserid <- function(inputId, value='') {
         tags$body(onload="setvalues()"),
         tags$input(id = inputId, class = "userid", value=as.character(value), type="text", style="display:none;")
     )
+    
 }
 
 inputIp <- function(inputId, value=''){
+    
     tagList(
         singleton(tags$head(tags$script(src = "js/md5.js", type='text/javascript'))),
         singleton(tags$head(tags$script(src = "js/shinyBindings.js", type='text/javascript'))),
         tags$body(onload="setvalues()"),
         tags$input(id = inputId, class = "ipaddr", value=as.character(value), type="text", style="display:none;")
     )
+    
 }
 
 # UI ------------------------
