@@ -42,11 +42,17 @@ inputIp <- function(inputId, value=''){
 # UI ------------------------
 
 shinyUI(fluidPage(
-    titlePanel("cell type expression"),
+    titlePanel("Expression in brain cell types"),
     sidebarLayout(
         sidebarPanel(
             inputIp("ipid"),
             inputUserid("fingerprint"),
+            h1('About'),
+            p('This application aims to make it easier to visualize gene expression in mouse brain cell types. The data here is compiled for a project aiming to select cell type specific genes in brain.'),
+            a(href="https://github.com/oganm/cellTypeExpression", 'Source Code'),
+            p(''),
+            a(href="https://github.com/oganm/brainCellTypeSpecificGenes", 'Project Page'),
+            p(''),
             p('Wait until the plot renders then enter a gene symbol.'),
             textInput(inputId = 'geneSearch',value = 'Ogn',
                       label = 'Select Gene'),
@@ -55,6 +61,9 @@ shinyUI(fluidPage(
             selectInput(inputId = "regionChoice",
                         label= 'Select region',
                         choices = c(regions,'All','.messy details')),
+            checkboxInput(inputId = 'privacyBox',
+                          label = "We keep an anonymized log of valid searches. Uncheck this box before you leave if you are feeling paranoid so we won't.", 
+                          value = T),
             
             checkboxInput(inputId = 'jitterBox',
                           label = 'Jitter?', 
@@ -81,9 +90,9 @@ shinyUI(fluidPage(
                         value = 20),
             checkboxInput(inputId = 'color',
                           label = 'Color?', 
-                          value = T),
-            textInput(inputId = 'additionalGG',value = '',
-                      label = 'More layers')
+                          value = T)
+            #textInput(inputId = 'additionalGG',value = '',
+            #          label = 'More layers')
             
         ),
         mainPanel(
