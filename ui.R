@@ -61,9 +61,9 @@ shinyUI(fluidPage(
             selectInput(inputId = "regionChoice",
                         label= 'Select region',
                         choices = c(regions,'All','.messy details')),
-            checkboxInput(inputId = 'privacyBox',
-                          label = "We keep an anonymized log of valid searches. Uncheck this box before you leave if you are feeling paranoid so we won't.", 
-                          value = T),
+           # checkboxInput(inputId = 'privacyBox',
+        #                  label = "We keep an anonymized log of valid searches. Uncheck this box before you leave if you are feeling paranoid so we won't.", 
+            #              value = T),
             
             checkboxInput(inputId = 'jitterBox',
                           label = 'Jitter?', 

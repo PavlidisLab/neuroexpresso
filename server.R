@@ -201,7 +201,8 @@ shinyServer(function(input, output, session) {
     observe({
         fingerprint <<- input$fingerprint
         ipid <<- input$ipid
-        privacy<<-input$privacyBox
+      #  privacy<<-input$privacyBox
+      privacy <<- T
     })
 
 #     reactive({
