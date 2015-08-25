@@ -6,6 +6,8 @@ library(GGally)
 library(data.table)
 library(rdrop2)
 library(httr)
+library(ogbox)
+sourceGithub(OganM,brainCellTypeSpecificGenes,'R/regionize.R')
 token <- readRDS("droptoken.rds")
 if ((Sys.info()["nodename"])=='kent.pavlab.chibi.ubc.ca'){
     set_config(config(cainfo = '/home/omancarci/R/x86_64-unknown-linux-gnu-library/3.1/httr/cacert.pem')) 
@@ -15,9 +17,8 @@ drop_acc(dtoken = token)
 
 outputDir = "Gene Searches"
 
-library(ogbox)
-sourceGithub(oganm,masterOfCellTypes,runVars)
-
+groupNames = 'PyramidalDeep'
+regionNames = 'Region'
 # loading data ----------
 # allDataPre = read.csv(paste0(outFolder,'/','finalExp.csv'), header = T)  
 # allDataPre = allDataPre[!grepl('[|]',allDataPre$Gene.Symbol),]
@@ -41,98 +42,53 @@ mouseDes2 = mouseDes2[!mouseDes2$PyramidalDeep %in% 'Layer5Pyra',]
 print('data loaded 2')
 
 # load the region data -------
-groupNames = 'PyramidalDeep'
-regions =
-    trimNAs(
-        trimElement(
-            unique(
-                unlist(
-                    strsplit(as.character(mouseDes[,regionNames]),',')))
-            ,c('ALL','All','all','Cerebrum'))) #S pecial names
-regionBased = expand.grid(groupNames, regions)
-regionGroups = vector(mode = 'list', length = nrow(regionBased))
-names(regionGroups) = paste0(regionBased$Var2,'_',regionBased$Var1)
-
-for (i in 1:nrow(regionBased)){
-    regionGroups[[i]] = mouseDes[,as.character(regionBased$Var1[i])]
-    
-    # remove everything except the region and ALL labeled ones. for anything but cerebellum, add Cerebrum labelled ones as well
-    if (regionBased$Var2[i] == 'Cerebellum'){
-        regionGroups[[i]][!grepl(paste0('(^|,)((',regionBased$Var2[i],')|((A|a)(L|l)(l|l)))($|,)'),mouseDes[,regionNames])] = NA
-    } else {
-        # look for cerebrums
-        cerebrums = unique(regionGroups[[i]][grepl('(Cerebrum)',mouseDes[,regionNames])])
-        
-        # find which cerebrums are not represented in the region
-        cerebString = paste(cerebrums[!cerebrums %in% regionGroups[[i]][grepl(paste0('(^|,)((',regionBased$Var2[i],')|((A|a)(L|l)(l|l)))($|,)'),mouseDes[,regionNames])]],
-                            collapse = ')|(')
-        
-        # add them as well (or not remove them as well) with all the rest of the region samples
-        regionGroups[[i]][(!grepl(paste0('(^|,)((',regionBased$Var2[i],')|((A|a)(L|l)(l|l)))($|,)'),mouseDes[,regionNames])
-                           & !(grepl(paste0('(',cerebString,')'),mouseDes[,as.character(regionBased$Var1[i])]) & grepl('Cerebrum',mouseDes[,regionNames])))] =  NA   
-    }
-}
-
-names(regionGroups) = regions
-##### second regions
-groupNames = 'PyramidalDeep'
-regions =
-    trimNAs(
-        trimElement(
-            unique(
-                unlist(
-                    strsplit(as.character(mouseDes2[,regionNames]),',')))
-            ,c('ALL','All','all','Cerebrum'))) #S pecial names
-regionBased = expand.grid(groupNames, regions)
-regionGroups2 = vector(mode = 'list', length = nrow(regionBased))
-names(regionGroups2) = paste0(regionBased$Var2,'_',regionBased$Var1)
-
-for (i in 1:nrow(regionBased)){
-    regionGroups2[[i]] = mouseDes2[,as.character(regionBased$Var1[i])]
-    
-    # remove everything except the region and ALL labeled ones. for anything but cerebellum, add Cerebrum labelled ones as well
-    if (regionBased$Var2[i] == 'Cerebellum'){
-        regionGroups2[[i]][!grepl(paste0('(^|,)((',regionBased$Var2[i],')|((A|a)(L|l)(l|l)))($|,)'),mouseDes2[,regionNames])] = NA
-    } else {
-        # look for cerebrums
-        cerebrums = unique(regionGroups2[[i]][grepl('(Cerebrum)',mouseDes2[,regionNames])])
-        
-        # find which cerebrums are not represented in the region
-        cerebString = paste(cerebrums[!cerebrums %in% regionGroups2[[i]][grepl(paste0('(^|,)((',regionBased$Var2[i],')|((A|a)(L|l)(l|l)))($|,)'),mouseDes2[,regionNames])]],
-                            collapse = ')|(')
-        
-        # add them as well (or not remove them as well) with all the rest of the region samples
-        regionGroups2[[i]][(!grepl(paste0('(^|,)((',regionBased$Var2[i],')|((A|a)(L|l)(l|l)))($|,)'),mouseDes2[,regionNames])
-                           & !(grepl(paste0('(',cerebString,')'),mouseDes2[,as.character(regionBased$Var1[i])]) & grepl('Cerebrum',mouseDes2[,regionNames])))] =  NA   
-    }
-}
-
-names(regionGroups2) = regions
-
+regionGroups = regionize(mouseDes,regionNames,groupNames)
+names(regionGroups) = sapply(names(regionGroups), function(x){
+    strsplit(x,split = '_')[[1]][1]
+})
+# second regions
+regionGroups2 = regionize(mouseDes2,regionNames,groupNames)
+names(regionGroups2) = sapply(names(regionGroups2), function(x){
+    strsplit(x,split = '_')[[1]][1]
+})
 
 
 # some settings required for the plotting function -----
-coloring = heatColors$CellType[4:len(heatColors$CellType)]
 
-coloringDeep = c(heatColors$CellType[4:len(heatColors$CellType)],
-                 GabaVIPReln = 'firebrick4',
-                 GabaRelnCalb = 'firebrick3',
-                 GabaSSTReln = 'firebrick1',
-                 GabaReln = 'firebrick'
-                 #GabaOxtr = 'orange',
-                 #GabaHtr3a= 'indianred'
+coloring = c(Oligo = 'darkgreen',
+             Bergmann = 'palegreen',
+             MotorCholin = 'darkorange4',
+             Cholin = 'darkorange',
+             Spiny = 'blanchedalmond',
+             Gluta = 'slategray',
+             Basket = 'mediumpurple4',
+             Golgi = 'orchid',
+             Pyramidal = 'turquoise',
+             Purkinje = 'purple',
+             Inter = 'pink',
+             CerebGranule = 'thistle',
+             DentateGranule = 'thistle3',
+             Microglia = 'white',
+             # Gaba = 'firebrick4',
+             Astrocyte = 'yellow',
+             GabaPV = 'firebrick2',
+             Stem = 'blue' ,
+             Ependymal = 'orange',
+             Serotonergic = 'darkolivegreen',
+             Hypocretinergic = 'cadetblue',
+             Dopaminergic = 'gray0',
+             Th_positive_LC = 'blueviolet',
+             GabaVIPReln = 'firebrick4',
+             GabaRelnCalb = 'firebrick3',
+             GabaSSTReln = 'firebrick1',
+             GabaReln = 'firebrick',
+             GabaVIPReln = 'firebrick4',
+             GabaReln = 'firebrick',
+             Pyramidal_Thy1 = 'turquoise',
+             PyramidalCorticoThalam = 'blue',
+             Pyramidal_Glt_25d2 = 'blue4',
+             Pyramidal_S100a10 ='deepskyblue3'
 )
 
-coloringDeep = coloringDeep[names(coloringDeep) != 'Gaba']
 
-
-coloringPyramidal = coloringDeep[names(coloringDeep) != 'Pyramidal']
-
-coloringPyramidal=c(coloringPyramidal,          
-                    Pyramidal_Thy1 = 'turquoise',
-                    PyramidalCorticoThalam = 'blue',
-                    Pyramidal_Glt_25d2 = 'blue4',
-                    Pyramidal_S100a10 ='deepskyblue3')
-
-coloring = coloringPyramidal
 prop ='PyramidalDeep'

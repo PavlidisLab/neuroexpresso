@@ -1,5 +1,5 @@
 source('helpers.R')
-
+#library(xkcd)
 
 # functions ---------
 
@@ -92,7 +92,8 @@ plotPretty = function(gene, prop, coloring, field = 'Gene.Symbol', regionSelect,
     colors = toColor(mouseDes[,prop],coloring)
     manualColor = scale_fill_manual(name='prop', values = colors$palette)
     pal = colors$palette[order(names(colors$palette))]
-    
+    # yrange = c(min(frame$gene)-2,max(frame$gene)+2)
+    # xrange = c(0,len(unique(frame$prop))+3)
     if (color){
         p = ggplot(frame, aes(x = prop,y=gene, fill = prop, group=prop))
         p = p + geom_point(color='black',pch=21,size = pointSize, position = jitter)
@@ -114,7 +115,7 @@ plotPretty = function(gene, prop, coloring, field = 'Gene.Symbol', regionSelect,
               axis.text.x  = element_text(angle=90, vjust=0.5, size=xSize)) + 
         theme(axis.title.y = element_text(size=yTitleSize),
               axis.text.y = element_text(size=ySize))
-    p = p +  theme(legend.box = "horizontal")
+    p = p +  theme(legend.box = "horizontal")  
     p = p + teval(additionalGG)
     return(p)
 }
