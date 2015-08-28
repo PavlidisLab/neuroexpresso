@@ -1,5 +1,6 @@
 # initialization -----------
 library(shiny)
+library(ggvis)
 library(ggplot2)
 library(RCurl)
 library(GGally)

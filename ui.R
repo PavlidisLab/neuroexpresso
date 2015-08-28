@@ -1,5 +1,6 @@
 library(shiny)
 library(RCurl)
+library(ggvis)
 # runbefore --------------------
 eval( expr = parse( text = getURL(
     "https://raw.githubusercontent.com/oganm/toSource/master/ogbox.R",
@@ -53,6 +54,7 @@ shinyUI(fluidPage(
                     a(href="http://www.chibi.ubc.ca/Gemma/arrays/showArrayDesign.html?id=7", 'GPL339'),'and',
                     a(href="http://www.chibi.ubc.ca/Gemma/arrays/showArrayDesign.html?id=3", 'GPL1261')),
             p('To see genes that are only available for GPL1261, choose that platform below. This will remove some of the samples'),
+            p('Click on data points to see their sources'),
             a(href="https://github.com/oganm/cellTypeExpression", 'Source Code'),
             br(),
             a(href="https://github.com/oganm/brainCellTypeSpecificGenes", 'Project Page'),
@@ -69,33 +71,12 @@ shinyUI(fluidPage(
             selectInput(inputId = 'platform',
                         label = 'Select Platform',
                         choices = c('GPL339','GPL1261')),
+            
            # checkboxInput(inputId = 'privacyBox',
         #                  label = "We keep an anonymized log of valid searches. Uncheck this box before you leave if you are feeling paranoid so we won't.", 
             #              value = T),
-            
-            checkboxInput(inputId = 'jitterBox',
-                          label = 'Jitter?', 
-                          value = F),
-            sliderInput(inputId = 'pointSize',
-                        label = 'Point size',
-                        min = 4,
-                        max = 20,
-                        value = 7),
-            sliderInput(inputId = 'ySize',
-                        label = 'y text size',
-                        min = 0,
-                        max = 36,
-                        value = 14),
-            sliderInput(inputId = 'yTitleSize',
-                        label = 'y title size',
-                        min = 0,
-                        max = 36,
-                        value = 20),
-            sliderInput(inputId = 'xSize',
-                        label = 'x text size',
-                        min = 0,
-                        max = 36,
-                        value = 20),
+        
+            uiOutput('expressionUI'),
             checkboxInput(inputId = 'color',
                           label = 'Color?', 
                           value = T)
@@ -104,7 +85,8 @@ shinyUI(fluidPage(
             
         ),
         mainPanel(
-            plotOutput('expressionPlot')
+            ggvisOutput('expressionPlot')
+            #plotOutput('expressionPlot')
         )
     )
 ))

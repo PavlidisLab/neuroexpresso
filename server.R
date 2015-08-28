@@ -3,7 +3,21 @@ source('helpers.R')
 
 # functions ---------
 
-plotPretty = function(gene,geneList,expression,design, prop, coloring, field = 'Gene.Symbol', regionSelect, jitter, pointSize, color,xSize ,ySize, yTitleSize, additionalGG){
+plotPretty = function(gene,
+                      geneList,
+                      expression,
+                      design,
+                      prop,
+                      toolTip = 'Reference',
+                      coloring,
+                      field = 'Gene.Symbol',
+                      regionSelect, # this is the subsetting info coming from region select
+                      jitter=F, 
+                      pointSize=60,
+                      color=T,
+                      xSize=20,
+                      ySize=14,
+                      yTitleSize=20){
     if (jitter){
         jitter = 'jitter'
     } else {
@@ -14,49 +28,88 @@ plotPretty = function(gene,geneList,expression,design, prop, coloring, field = '
     
     mouseGene = geneList
     isNeuron = unique(cbind(mouseDes$MajorType,mouseDes[,prop]))
-    frame = data.frame(t(mouseExpr[mouseGene[,field] %in% gene,]),mouseDes[,prop],mouseDes$MajorType)
+    frame = data.frame(t(mouseExpr[mouseGene[,field] %in% gene,]),mouseDes[,prop],mouseDes$MajorType,mouseDes[,toolTip])
     
-    names(frame) = c('gene','prop','Type')
+    names(frame) = c('gene','prop','Type','Tooltip')
     frame$prop = as.character(frame$prop)
     frame$prop = factor(frame$prop,levels = isNeuron[order(isNeuron[,1],isNeuron[,2]),2])
     
     colors = toColor(mouseDes[,prop],coloring)
+    
     manualColor = scale_fill_manual(name='prop', values = colors$palette)
     pal = colors$palette[order(names(colors$palette))]
-    # yrange = c(min(frame$gene)-2,max(frame$gene)+2)
-    # xrange = c(0,len(unique(frame$prop))+3)
-    if (color){
-        p = ggplot(frame, aes(x = prop,y=gene, fill = prop, group=prop))
-        p = p + geom_point(color='black',pch=21,size = pointSize, position = jitter)
-    } else {
-        p =  ggplot(frame, aes(x = prop,y=gene))
-        p = p + geom_point(fill='black',color ='white', pch=21,size = pointSize, position = jitter)
-    }
-    # p = p + geom_point(size=5)
+   
+    # things to send to ggvis
+    frame$color = apply(col2rgb(colors$cols),2,function(x){
+        x = x/255
+        rgb(x[1],x[2],x[3])
+    })
+    # this has to be unique because of gviss' key requirement
+    frame$id = 1:nrow(frame)
     
-    p = p + manualColor +
-        theme(panel.background = element_rect(fill = "gray80"),legend.key = element_rect(fill = "gray80"))+
-        theme(panel.grid.major=element_blank())+
-        xlab('')+
-        ylab(paste(gene,"log2 expression"))+
-        theme(legend.title=element_blank(),
-              legend.text = element_text(size=14)) + 
-        theme(axis.ticks = element_blank(), axis.text.x = element_blank()) + 
-        theme(axis.title.x = element_text(size=20),
-              axis.text.x  = element_text(angle=90, vjust=0.5, size=xSize)) + 
-        theme(axis.title.y = element_text(size=yTitleSize),
-              axis.text.y = element_text(size=ySize))
-    p = p +  theme(legend.box = "horizontal")  
-    p = p + teval(additionalGG)
+    if (color){
+        p = frame %>%
+            ggvis(~prop,~gene,fill := ~color,key := ~id,size :=pointSize , stroke := 'black')
+    } else {
+        p = frame %>%
+            ggvis(~prop,~gene,key := ~id, stroke := 'black')
+    }
+   p = p  %>%
+        layer_points() %>%
+        add_tooltip(function(x){
+            as.character(frame[x$id,]$Tooltip)}) %>% 
+       add_axis('y',
+                title = paste(gene,"log2 expression"),
+                              properties = axis_props(title = list(fontSize = yTitleSize),
+                                                      labels = list(fontSize = ySize))) %>%
+       add_axis('x',title='', properties = axis_props(labels = list(angle=45,
+                                                                    align='left',
+                                                                    fontSize = xSize)))
+   
     return(p)
 }
 
+
+createFrame = function(gene,
+                       geneList,
+                       expression,
+                       design,
+                       prop,
+                       reference = 'Reference',
+                       pmid = 'PMID',
+                       coloring,
+                       field = 'Gene.Symbol',
+                       regionSelect,
+                       color = T){
+    mouseExpr = expression[,!is.na(regionSelect),with = F]
+    mouseDes = design[!is.na(regionSelect),]
+    mouseGene = geneList
+    isNeuron = unique(cbind(mouseDes$MajorType,mouseDes[,prop]))
+    frame = data.frame(t(mouseExpr[mouseGene[,field] %in% gene,]),mouseDes[,prop],mouseDes$MajorType,mouseDes[,reference],mouseDes[,pmid])
+    
+    names(frame) = c('gene','prop','Type','reference','PMID')
+    frame$prop = as.character(frame$prop)
+    frame$prop = factor(frame$prop,levels = isNeuron[order(isNeuron[,1],isNeuron[,2]),2])
+    
+    colors = toColor(mouseDes[,prop],coloring)
+    frame$color = apply(col2rgb(colors$cols),2,function(x){
+        x = x/255
+        rgb(x[1],x[2],x[3])
+    })
+    if (!color){
+        frame$color = "#000000"
+    }
+    # this has to be unique because of gviss' key requirement
+    frame$id = 1:nrow(frame)
+    return(frame)
+}
 
 print('starting stuff')
 
 # beginning of server -----------
 searchedGenes = NULL
 shinyServer(function(input, output, session) {
+    # for user fingerprinting
     session$onSessionEnded(function(){
         if (privacy){
             
@@ -73,48 +126,104 @@ shinyServer(function(input, output, session) {
             write.table(toWrite,paste0(ipid,'.',fingerprint) ,quote=F, row.names=F,col.names=F)
             drop_upload(file=paste0(ipid,'.',fingerprint), dest = outputDir)
         }
-    })    
-    
+    }) 
+    # for user fingerprinting
     observe({
         fingerprint <<- input$fingerprint
         ipid <<- input$ipid
       #  privacy<<-input$privacyBox
       privacy <<- T
     })
-
-#     reactive({
-#         write.table( ,file = 'searchLog', append=T)
-#     })
-    output$expressionPlot = renderPlot({
+    
+    # create frame as a reactive object to pass to ggvis
+    frame = reactive({
         if (input$platform == 'GPL339'){
             selected = mouseGene$Gene.Symbol[tolower(mouseGene$Gene.Symbol) %in% tolower(input$geneSearch)]
         } else if (input$platform == 'GPL1261'){
             selected = mouseGene2$Gene.Symbol[tolower(mouseGene2$Gene.Symbol) %in% tolower(input$geneSearch)]
         }
         if (len(selected)==0){
-            stop('Gene symbol not in the list')
+            return(oldFrame)
+            # stop('Gene symbol not in the list')
         }
-        
-        print(as.character(selected))
         searchedGenes <<- c(searchedGenes, paste(as.character(selected),input$regionChoice))
         
-
+        if (input$platform == 'GPL339'){
+            geneList = mouseGene
+            expression = mouseExpr
+            design = mouseDes
+            regionSelect = regionGroups[[input$regionChoice]]
+        } else if (input$platform == 'GPL1261'){
+            geneList = mouseGene2
+            expression = mouseExpr2
+            design = mouseDes2
+            regionSelect = regionGroups2[[input$regionChoice]]
+        }
         if (input$regionChoice =='All'){
-            if (input$platform == 'GPL339'){
-                plotPretty(selected,mouseExpr,mouseDes, prop, coloring, field = 'Gene.Symbol', mouseDes[,prop], input$jitterBox, input$pointSize, input$color,input$xSize, input$ySize, input$yTitleSize, '')
-            } else if (input$platform == 'GPL1261'){
-                plotPretty(selected,mouseExpr2,mouseDes2, prop, coloring, field = 'Gene.Symbol', mouseDes2[,prop], input$jitterBox, input$pointSize, input$color,input$xSize, input$ySize, input$yTitleSize, '')
+            frame = createFrame(selected,geneList,expression,design,prop,'Reference','PMID',coloring,'Gene.Symbol', design[,prop],input$color)
+        
+        } else {
+            frame = createFrame(selected,geneList,expression,design,prop,'Reference',"PMID",coloring,'Gene.Symbol', regionSelect,input$color)
+        }
+        oldFrame <<- frame
+        return(frame)
+    })
+    
+    gene = reactive({
+        if (input$platform == 'GPL339'){
+            selected = mouseGene$Gene.Symbol[tolower(mouseGene$Gene.Symbol) %in% tolower(input$geneSearch)]
+        } else if (input$platform == 'GPL1261'){
+            selected = mouseGene2$Gene.Symbol[tolower(mouseGene2$Gene.Symbol) %in% tolower(input$geneSearch)]
+        }
+        if (len(selected)==0){
+            return(strsplit(searchedGenes[len(searchedGenes)],' ')[[1]][1])
+        }
+        return(selected)
+    })
+    
+    reactive({
+    p = frame %>%
+        ggvis(~prop,~gene,fill := ~color,key := ~id,size :=140 , stroke := 'black') %>%
+        layer_points() %>%
+        add_tooltip(function(x){
+            # get links to GSM
+            if (!grepl('GSM',rownames(frame())[x$id])){
+                src = '<p>Contact authors</p>?'
+            } else {
+                src = paste0("<p><a target='_blank' href=",
+                             "'http://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=",
+                             rownames(frame())[x$id],
+                             "'>",
+                             rownames(frame())[x$id],
+                             '</a></p>')
             }
-        }else {
-            if (input$platform == 'GPL339'){
-                plotPretty(selected,mouseGene,mouseExpr,mouseDes, prop, coloring, field = 'Gene.Symbol', regionGroups[[input$regionChoice]], input$jitterBox, input$pointSize, input$color,input$xSize, input$ySize, input$yTitleSize, '')
-            } else if (input$platform == 'GPL1261'){
-                plotPretty(selected,mouseGene2,mouseExpr2,mouseDes2, prop, coloring, field = 'Gene.Symbol', regionGroups2[[input$regionChoice]], input$jitterBox, input$pointSize, input$color,input$xSize, input$ySize, input$yTitleSize, '')   
+            print(src)
+            
+            # get link to pubmed
+            if(is.na(frame()$PMID[x$id])){
+                paper = paste0('<p>',as.character(frame()[x$id,]$reference),'</p>')
+            } else {
+                paper = paste0("<p><a target='_blank' href=",
+                               "'http://www.ncbi.nlm.nih.gov/pubmed/",
+                               frame()$PMID[x$id],"'>",
+                               as.character(frame()[x$id,]$reference),
+                               '</a></p>')
             }
             
-        }
-    }
-    , height = 700, width = 900)
+            print(paper)
+            
+            return(paste0(paper,src))
+            }, on = 'click') %>% 
+        add_axis('y',
+                 title = paste(gene(),"log2 expression"),
+                 properties = axis_props(title = list(fontSize = 17),
+                                         labels = list(fontSize =14))) %>%
+        add_axis('x',title='', properties = axis_props(labels = list(angle=45,
+                                                                     align='left',
+                                                                     fontSize = 20))) %>%
+        set_options(height = 700, width = 750)
+    return(p)
+    }) %>%  bind_shiny('expressionPlot', 'expressionUI')
     
     output$didYouMean = renderText({
         if(any(tolower(mouseGene$Gene.Symbol) %in% tolower(input$geneSearch))){
