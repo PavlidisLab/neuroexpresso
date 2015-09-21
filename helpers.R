@@ -8,11 +8,21 @@ library(data.table)
 library(rdrop2)
 library(httr)
 library(ogbox)
+
+print('now it begins')
+
+
 sourceGithub(OganM,brainCellTypeSpecificGenes,'R/regionize.R')
+
+print('now we start')
 token <- readRDS("droptoken.rds")
+
 if ((Sys.info()["nodename"])=='kent.pavlab.chibi.ubc.ca'){
     set_config(config(cainfo = '/home/omancarci/R/x86_64-unknown-linux-gnu-library/3.1/httr/cacert.pem')) 
 }
+
+print('one hand')
+
 
 drop_acc(dtoken = token)
 
@@ -20,6 +30,8 @@ outputDir = "Gene Searches"
 
 groupNames = 'PyramidalDeep'
 regionNames = 'Region'
+
+
 # loading data ----------
 # allDataPre = read.csv(paste0(outFolder,'/','finalExp.csv'), header = T)  
 # allDataPre = allDataPre[!grepl('[|]',allDataPre$Gene.Symbol),]
@@ -41,6 +53,7 @@ rownames(mouseExpr2) = mouseGene2$Gene.Symbol
 mouseExpr2 = mouseExpr2[,!mouseDes2$PyramidalDeep %in% 'Layer5Pyra',with=F]
 mouseDes2 = mouseDes2[!mouseDes2$PyramidalDeep %in% 'Layer5Pyra',]
 print('data loaded 2')
+print('one heart')
 
 # load the region data -------
 regionGroups = regionize(mouseDes,regionNames,groupNames)
@@ -93,3 +106,5 @@ coloring = c(Oligo = 'darkgreen',
 
 
 prop ='PyramidalDeep'
+
+print("Even death won't part us now.")

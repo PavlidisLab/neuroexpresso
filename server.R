@@ -2,7 +2,6 @@ source('helpers.R')
 #library(xkcd)
 
 # functions ---------
-
 plotPretty = function(gene,
                       geneList,
                       expression,
@@ -103,6 +102,7 @@ createFrame = function(gene,
     frame$id = 1:nrow(frame)
     return(frame)
 }
+
 
 print('starting stuff')
 

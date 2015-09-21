@@ -2,9 +2,7 @@ library(shiny)
 library(RCurl)
 library(ggvis)
 # runbefore --------------------
-eval( expr = parse( text = getURL(
-    "https://raw.githubusercontent.com/oganm/toSource/master/ogbox.R",
-    ssl.verifypeer=FALSE) ))
+library(ogbox)
 sourceGithub(oganm,masterOfCellTypes,runVars)
 groupNames = 'PyramidalDeep'
 mouseDes = read.design('Data/meltedDesign.tsv')
