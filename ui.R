@@ -3,8 +3,9 @@ library(RCurl)
 library(ggvis)
 # runbefore --------------------
 library(ogbox)
-sourceGithub(oganm,masterOfCellTypes,runVars)
+# sourceGithub(oganm,masterOfCellTypes,runVars)
 groupNames = 'PyramidalDeep'
+regionNames = 'Region'
 mouseDes = read.design('Data/meltedDesign.tsv')
 
 regions =

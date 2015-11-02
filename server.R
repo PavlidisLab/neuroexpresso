@@ -107,19 +107,28 @@ createFrame = function(gene,
 print('starting stuff')
 
 # beginning of server -----------
-searchedGenes = NULL
 shinyServer(function(input, output, session) {
     # for user fingerprinting
   #  reactive({print(parseQueryString(session$clientData$url_search))})
     
+    vals =  reactiveValues(fingerprint = '', ipid = '', searchedGenes = character(0))
+    
+    
     session$onSessionEnded(function(){
+        privacy = TRUE
+        
         if (privacy){
+            isolate({
+                fingerprint = vals$fingerprint
+                ipid = vals$ipid
+                searchedGenes = vals$searchedGenes
+            })
             
             print(fingerprint)
             print(ipid)
         
-            privacy = TRUE
             print(searchedGenes)
+            
             files = drop_dir(outputDir)
             if ((ncol(files)>0)&&(paste0(ipid,'.',fingerprint) %in% unlist(apply(files[,1],2,basename)))){
                 toWrite = drop_read_csv(unlist(files[unlist(apply(files[,1],2,basename)) %in% paste0(ipid,'.',fingerprint),1]), header=F)
@@ -132,29 +141,36 @@ shinyServer(function(input, output, session) {
         }
     }) 
     # for user fingerprinting
+     observe({
+         print('Fingerprinting done')
+         vals$fingerprint = input$fingerprint
+         vals$ipid = input$ipid
+     })
+    
+    
+    
     observe({
-        fingerprint <- input$fingerprint
-        ipid <- input$ipid
-      #  privacy<<-input$privacyBox
-      privacy <- T
+        vals$searchedGenes <- c(isolate(vals$searchedGenes), paste(as.character(gene()),input$regionChoice))
+        print(vals$searchedGenes)
     })
     
-#    fingerprint = reactive({input$fingerprint})
-   # ipid = reactive({input$fingerprint})
+    
     
     # create frame as a reactive object to pass to ggvis
     frame = reactive({
-        if (input$platform == 'GPL339'){
-            selected = mouseGene$Gene.Symbol[tolower(mouseGene$Gene.Symbol) %in% tolower(input$geneSearch)]
-        } else if (input$platform == 'GPL1261'){
-            selected = mouseGene2$Gene.Symbol[tolower(mouseGene2$Gene.Symbol) %in% tolower(input$geneSearch)]
-        }
-        if (len(selected)==0){
-            return(oldFrame)
-            # stop('Gene symbol not in the list')
-        }
-        searchedGenes <<- c(searchedGenes, paste(as.character(selected),input$regionChoice))
+#         if (input$platform == 'GPL339'){
+#             selected = mouseGene$Gene.Symbol[tolower(mouseGene$Gene.Symbol) %in% tolower(input$geneSearch)]
+#         } else if (input$platform == 'GPL1261'){
+#             selected = mouseGene2$Gene.Symbol[tolower(mouseGene2$Gene.Symbol) %in% tolower(input$geneSearch)]
+#         }
+#         if (len(selected)==0){
+#             return(oldFrame)
+#             # stop('Gene symbol not in the list')
+#         }
+#         searchedGenes <<- c(searchedGenes, paste(as.character(selected),input$regionChoice))
         
+        selected = gene()
+
         if (input$platform == 'GPL339'){
             geneList = mouseGene
             expression = mouseExpr
@@ -172,9 +188,11 @@ shinyServer(function(input, output, session) {
         } else {
             frame = createFrame(selected,geneList,expression,design,prop,'Reference',"PMID",coloring,'Gene.Symbol', regionSelect,input$color)
         }
-        oldFrame <<- frame
+        # oldFrame <<- frame
         return(frame)
     })
+    
+ 
     
     gene = reactive({
         if (input$platform == 'GPL339'){
@@ -183,10 +201,14 @@ shinyServer(function(input, output, session) {
             selected = mouseGene2$Gene.Symbol[tolower(mouseGene2$Gene.Symbol) %in% tolower(input$geneSearch)]
         }
         if (len(selected)==0){
-            return(strsplit(searchedGenes[len(searchedGenes)],' ')[[1]][1])
+            isolate({
+                return(strsplit(vals$searchedGenes[len(vals$searchedGenes)],' ')[[1]][1])
+            })
         }
         return(selected)
     })
+    
+    
     
     reactive({
     p = frame %>%
