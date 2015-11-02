@@ -110,11 +110,15 @@ print('starting stuff')
 searchedGenes = NULL
 shinyServer(function(input, output, session) {
     # for user fingerprinting
+  #  reactive({print(parseQueryString(session$clientData$url_search))})
+    
     session$onSessionEnded(function(){
         if (privacy){
             
             print(fingerprint)
             print(ipid)
+        
+            privacy = TRUE
             print(searchedGenes)
             files = drop_dir(outputDir)
             if ((ncol(files)>0)&&(paste0(ipid,'.',fingerprint) %in% unlist(apply(files[,1],2,basename)))){
@@ -129,11 +133,14 @@ shinyServer(function(input, output, session) {
     }) 
     # for user fingerprinting
     observe({
-        fingerprint <<- input$fingerprint
-        ipid <<- input$ipid
+        fingerprint <- input$fingerprint
+        ipid <- input$ipid
       #  privacy<<-input$privacyBox
-      privacy <<- T
+      privacy <- T
     })
+    
+#    fingerprint = reactive({input$fingerprint})
+   # ipid = reactive({input$fingerprint})
     
     # create frame as a reactive object to pass to ggvis
     frame = reactive({

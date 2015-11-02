@@ -44,6 +44,7 @@ shinyUI(fluidPage(
     titlePanel("Expression in brain cell types"),
     sidebarLayout(
         sidebarPanel(
+            tags$head(tags$script('$(function () { $("#expressionPlot").click(function(e){ $("#ggvis-tooltip").hide(); }); })')),
             inputIp("ipid"),
             inputUserid("fingerprint"),
             h1('About'),
