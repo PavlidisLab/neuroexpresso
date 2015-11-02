@@ -108,10 +108,44 @@ print('starting stuff')
 
 # beginning of server -----------
 shinyServer(function(input, output, session) {
-    # for user fingerprinting
-  #  reactive({print(parseQueryString(session$clientData$url_search))})
+
+    vals =  reactiveValues(fingerprint = '', ipid = '', searchedGenes = 'Ogn Cortex', querry = 'NULL')
     
-    vals =  reactiveValues(fingerprint = '', ipid = '', searchedGenes = character(0))
+    observe({
+        vals$querry = parseQueryString(session$clientData$url_search)
+        print(vals$querry)
+    })
+    
+    output$geneSearchHtml = renderUI({
+        if (!is.null(vals$querry$gene)){
+            textInput(inputId = 'geneSearch',value = vals$querry$gene,
+                     label = 'Select Gene')
+        } else {
+            textInput(inputId = 'geneSearch',value = 'Ogn',
+                      label = 'Select Gene')
+        }
+    })
+    
+    output$regionSelectHtml = renderUI({
+        
+        if (!is.null(vals$querry$region)){
+            regQuerry  = names(regionGroups)[tolower(names(regionGroups)) %in% tolower(vals$querry$region)]
+            
+            selectInput(inputId = "regionChoice",
+                        label= 'Select region',
+                        selected = regQuerry,
+                        # choices = c(regions,'All','.messy details')),
+                        choices = c(names(regionGroups),'All'))
+        } else{
+            selectInput(inputId = "regionChoice",
+                        label= 'Select region',
+                        # choices = c(regions,'All','.messy details')),
+                        choices = c(names(regionGroups),'All'))
+        }
+    })
+    
+
+
     
     
     session$onSessionEnded(function(){
@@ -150,7 +184,7 @@ shinyServer(function(input, output, session) {
     
     
     observe({
-        vals$searchedGenes <- c(isolate(vals$searchedGenes), paste(as.character(gene()),input$regionChoice))
+        vals$searchedGenes <- c(isolate(vals$searchedGenes), paste(as.character(gene()),region()))
         print(vals$searchedGenes)
     })
     
@@ -175,14 +209,14 @@ shinyServer(function(input, output, session) {
             geneList = mouseGene
             expression = mouseExpr
             design = mouseDes
-            regionSelect = regionGroups[[input$regionChoice]]
+            regionSelect = regionGroups[[region()]]
         } else if (input$platform == 'GPL1261'){
             geneList = mouseGene2
             expression = mouseExpr2
             design = mouseDes2
-            regionSelect = regionGroups2[[input$regionChoice]]
+            regionSelect = regionGroups2[[region()]]
         }
-        if (input$regionChoice =='All'){
+        if (region() =='All'){
             frame = createFrame(selected,geneList,expression,design,prop,'Reference','PMID',coloring,'Gene.Symbol', design[,prop],input$color)
         
         } else {
@@ -208,6 +242,14 @@ shinyServer(function(input, output, session) {
         return(selected)
     })
     
+    region = reactive({
+        print('ello?')
+        if (len(input$regionChoice)==0){
+            return('Cortex')
+        } else{
+            input$regionChoice
+        }
+    })
     
     
     reactive({
