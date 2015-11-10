@@ -88,6 +88,7 @@ shinyUI(fluidPage(
             
         ),
         mainPanel(
+            htmlOutput('warning'),
             ggvisOutput('expressionPlot')
             #plotOutput('expressionPlot')
         )

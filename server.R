@@ -2,72 +2,6 @@ source('helpers.R')
 #library(xkcd)
 
 # functions ---------
-plotPretty = function(gene,
-                      geneList,
-                      expression,
-                      design,
-                      prop,
-                      toolTip = 'Reference',
-                      coloring,
-                      field = 'Gene.Symbol',
-                      regionSelect, # this is the subsetting info coming from region select
-                      jitter=F, 
-                      pointSize=60,
-                      color=T,
-                      xSize=20,
-                      ySize=14,
-                      yTitleSize=20){
-    if (jitter){
-        jitter = 'jitter'
-    } else {
-        jitter= 'identity'
-    }
-    mouseExpr = expression[,!is.na(regionSelect),with = F]
-    mouseDes = design[!is.na(regionSelect),]
-    
-    mouseGene = geneList
-    isNeuron = unique(cbind(mouseDes$MajorType,mouseDes[,prop]))
-    frame = data.frame(t(mouseExpr[mouseGene[,field] %in% gene,]),mouseDes[,prop],mouseDes$MajorType,mouseDes[,toolTip])
-    
-    names(frame) = c('gene','prop','Type','Tooltip')
-    frame$prop = as.character(frame$prop)
-    frame$prop = factor(frame$prop,levels = isNeuron[order(isNeuron[,1],isNeuron[,2]),2])
-    
-    colors = toColor(mouseDes[,prop],coloring)
-    
-    manualColor = scale_fill_manual(name='prop', values = colors$palette)
-    pal = colors$palette[order(names(colors$palette))]
-   
-    # things to send to ggvis
-    frame$color = apply(col2rgb(colors$cols),2,function(x){
-        x = x/255
-        rgb(x[1],x[2],x[3])
-    })
-    # this has to be unique because of gviss' key requirement
-    frame$id = 1:nrow(frame)
-    
-    if (color){
-        p = frame %>%
-            ggvis(~prop,~gene,fill := ~color,key := ~id,size :=pointSize , stroke := 'black')
-    } else {
-        p = frame %>%
-            ggvis(~prop,~gene,key := ~id, stroke := 'black')
-    }
-   p = p  %>%
-        layer_points() %>%
-        add_tooltip(function(x){
-            as.character(frame[x$id,]$Tooltip)}) %>% 
-       add_axis('y',
-                title = paste(gene,"log2 expression"),
-                              properties = axis_props(title = list(fontSize = yTitleSize),
-                                                      labels = list(fontSize = ySize))) %>%
-       add_axis('x',title='', properties = axis_props(labels = list(angle=45,
-                                                                    align='left',
-                                                                    fontSize = xSize)))
-   
-    return(p)
-}
-
 
 createFrame = function(gene,
                        geneList,
@@ -303,6 +237,13 @@ shinyServer(function(input, output, session) {
             return(paste('Did you mean:\n',paste(mouseGene$Gene.Symbol[order(adist(tolower(input$geneSearch), 
                                                            tolower(mouseGene$Gene.Symbol)))[1:5]],
                          collapse=', ')))
+        }
+    })
+    output$warning = renderText({
+        if(any(tolower(mouseGene$Gene.Symbol) %in% tolower(input$geneSearch))){
+            return('')
+        } else {
+            stop('Gene symbol is not found!')
         }
     })
 })
