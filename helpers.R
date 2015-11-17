@@ -8,6 +8,7 @@ library(data.table)
 library(rdrop2)
 library(httr)
 library(ogbox)
+library(geneSynonym)
 
 print('now it begins')
 

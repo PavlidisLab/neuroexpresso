@@ -240,6 +240,27 @@ shinyServer(function(input, output, session) {
                          collapse=', ')))
         }
     })
+    
+    # find if entered gene is a synonym of something else
+    output$synonyms = renderText({
+        synos = mouseSyno(input$geneSearch)[[1]]
+        synos = sapply(synos, function(x){
+            if(!x[1] == input$geneSearch){
+                return(x[1])
+            } else{
+                return(NULL)
+            }
+        }
+        ) %>% unlist
+        
+        if(len(synos) > 0 ){
+            return(paste('Synonym of:', paste(synos,collapse=',')))
+        } else{
+            return('')
+        }
+    })
+
+    
     output$warning = renderText({
         if(any(tolower(mouseGene$Gene.Symbol) %in% tolower(input$geneSearch))){
             return('')

@@ -51,6 +51,7 @@ shinyUI(fluidPage(
             htmlOutput(outputId = 'geneSearchHtml'),
 
             textOutput(outputId = 'didYouMean'),
+            textOutput(outputId = 'synonyms'),
             
            htmlOutput(outputId ='regionSelectHtml'),
            
