@@ -19,8 +19,13 @@ createFrame = function(gene,
     mouseGene = geneList
     isNeuron = unique(cbind(mouseDes$MajorType,mouseDes[,prop]))
     frame = data.frame(t(mouseExpr[mouseGene[,field] %in% gene,]),mouseDes[,prop],mouseDes$MajorType,mouseDes[,reference],mouseDes[,pmid])
+    # amygdala fix. if a region doesnt exist returns an empty matrix
+    if ((dim(frame)==c(0,4)) %>% all){
+        frame = cbind(frame,data.frame(a=character(0)))
+    }
     
     names(frame) = c('gene','prop','Type','reference','PMID')
+    
     frame$prop = as.character(frame$prop)
     frame$prop = factor(frame$prop,levels = isNeuron[order(isNeuron[,1],isNeuron[,2]),2])
     
@@ -29,10 +34,17 @@ createFrame = function(gene,
         x = x/255
         rgb(x[1],x[2],x[3])
     })
+    # if color is false, set all to black.
     if (!color){
         frame$color = "#000000"
     }
+    # amygdala fix again
+    if(nrow(frame)==0){
+        frame = cbind(frame,data.frame(id=character(0)))
+        return(frame)
+    }
     # this has to be unique because of gviss' key requirement
+    
     frame$id = 1:nrow(frame)
     return(frame)
 }
