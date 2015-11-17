@@ -193,7 +193,7 @@ shinyServer(function(input, output, session) {
         add_tooltip(function(x){
             # get links to GSM
             if (!grepl('GSM',rownames(frame())[x$id])){
-                src = '<p>Contact authors</p>?'
+                src = paste0('<p>Contact authors</p>',rownames(frame())[x$id])
             } else {
                 src = paste0("<p><a target='_blank' href=",
                              "'http://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=",
