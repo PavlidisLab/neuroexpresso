@@ -1,20 +1,8 @@
 library(shiny)
 library(RCurl)
 library(ggvis)
-# runbefore --------------------
 library(ogbox)
-# sourceGithub(oganm,masterOfCellTypes,runVars)
-groupNames = 'PyramidalDeep'
-regionNames = 'Region'
-mouseDes = read.design('Data/meltedDesign.tsv')
 
-regions =
-    trimNAs(
-        trimElement(
-            unique(
-                unlist(
-                    strsplit(as.character(mouseDes[,regionNames]),',')))
-            ,c('ALL','All','all','Cerebrum'))) #S pecial names
 
 # user ID system
 inputUserid <- function(inputId, value='') {
@@ -61,36 +49,27 @@ shinyUI(fluidPage(
             br(),
             p('Wait until the plot renders then enter a gene symbol.'),
             htmlOutput(outputId = 'geneSearchHtml'),
-           # textInput(inputId = 'geneSearch',value = 'Ogn',
-            #          label = 'Select Gene'),
+
             textOutput(outputId = 'didYouMean'),
             
            htmlOutput(outputId ='regionSelectHtml'),
            
-            #selectInput(inputId = "regionChoice",
-            #           label= 'Select region',
-            #           # choices = c(regions,'All','.messy details')),
-            #          choices = c(regions,'All')),
+
             selectInput(inputId = 'platform',
                         label = 'Select Platform',
                         choices = c('GPL339','GPL1261')),
             
-           # checkboxInput(inputId = 'privacyBox',
-        #                  label = "We keep an anonymized log of valid searches. Uncheck this box before you leave if you are feeling paranoid so we won't.", 
-            #              value = T),
+
         
             uiOutput('expressionUI'),
             checkboxInput(inputId = 'color',
                           label = 'Color?', 
                           value = T)
-            #textInput(inputId = 'additionalGG',value = '',
-            #          label = 'More layers')
-            
+
         ),
         mainPanel(
             htmlOutput('warning'),
             ggvisOutput('expressionPlot')
-            #plotOutput('expressionPlot')
         )
     )
 ))
