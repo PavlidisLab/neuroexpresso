@@ -14,8 +14,8 @@ gene = gene[!grepl('[|]',gene$Gene.Symbol),]
 exp2 = exp2[!grepl('[|]',gene2$Gene.Symbol),]
 gene2 = gene2[!grepl('[|]',gene2$Gene.Symbol),]
 
-write.table(gene,'Data/mouseGeneTemp',sep=',',row.names=F)
-write.table(format(exp,digits=3),'Data/mouseExprTemp',sep=',',row.names=F,quote=F)
+write.table(gene,'Data/mouseGene',sep=',',row.names=F)
+write.table(format(exp,digits=3),'Data/mouseExpr',sep=',',row.names=F,quote=F)
 
 write.table(gene2,'Data/mouseGene2',sep=',',row.names=F)
 write.table(format(exp2,digits=3),'Data/mouseExpr2',sep=',',row.names=F,quote=F)

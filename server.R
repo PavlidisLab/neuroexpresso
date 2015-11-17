@@ -126,19 +126,8 @@ shinyServer(function(input, output, session) {
     
     # create frame as a reactive object to pass to ggvis
     frame = reactive({
-#         if (input$platform == 'GPL339'){
-#             selected = mouseGene$Gene.Symbol[tolower(mouseGene$Gene.Symbol) %in% tolower(input$geneSearch)]
-#         } else if (input$platform == 'GPL1261'){
-#             selected = mouseGene2$Gene.Symbol[tolower(mouseGene2$Gene.Symbol) %in% tolower(input$geneSearch)]
-#         }
-#         if (len(selected)==0){
-#             return(oldFrame)
-#             # stop('Gene symbol not in the list')
-#         }
-#         searchedGenes <<- c(searchedGenes, paste(as.character(selected),input$regionChoice))
-        
         selected = gene()
-
+        
         if (input$platform == 'GPL339'){
             geneList = mouseGene
             expression = mouseExpr
