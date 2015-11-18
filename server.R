@@ -13,23 +13,28 @@ createFrame = function(gene,
                        coloring,
                        field = 'Gene.Symbol',
                        regionSelect,
-                       color = T){
-    mouseExpr = expression[,!is.na(regionSelect),with = F]
+                       color = T,
+                       order = 'Cell type'){
+    mouseExpr = expression[,!is.na(regionSelect),]
     mouseDes = design[!is.na(regionSelect),]
     mouseGene = geneList
-    isNeuron = unique(cbind(mouseDes$MajorType,mouseDes[,prop]))
-    frame = data.frame(t(mouseExpr[mouseGene[,field] %in% gene,]),mouseDes[,prop],mouseDes$MajorType,mouseDes[,reference],mouseDes[,pmid])
+    frame = data.frame(mouseExpr %>% colnames ,t(mouseExpr[mouseGene[,field] %in% gene,]),mouseDes[,prop],mouseDes$MajorType,mouseDes$ShinyNames2,mouseDes[,reference],mouseDes[,pmid])
     # amygdala fix. if a region doesnt exist returns an empty matrix
-    if ((dim(frame)==c(0,4)) %>% all){
+    if (nrow(frame)==0){
         frame = cbind(frame,data.frame(a=character(0)))
     }
     
-    names(frame) = c('gene','prop','Type','reference','PMID')
+    names(frame) = c('GSM','gene','prop','Type', 'shinyNames2','reference','PMID')
+    # browser()
+    if (order=='Cell type'){
+        frame %<>% arrange(Type, shinyNames2, prop)
+    } else if (order =='A-Z'){
+        frame %<>% arrange(prop)
+    }
+    frame$prop %<>% as.char %>% factor(levels = unique(frame$prop))
+
     
-    frame$prop = as.character(frame$prop)
-    frame$prop = factor(frame$prop,levels = isNeuron[order(isNeuron[,1],isNeuron[,2]),2])
-    
-    colors = toColor(mouseDes[,prop],coloring)
+    colors = toColor(frame$prop,coloring)
     frame$color = apply(col2rgb(colors$cols),2,function(x){
         x = x/255
         rgb(x[1],x[2],x[3])
@@ -152,10 +157,10 @@ shinyServer(function(input, output, session) {
             regionSelect = regionGroups2[[region()]]
         }
         if (region() =='All'){
-            frame = createFrame(selected,geneList,expression,design,prop,'Reference','PMID',coloring,'Gene.Symbol', design[,prop],input$color)
+            frame = createFrame(selected,geneList,expression,design,prop,'Reference','PMID',coloring,'Gene.Symbol', design[,prop],input$color,input$ordering)
         
         } else {
-            frame = createFrame(selected,geneList,expression,design,prop,'Reference',"PMID",coloring,'Gene.Symbol', regionSelect,input$color)
+            frame = createFrame(selected,geneList,expression,design,prop,'Reference',"PMID",coloring,'Gene.Symbol', regionSelect,input$color,input$ordering)
         }
         # oldFrame <<- frame
         return(frame)
@@ -193,14 +198,14 @@ shinyServer(function(input, output, session) {
         layer_points() %>%
         add_tooltip(function(x){
             # get links to GSM
-            if (!grepl('GSM',rownames(frame())[x$id])){
-                src = paste0('<p>Contact authors</p>',rownames(frame())[x$id])
+            if (!grepl('GSM',frame()$GSM[x$id])){
+                src = paste0('<p>Contact authors</p>',frame()$GSM[x$id])
             } else {
                 src = paste0("<p><a target='_blank' href=",
                              "'http://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=",
-                             rownames(frame())[x$id],
+                             frame()$GSM[x$id],
                              "'>",
-                             rownames(frame())[x$id],
+                             frame()$GSM[x$id],
                              '</a></p>')
             }
             print(src)

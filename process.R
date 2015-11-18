@@ -1,4 +1,7 @@
 library(gplots)
+library(dplyr)
+library(magrittr)
+
 mouseDes2 = read.design('Data/meltedDesign2.tsv')
 expression2 = read.exp('Data/finalExp2.csv')
 
@@ -14,10 +17,19 @@ gene = gene[!grepl('[|]',gene$Gene.Symbol),]
 exp2 = exp2[!grepl('[|]',gene2$Gene.Symbol),]
 gene2 = gene2[!grepl('[|]',gene2$Gene.Symbol),]
 
+
+gene %<>% select(Probe, Gene.Symbol,GemmaIDs,GeneNames,NCBIids)
+gene2 %<>% select(Probe, Gene.Symbol, GemmaIDs,GeneNames,NCBIids)
+
 write.table(gene,'Data/mouseGene',sep=',',row.names=F)
 write.table(format(exp,digits=3),'Data/mouseExpr',sep=',',row.names=F,quote=F)
 
+
+
 write.table(gene2,'Data/mouseGene2',sep=',',row.names=F)
 write.table(format(exp2,digits=3),'Data/mouseExpr2',sep=',',row.names=F,quote=F)
+
+file.remove('Data/finalExp.csv')
+file.remove('Data/finalExp2.csv')
 
 purge()

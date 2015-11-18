@@ -30,7 +30,7 @@ inputIp <- function(inputId, value=''){
 # UI ------------------------
 
 shinyUI(fluidPage(
-    titlePanel("Expression in brain cell types"),
+    titlePanel("Neuroexpresso"),
     sidebarLayout(
         sidebarPanel(
             tags$head(tags$script('$(function () { $("#expressionPlot").click(function(e){ $("#ggvis-tooltip").hide(); }); })')),
@@ -39,8 +39,8 @@ shinyUI(fluidPage(
             h1('About'),
             p('This application aims to make it easier to visualize gene expression in mouse brain cell types. The data here is compiled for a project aiming to select cell type specific genes in brain.'),
             p('It is compiled by combining data from', 
-                    a(href="http://www.chibi.ubc.ca/Gemma/arrays/showArrayDesign.html?id=7", 'GPL339'),'and',
-                    a(href="http://www.chibi.ubc.ca/Gemma/arrays/showArrayDesign.html?id=3", 'GPL1261')),
+              a(href="http://www.chibi.ubc.ca/Gemma/arrays/showArrayDesign.html?id=7", 'GPL339'),'and',
+              a(href="http://www.chibi.ubc.ca/Gemma/arrays/showArrayDesign.html?id=3", 'GPL1261')),
             p('To see genes that are only available for GPL1261, choose that platform below. This will remove some of the samples'),
             p('Click on data points to see their sources'),
             a(href="https://github.com/oganm/cellTypeExpression", 'Source Code'),
@@ -48,26 +48,31 @@ shinyUI(fluidPage(
             a(href="https://github.com/oganm/brainCellTypeSpecificGenes", 'Project Page'),
             br(),
             p('Wait until the plot renders then enter a gene symbol.'),
-            htmlOutput(outputId = 'geneSearchHtml'),
-
+            fluidRow(
+                column(4,htmlOutput(outputId = 'geneSearchHtml')),
+                column(4, htmlOutput(outputId ='regionSelectHtml')),
+                column(4,selectInput(inputId = 'platform',
+                                     label = 'Select Platform',
+                                     choices = c('GPL339','GPL1261')))
+            ),
+            
+            
             textOutput(outputId = 'didYouMean'),
             textOutput(outputId = 'synonyms'),
             
-           htmlOutput(outputId ='regionSelectHtml'),
-           
-
-            selectInput(inputId = 'platform',
-                        label = 'Select Platform',
-                        choices = c('GPL339','GPL1261')),
-            
-
-        
             uiOutput('expressionUI'),
-            checkboxInput(inputId = 'color',
-                          label = 'Color?', 
-                          value = T)
-
-        ),
+            fluidRow(
+                column(6,
+                       checkboxInput(inputId = 'color',
+                                     label = 'Color?', 
+                                     value = T)),
+                column(6,
+                       radioButtons(inputId = 'ordering',
+                                    label = 'Order by',
+                                    choices = c('Cell type','A-Z'), selected = NULL, inline = FALSE, width = NULL)
+                )
+                
+            )),
         mainPanel(
             htmlOutput('warning'),
             ggvisOutput('expressionPlot')
