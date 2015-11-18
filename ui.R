@@ -2,6 +2,7 @@ library(shiny)
 library(RCurl)
 library(ggvis)
 library(ogbox)
+library(shinyTree)
 
 
 # user ID system
@@ -62,17 +63,17 @@ shinyUI(fluidPage(
             
             uiOutput('expressionUI'),
             fluidRow(
-                column(6,
+                column(2,
                        checkboxInput(inputId = 'color',
                                      label = 'Color?', 
                                      value = T)),
-                column(6,
+                column(3,
                        radioButtons(inputId = 'ordering',
                                     label = 'Order by',
-                                    choices = c('Cell type','A-Z'), selected = NULL, inline = FALSE, width = NULL)
-                )
-                
-            )),
+                                    choices = c('Cell type','A-Z'), selected = NULL, inline = FALSE, width = NULL)),
+                column(7,shinyTree("tree",search = TRUE))
+           )
+        ),
         mainPanel(
             htmlOutput('warning'),
             ggvisOutput('expressionPlot')

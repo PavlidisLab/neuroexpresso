@@ -3,64 +3,13 @@ source('helpers.R')
 
 # functions ---------
 
-createFrame = function(gene,
-                       geneList,
-                       expression,
-                       design,
-                       prop,
-                       reference = 'Reference',
-                       pmid = 'PMID',
-                       coloring,
-                       field = 'Gene.Symbol',
-                       regionSelect,
-                       color = T,
-                       order = 'Cell type'){
-    mouseExpr = expression[,!is.na(regionSelect),]
-    mouseDes = design[!is.na(regionSelect),]
-    mouseGene = geneList
-    frame = data.frame(mouseExpr %>% colnames ,t(mouseExpr[mouseGene[,field] %in% gene,]),mouseDes[,prop],mouseDes$MajorType,mouseDes$ShinyNames2,mouseDes[,reference],mouseDes[,pmid])
-    # amygdala fix. if a region doesnt exist returns an empty matrix
-    if (nrow(frame)==0){
-        frame = cbind(frame,data.frame(a=character(0)))
-    }
-    
-    names(frame) = c('GSM','gene','prop','Type', 'shinyNames2','reference','PMID')
-    # browser()
-    if (order=='Cell type'){
-        frame %<>% arrange(Type, shinyNames2, prop)
-    } else if (order =='A-Z'){
-        frame %<>% arrange(prop)
-    }
-    frame$prop %<>% as.char %>% factor(levels = unique(frame$prop))
-
-    
-    colors = toColor(frame$prop,coloring)
-    frame$color = apply(col2rgb(colors$cols),2,function(x){
-        x = x/255
-        rgb(x[1],x[2],x[3])
-    })
-    # if color is false, set all to black.
-    if (!color){
-        frame$color = "#000000"
-    }
-    # amygdala fix again
-    if(nrow(frame)==0){
-        frame = cbind(frame,data.frame(id=character(0)))
-        return(frame)
-    }
-    # this has to be unique because of gviss' key requirement
-    
-    frame$id = 1:nrow(frame)
-    return(frame)
-}
-
 
 print('starting stuff')
 
 # beginning of server -----------
 shinyServer(function(input, output, session) {
 
-    vals =  reactiveValues(fingerprint = '', ipid = '', searchedGenes = 'Ogn Cortex', querry = 'NULL')
+    vals =  reactiveValues(fingerprint = '', ipid = '', searchedGenes = 'Ogn Cortex', querry = 'NULL', hierarchies=NULL)
     
     observe({
         vals$querry = parseQueryString(session$clientData$url_search)
@@ -99,32 +48,32 @@ shinyServer(function(input, output, session) {
 
     
     
-    session$onSessionEnded(function(){
-        privacy = TRUE
-        
-        if (privacy){
-            isolate({
-                fingerprint = vals$fingerprint
-                ipid = vals$ipid
-                searchedGenes = vals$searchedGenes
-            })
-            
-            print(fingerprint)
-            print(ipid)
-        
-            print(searchedGenes)
-            
-            files = drop_dir(outputDir)
-            if ((ncol(files)>0)&&(paste0(ipid,'.',fingerprint) %in% unlist(apply(files[,1],2,basename)))){
-                toWrite = drop_read_csv(unlist(files[unlist(apply(files[,1],2,basename)) %in% paste0(ipid,'.',fingerprint),1]), header=F)
-            } else{
-                toWrite = data.frame(V1= character(0))
-            }
-            toWrite = rbind(toWrite, data.frame(V1=searchedGenes))
-            write.table(toWrite,paste0(ipid,'.',fingerprint) ,quote=F, row.names=F,col.names=F)
-            drop_upload(file=paste0(ipid,'.',fingerprint), dest = outputDir)
-        }
-    }) 
+#     session$onSessionEnded(function(){
+#         privacy = TRUE
+#         
+#         if (privacy){
+#             isolate({
+#                 fingerprint = vals$fingerprint
+#                 ipid = vals$ipid
+#                 searchedGenes = vals$searchedGenes
+#             })
+#             
+#             print(fingerprint)
+#             print(ipid)
+#         
+#             print(searchedGenes)
+#             
+#             files = drop_dir(outputDir)
+#             if ((ncol(files)>0)&&(paste0(ipid,'.',fingerprint) %in% unlist(apply(files[,1],2,basename)))){
+#                 toWrite = drop_read_csv(unlist(files[unlist(apply(files[,1],2,basename)) %in% paste0(ipid,'.',fingerprint),1]), header=F)
+#             } else{
+#                 toWrite = data.frame(V1= character(0))
+#             }
+#             toWrite = rbind(toWrite, data.frame(V1=searchedGenes))
+#             write.table(toWrite,paste0(ipid,'.',fingerprint) ,quote=F, row.names=F,col.names=F)
+#             drop_upload(file=paste0(ipid,'.',fingerprint), dest = outputDir)
+#         }
+#     }) 
     # for user fingerprinting
      observe({
          print('Fingerprinting done')
@@ -156,12 +105,9 @@ shinyServer(function(input, output, session) {
             design = mouseDes2
             regionSelect = regionGroups2[[region()]]
         }
-        if (region() =='All'){
-            frame = createFrame(selected,geneList,expression,design,prop,'Reference','PMID',coloring,'Gene.Symbol', design[,prop],input$color,input$ordering)
         
-        } else {
-            frame = createFrame(selected,geneList,expression,design,prop,'Reference',"PMID",coloring,'Gene.Symbol', regionSelect,input$color,input$ordering)
-        }
+        frame = createFrame(selected,geneList,expression,design,prop,'Reference',"PMID",coloring,'Gene.Symbol', regionSelect,input$color,input$ordering)
+        
         # oldFrame <<- frame
         return(frame)
     })
@@ -183,15 +129,16 @@ shinyServer(function(input, output, session) {
     })
     
     region = reactive({
-        print('ello?')
         if (len(input$regionChoice)==0){
+            print('ello?')
             return('Cortex')
         } else{
             input$regionChoice
         }
     })
     
-    
+    # the plot has to be reactively created for its title to be prone to changes. anything that is not part of the frame
+    # has to be passed inside this reactive block and will cause plot to be refreshed.
     reactive({
     p = frame %>%
         ggvis(~prop,~gene,fill := ~color,key := ~id,size :=140 , stroke := 'black') %>%
@@ -273,4 +220,15 @@ shinyServer(function(input, output, session) {
             stop('Gene symbol is not found!')
         }
     })
+    
+    observe({
+        vals$hierarchies = lapply(hierarchyNames, function(levels){
+            hierarchize(levels,mouseDes[!is.na(mouseDes[,levels[len(levels)]]) & !is.na(regionGroups[[region()]]),])
+        })
+    })
+    
+     output$tree = renderTree({
+         vals$hierarchies
+     })
+     
 })
