@@ -78,13 +78,13 @@ hierarchize = function(levels,design){
     out = vector(mode = 'list', length = len(unique(design[levels[1]]) %>% trimNAs))
     
     out = lapply(out,function(x){structure('',stselected = TRUE)})
-    names(out) = unique(design[levels[1]]) %>% trimNAs
-    
+    names(out) = unique(design[levels[1]]) %>% trimNAs %>% sort
+
     if (len(levels)>1){
         out = lapply(names(out),function(x){
             hierarchize(levels[-1] ,design[design[,levels[1]] %in% x,])
         })
-        names(out) = unique(design[levels[1]]) %>% trimNAs
+        names(out) = unique(design[levels[1]]) %>% trimNAs %>% sort
         for(i in 1:len(out)){
             if (len(out[[i]])==1 && names(out[[i]]) == names(out[i])){
                 out[[i]] = structure('',stselected = TRUE)}
