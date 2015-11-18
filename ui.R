@@ -71,7 +71,9 @@ shinyUI(fluidPage(
                        radioButtons(inputId = 'ordering',
                                     label = 'Order by',
                                     choices = c('Cell type','A-Z'), selected = NULL, inline = FALSE, width = NULL)),
-                column(7,shinyTree("tree",search = TRUE))
+                column(7, 
+                       htmlOutput(outputId = 'selectTree'),
+                       shinyTree("tree",search = TRUE))
            )
         ),
         mainPanel(

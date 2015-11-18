@@ -45,35 +45,33 @@ shinyServer(function(input, output, session) {
     })
     
 
-
     
-    
-#     session$onSessionEnded(function(){
-#         privacy = TRUE
-#         
-#         if (privacy){
-#             isolate({
-#                 fingerprint = vals$fingerprint
-#                 ipid = vals$ipid
-#                 searchedGenes = vals$searchedGenes
-#             })
-#             
-#             print(fingerprint)
-#             print(ipid)
-#         
-#             print(searchedGenes)
-#             
-#             files = drop_dir(outputDir)
-#             if ((ncol(files)>0)&&(paste0(ipid,'.',fingerprint) %in% unlist(apply(files[,1],2,basename)))){
-#                 toWrite = drop_read_csv(unlist(files[unlist(apply(files[,1],2,basename)) %in% paste0(ipid,'.',fingerprint),1]), header=F)
-#             } else{
-#                 toWrite = data.frame(V1= character(0))
-#             }
-#             toWrite = rbind(toWrite, data.frame(V1=searchedGenes))
-#             write.table(toWrite,paste0(ipid,'.',fingerprint) ,quote=F, row.names=F,col.names=F)
-#             drop_upload(file=paste0(ipid,'.',fingerprint), dest = outputDir)
-#         }
-#     }) 
+    session$onSessionEnded(function(){
+        privacy = TRUE
+        
+        if (privacy){
+            isolate({
+                fingerprint = vals$fingerprint
+                ipid = vals$ipid
+                searchedGenes = vals$searchedGenes
+            })
+            
+            print(fingerprint)
+            print(ipid)
+        
+            print(searchedGenes)
+            
+            files = drop_dir(outputDir, n = 0)
+            if ((ncol(files)>0)&&(paste0(ipid,'.',fingerprint) %in% unlist(apply(files[,1],2,basename)))){
+                toWrite = drop_read_csv(unlist(files[unlist(apply(files[,1],2,basename)) %in% paste0(ipid,'.',fingerprint),1]), header=F)
+            } else{
+                toWrite = data.frame(V1= character(0))
+            }
+            toWrite = rbind(toWrite, data.frame(V1=searchedGenes))
+            write.table(toWrite,paste0(ipid,'.',fingerprint) ,quote=F, row.names=F,col.names=F)
+            drop_upload(file=paste0(ipid,'.',fingerprint), dest = outputDir)
+        }
+    }) 
     # for user fingerprinting
      observe({
          print('Fingerprinting done')
@@ -227,8 +225,20 @@ shinyServer(function(input, output, session) {
         })
     })
     
+    observe({
+        # print(get_selected(input$tree))
+        # browser()
+        
+    })
+    
+    output$selectTree = renderUI({
+        selectInput(inputId = "treeChoice",
+                    label= 'Select hierarchy',
+                    choices = names(hierarchyNames))
+    })
+    
      output$tree = renderTree({
-         vals$hierarchies
+         vals$hierarchies[[input$treeChoice]]
      })
      
 })

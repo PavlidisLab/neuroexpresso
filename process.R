@@ -1,4 +1,3 @@
-library(gplots)
 library(dplyr)
 library(magrittr)
 
