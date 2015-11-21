@@ -9,7 +9,7 @@ print('starting stuff')
 # beginning of server -----------
 shinyServer(function(input, output, session) {
 
-    vals =  reactiveValues(fingerprint = '', ipid = '', searchedGenes = 'Ogn Cortex', querry = 'NULL', hierarchies=NULL)
+    vals =  reactiveValues(fingerprint = '', ipid = '', searchedGenes = 'Ogn Cortex', querry = 'NULL', hierarchies=NULL,hierarchInit = NULL)
     
     observe({
         vals$querry = parseQueryString(session$clientData$url_search)
@@ -103,8 +103,20 @@ shinyServer(function(input, output, session) {
             design = mouseDes2
             regionSelect = regionGroups2[[region()]]
         }
-        
-        frame = createFrame(selected,geneList,expression,design,prop,'Reference',"PMID",coloring,'Gene.Symbol', regionSelect,input$color,input$ordering)
+        # browser()
+        frame = createFrame(selected,
+                            geneList,
+                            expression,
+                            design,
+                            prop,
+                            'Reference',
+                            "PMID",
+                            coloring,
+                            'Gene.Symbol', 
+                            regionSelect,
+                            input$color,
+                            input$ordering,
+                            input$treeChoice, get_selected(input$tree))
         
         # oldFrame <<- frame
         return(frame)
@@ -219,26 +231,67 @@ shinyServer(function(input, output, session) {
         }
     })
     
+    # this part selects trees based on regions. broken due to a bug
     observe({
+        #browser()
         vals$hierarchies = lapply(hierarchyNames, function(levels){
-            hierarchize(levels,mouseDes[!is.na(mouseDes[,levels[len(levels)]]) & !is.na(regionGroups[[region()]]),])
+           hierarchize(levels,mouseDes[!is.na(mouseDes[,levels[len(levels)]]) & !is.na(regionGroups[[region()]]),])
+           # hierarchize(levels,mouseDes[!is.na(mouseDes[,levels[len(levels)]]),])
         })
     })
+    
     
     observe({
         # print(get_selected(input$tree))
         # browser()
-        
+        region = 'Cortex'
+        if (!is.null(vals$querry$region)){
+            region = vals$querry$region
+        }
+        levels = hierarchyNames[[1]]
+        vals$hierarchInit = hierarchize(levels, mouseDes[!is.na(mouseDes[,levels[len(levels)]]) & !is.na(regionGroups[[region]]),])
     })
     
+    # generate new hierarchies every time region changes
+    observe({
+       # browser()
+        vals$hierarchies = lapply(hierarchyNames, function(levels){
+            hierarchize(levels,mouseDes[!is.na(mouseDes[,levels[len(levels)]]) & !is.na(regionGroups[[region()]]),])
+            })
+        })
+    
+    observe({
+        if (!is.null(input$treeChoice)){
+            # browser()
+            jsInput = toTreeJSON(vals$hierarchies[[input$treeChoice]])
+            js$changeTree(jsInput) 
+            system('sleep 0.00001')
+            js$open()
+            js$deselect()
+        }
+    })
+    
+    
+    # choice of tree
     output$selectTree = renderUI({
+        #browser()
         selectInput(inputId = "treeChoice",
                     label= 'Select hierarchy',
+                    selected = names(hierarchyNames)[1],
                     choices = names(hierarchyNames))
     })
     
+#     output$tree = renderUI({
+#         browser()
+#         vals$hierarchies
+#         shinyTree("tree",search = TRUE)
+#     })
+#     
+    
      output$tree = renderTree({
-         vals$hierarchies[[input$treeChoice]]
+        # browser()
+         #vals$hierarchies[[input$treeChoice]]
+         vals$hierarchInit
      })
      
 })

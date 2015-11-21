@@ -12,7 +12,7 @@ library(geneSynonym)
 library(dplyr)
 library(magrittr)
 library(shinyTree)
-
+library(reshape2)
 print('now it begins')
 
 
@@ -132,8 +132,6 @@ coloring = c(Oligo = 'darkgreen',
              GabaRelnCalb = 'firebrick3',
              GabaSSTReln = 'firebrick1',
              GabaReln = 'firebrick',
-             GabaVIPReln = 'firebrick4',
-             GabaReln = 'firebrick',
              GabaOxtr = 'firebrick2',
              GabaHtr3a = 'darkred',
              Pyramidal_Thy1 = 'turquoise',
@@ -161,29 +159,50 @@ createFrame = function(gene,
                        field = 'Gene.Symbol',
                        regionSelect,
                        color = T,
-                       order = 'Cell type'){
-    # browser()
+                       order = 'Cell type',
+                       treeChoice,
+                       treeSelected){
+  # browser()
+    treeSelected  = sapply(treeSelected,function(x){x[1]})
     mouseExpr = expression[,!is.na(regionSelect),]
     mouseDes = design[!is.na(regionSelect),]
     mouseGene = geneList
-    frame = data.frame(mouseExpr %>% colnames ,t(mouseExpr[mouseGene[,field] %in% gene,]),mouseDes[,prop],mouseDes$MajorType,mouseDes$Neurotransmitter1,mouseDes[,reference],mouseDes[,pmid])
+    if (len(treeChoice)==0 | len(treeSelected)==0){
+        return(data.frame(GSM = character(0),
+                          gene = double(0),
+                          prop = character(0),
+                          color = character(0),
+                          reference = character(0),
+                          PMID = character(0),
+                          id = integer(0)))
+    }
+    tree = hierarchyNames[[treeChoice]]
+    
+    # to create groups to display have the fields relevant to the selected tree and find indexes of the choices in it
+    selectFrom = mouseDes %>% select_(.dots=tree)
+    groups = lapply(treeSelected, function(x){
+        selectFrom %>% apply(1,function(y){x %in% y}) %>% which
+    })
+    
+    expression = t(mouseExpr[mouseGene[,field] %in% gene,])
+    
+    names(groups) = treeSelected
+    frame = groups %>% melt
+    colors = toColor(mouseDes$ShinyNames[frame$value],coloring)$col
+    frame %<>% mutate(GSM = mouseDes$sampleName[value], 
+                      gene = expression[value,], 
+                      prop= L1,  
+                      color = colors ,
+                      reference = mouseDes$Reference[value], 
+                      PMID = mouseDes$PMID[value]) %>% 
+        select(GSM,gene,prop,color, reference,PMID)
+    
     # amygdala fix. if a region doesnt exist returns an empty matrix
     if (nrow(frame)==0){
         frame[,2] = integer(0)
     }
-    
-    names(frame) = c('GSM','gene','prop','Type', 'shinyNames2','reference','PMID')
-    # browser()
-    if (order=='Cell type'){
-        frame %<>% arrange(Type, shinyNames2, prop)
-    } else if (order =='A-Z'){
-        frame %<>% arrange(prop)
-    }
-    frame$prop %<>% as.char %>% factor(levels = unique(frame$prop))
-    
-    
-    colors = toColor(frame$prop,coloring)
-    frame$color = apply(col2rgb(colors$cols),2,function(x){
+ 
+    frame$color = apply(col2rgb(frame$color),2,function(x){
         x = x/255
         rgb(x[1],x[2],x[3])
     })
@@ -201,4 +220,49 @@ createFrame = function(gene,
     frame$id = 1:nrow(frame)
     return(frame)
 }
+
+
+toTreeJSON = function(list){
+    outString = '['
+    for (i in 1:length(list)){
+        outString %<>% paste0("{'text' : '",  names(list)[i], "'")
+        attribs = attributes(list[[i]])
+        
+        stateAttribs = attribs[grepl('opened|disabled|selected',names(attribs))]
+        children = attribs[grepl('names',names(attribs))]
+        others = attribs[!grepl('opened|disabled|selected|names',names(attribs))]
+        
+        if (length(stateAttribs) >0){
+            outString %<>% paste0(", 'state' : {")
+            for (j in 1:length(stateAttribs)){
+                outString %<>% paste0("'",gsub('st','',names(stateAttribs)[j]),"' : ", tolower(stateAttribs[j]))
+                if (j < length(stateAttribs)){
+                    outString %<>% paste0(",")
+                }
+            }
+            outString %<>% paste('}')
+        }
+        
+        if(length(others)>0){
+            for (j in 1:length(others)){
+                outString %<>% paste0( ", '",gsub('st','',names(others)[j]),"' : '", others[j],"'")
+            }
+        }
+        
+        if (class(list[[i]]) == 'list'){
+            outString %<>% paste0(", 'children' : ",toTreeJSON(list[[i]]))
+        }
+        
+        outString %<>% paste0("}")
+        if (i < length(list)){
+            outString %<>% paste0(",")
+        }
+        
+    }
+    outString %<>% paste0(']')
+    
+    return(outString)
+    
+}
+
 
