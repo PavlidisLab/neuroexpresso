@@ -162,12 +162,14 @@ createFrame = function(gene,
                        order = 'Cell type',
                        treeChoice,
                        treeSelected){
-  # browser()
+    # browser()
     treeSelected  = sapply(treeSelected,function(x){x[1]})
     mouseExpr = expression[,!is.na(regionSelect),]
     mouseDes = design[!is.na(regionSelect),]
     mouseGene = geneList
-    if (len(treeChoice)==0 | len(treeSelected)==0){
+    
+    # if selection boxes are not yet loaded send an empty data frame
+    if (len(treeChoice)==0){
         return(data.frame(GSM = character(0),
                           gene = double(0),
                           prop = character(0),
@@ -176,6 +178,12 @@ createFrame = function(gene,
                           PMID = character(0),
                           id = integer(0)))
     }
+    
+    if (len(treeSelected)==0){
+        # treeSelected = design[hierarchyNames[[treeChoice]][len(hierarchyNames[[treeChoice]])]] %>% unique %>% trimNAs
+        treeSelected = hierarchies[[treeChoice]] %>% unlist %>% names %>% gsub("^.*[.]",'',.)
+    }
+    
     tree = hierarchyNames[[treeChoice]]
     
     # to create groups to display have the fields relevant to the selected tree and find indexes of the choices in it
@@ -221,7 +229,7 @@ createFrame = function(gene,
     return(frame)
 }
 
-
+# turns a list acceptable by shinyTree into JSON format accetpable by jsTree.
 toTreeJSON = function(list){
     outString = '['
     for (i in 1:length(list)){

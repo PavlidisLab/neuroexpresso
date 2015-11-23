@@ -265,7 +265,7 @@ shinyServer(function(input, output, session) {
             # browser()
             jsInput = toTreeJSON(vals$hierarchies[[input$treeChoice]])
             js$changeTree(jsInput) 
-            system('sleep 0.00001')
+            system('sleep 0.1')
             js$open()
             js$deselect()
         }
@@ -281,13 +281,7 @@ shinyServer(function(input, output, session) {
                     choices = names(hierarchyNames))
     })
     
-#     output$tree = renderUI({
-#         browser()
-#         vals$hierarchies
-#         shinyTree("tree",search = TRUE)
-#     })
-#     
-    
+ 
      output$tree = renderTree({
         # browser()
          #vals$hierarchies[[input$treeChoice]]
