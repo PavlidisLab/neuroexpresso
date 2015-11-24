@@ -151,7 +151,7 @@ shinyServer(function(input, output, session) {
     # has to be passed inside this reactive block and will cause plot to be refreshed.
     reactive({
     p = frame %>%
-        ggvis(~prop,~gene,fill := ~color,key := ~id,size :=140 , stroke := 'black') %>%
+        ggvis(~prop,~gene,fill := ~color,key := ~id,size :=140 , stroke := 'black', opacity := 0.7) %>%
         layer_points() %>%
         add_tooltip(function(x){
             # get links to GSM
