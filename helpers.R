@@ -184,6 +184,10 @@ createFrame = function(gene,
         treeSelected = hierarchies[[treeChoice]] %>% unlist %>% names %>% gsub("^.*[.]",'',.)
     }
     
+    if (order == 'A-Z'){
+        treeSelected = sort(treeSelected)
+    }
+    
     tree = hierarchyNames[[treeChoice]]
     
     # to create groups to display have the fields relevant to the selected tree and find indexes of the choices in it
