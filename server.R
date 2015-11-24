@@ -265,9 +265,10 @@ shinyServer(function(input, output, session) {
             # browser()
             jsInput = toTreeJSON(vals$hierarchies[[input$treeChoice]])
             js$changeTree(jsInput) 
-            system('sleep 0.1')
+            delay(500,{
             js$open()
             js$deselect()
+            })
         }
     })
     
