@@ -4,6 +4,7 @@ library(ggvis)
 library(ogbox)
 library(shinyTree)
 library(shinyjs)
+library(V8)
 
 # user ID system
 inputUserid <- function(inputId, value='') {
@@ -31,15 +32,7 @@ inputIp <- function(inputId, value=''){
 javaScript = "shinyjs.changeTree = function(params){
     eval(\"$('#tree').jstree(true).settings.core.data=\"+params);
     $('#tree').jstree(true).refresh();
-    //$('#tree').jstree(true).open_all();
-    //$('#tree').jstree(true).deselect_all();
 }
-
-shinyjs.changeTreeTrySimple = function(){
- $('#tree').jstree(true).settings.core.data=[{'text' : 'goygoy', 'state' : {'selected' : true }, 'icon' : 'signal', 'children' : [{'text' : 'hede'},{'text' : 'hebe'}]},{'text' : 'root2', 'children' : [{'text' : 'SubListA', 'children' : [{'text' : 'leaf1'},{'text' : 'leaf2'},{'text' : 'leaf3'}]},{'text' : 'SubListB', 'state' : {'disabled' : true,'selected' : true }, 'children' : [{'text' : 'leafA'},{'text' : 'leafB'}]}]}];
- $('#tree').jstree(true).refresh();
-}
-
 
 shinyjs.open = function(){
  $('#tree').jstree(true).open_all();
