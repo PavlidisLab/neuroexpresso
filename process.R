@@ -1,11 +1,11 @@
 library(dplyr)
 library(magrittr)
+#library(ogbox)
+#mouseDes2 = read.design('/home/omancarci/wholeOtto/omancarci/brainCellTypeSpecificGenes/data/meltedDesign2.tsv')
+#expression2 = read.exp('/home/omancarci/wholeOtto/omancarci/brainCellTypeSpecificGenes/data/finalExp2.csv')
 
-mouseDes2 = read.design('/home/omancarci/wholeOtto/omancarci/brainCellTypeSpecificGenes/data/meltedDesign2.tsv')
-expression2 = read.exp('/home/omancarci/wholeOtto/omancarci/brainCellTypeSpecificGenes/data/finalExp2.csv')
-
-mouseDes = read.design('/home/omancarci/wholeOtto/omancarci/brainCellTypeSpecificGenes/data/meltedDesign.tsv')
-expression = read.exp('/home/omancarci/wholeOtto/omancarci/brainCellTypeSpecificGenes/data/finalExp.csv')
+#mouseDes = read.design('/home/omancarci/wholeOtto/omancarci/brainCellTypeSpecificGenes/data/meltedDesign.tsv')
+#expression = read.exp('/home/omancarci/wholeOtto/omancarci/brainCellTypeSpecificGenes/data/finalExp.csv')
 
 
 list[gene,exp] = sepExpr(expression)
