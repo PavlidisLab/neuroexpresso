@@ -1,15 +1,19 @@
 source('helpers.R')
+library(shinyjs)
 #library(xkcd)
-
-# functions ---------
 
 
 print('starting stuff')
 
 # beginning of server -----------
 shinyServer(function(input, output, session) {
-
-    vals =  reactiveValues(fingerprint = '', ipid = '', searchedGenes = 'Ogn Cortex', querry = 'NULL', hierarchies=NULL,hierarchInit = NULL)
+    
+    vals =  reactiveValues(fingerprint = '', # will become user's fingerprint hash
+                           ipid = '',  # will become user's ip address
+                           searchedGenes = 'Ogn Cortex', # a history of searched genes to be saved
+                           querry = 'NULL', # will become the querry string if something is being querried
+                           hierarchies=NULL,
+                           hierarchInit = NULL)
     
     observe({
         vals$querry = parseQueryString(session$clientData$url_search)
@@ -19,7 +23,7 @@ shinyServer(function(input, output, session) {
     output$geneSearchHtml = renderUI({
         if (!is.null(vals$querry$gene)){
             textInput(inputId = 'geneSearch',value = vals$querry$gene,
-                     label = 'Select Gene')
+                      label = 'Select Gene')
         } else {
             textInput(inputId = 'geneSearch',value = 'Ogn',
                       label = 'Select Gene')
@@ -44,7 +48,7 @@ shinyServer(function(input, output, session) {
         }
     })
     
-
+    
     
     session$onSessionEnded(function(){
         privacy = TRUE
@@ -58,7 +62,7 @@ shinyServer(function(input, output, session) {
             
             print(fingerprint)
             print(ipid)
-        
+            
             print(searchedGenes)
             
             files = drop_dir(outputDir, n = 0)
@@ -73,11 +77,11 @@ shinyServer(function(input, output, session) {
         }
     }) 
     # for user fingerprinting
-     observe({
-         print('Fingerprinting done')
-         vals$fingerprint = input$fingerprint
-         vals$ipid = input$ipid
-     })
+    observe({
+        print('Fingerprinting done')
+        vals$fingerprint = input$fingerprint
+        vals$ipid = input$ipid
+    })
     
     
     
@@ -122,7 +126,7 @@ shinyServer(function(input, output, session) {
         return(frame)
     })
     
- 
+    
     
     gene = reactive({
         if (input$platform == 'GPL339'){
@@ -150,47 +154,48 @@ shinyServer(function(input, output, session) {
     # the plot has to be reactively created for its title to be prone to changes. anything that is not part of the frame
     # has to be passed inside this reactive block and will cause plot to be refreshed.
     reactive({
-    p = frame %>%
-        ggvis(~prop,~gene,fill := ~color,key := ~id,size :=140 , stroke := 'black', opacity := 0.7) %>%
-        layer_points() %>%
-        add_tooltip(function(x){
-            # get links to GSM
-            if (!grepl('GSM',frame()$GSM[x$id])){
-                src = paste0('<p>Contact authors</p>',frame()$GSM[x$id])
-            } else {
-                src = paste0("<p><a target='_blank' href=",
-                             "'http://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=",
-                             frame()$GSM[x$id],
-                             "'>",
-                             frame()$GSM[x$id],
-                             '</a></p>')
-            }
-            print(src)
-            
-            # get link to pubmed
-            if(is.na(frame()$PMID[x$id])){
-                paper = paste0('<p>',as.character(frame()[x$id,]$reference),'</p>')
-            } else {
-                paper = paste0("<p><a target='_blank' href=",
-                               "'http://www.ncbi.nlm.nih.gov/pubmed/",
-                               frame()$PMID[x$id],"'>",
-                               as.character(frame()[x$id,]$reference),
-                               '</a></p>')
-            }
-            
-            print(paper)
-            
-            return(paste0(paper,src))
+        p = frame %>%
+            ggvis(~prop,~gene,fill := ~color,key := ~id,size :=140 , stroke := 'black', opacity := 0.7) %>%
+            layer_points() %>%
+            add_tooltip(function(x){
+                # get links to GSM
+                if (!grepl('GSM',frame()$GSM[x$id])){
+                    src = paste0('<p>Contact authors</p>',frame()$GSM[x$id])
+                } else {
+                    src = paste0("<p><a target='_blank' href=",
+                                 "'http://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=",
+                                 frame()$GSM[x$id],
+                                 "'>",
+                                 frame()$GSM[x$id],
+                                 '</a></p>')
+                }
+                print(src)
+                
+                # get link to pubmed
+                if(is.na(frame()$PMID[x$id])){
+                    paper = paste0('<p>',as.character(frame()[x$id,]$reference),'</p>')
+                } else {
+                    paper = paste0("<p><a target='_blank' href=",
+                                   "'http://www.ncbi.nlm.nih.gov/pubmed/",
+                                   frame()$PMID[x$id],"'>",
+                                   as.character(frame()[x$id,]$reference),
+                                   '</a></p>')
+                }
+                
+                print(paper)
+                
+                return(paste0(paper,src))
             }, on = 'click') %>% 
-        add_axis('y',
-                 title = paste(gene(),"log2 expression"),
-                 properties = axis_props(title = list(fontSize = 17),
-                                         labels = list(fontSize =14))) %>%
-        add_axis('x',title='', properties = axis_props(labels = list(angle=45,
-                                                                     align='left',
-                                                                     fontSize = 20))) %>%
-        set_options(height = 700, width = 750)
-    return(p)
+            add_axis('y',
+                     title = paste(gene(),"log2 expression"),
+                     properties = axis_props(title = list(fontSize = 17),
+                                             labels = list(fontSize =14)),
+                     title_offset = 50) %>%
+            add_axis('x',title='', properties = axis_props(labels = list(angle=45,
+                                                                         align='left',
+                                                                         fontSize = 20))) %>%
+            set_options(height = 700, width = 750)
+        return(p)
     }) %>%  bind_shiny('expressionPlot', 'expressionUI')
     
     output$didYouMean = renderText({
@@ -198,8 +203,8 @@ shinyServer(function(input, output, session) {
             return('')
         } else {
             return(paste('Did you mean:\n',paste(mouseGene$Gene.Symbol[order(adist(tolower(input$geneSearch), 
-                                                           tolower(mouseGene$Gene.Symbol)))[1:5]],
-                         collapse=', ')))
+                                                                                   tolower(mouseGene$Gene.Symbol)))[1:5]],
+                                                 collapse=', ')))
         }
     })
     
@@ -221,7 +226,7 @@ shinyServer(function(input, output, session) {
             return('')
         }
     })
-
+    
     
     output$warning = renderText({
         if(any(tolower(mouseGene$Gene.Symbol) %in% tolower(input$geneSearch))){
@@ -235,8 +240,8 @@ shinyServer(function(input, output, session) {
     observe({
         #browser()
         vals$hierarchies = lapply(hierarchyNames, function(levels){
-           hierarchize(levels,mouseDes[!is.na(mouseDes[,levels[len(levels)]]) & !is.na(regionGroups[[region()]]),])
-           # hierarchize(levels,mouseDes[!is.na(mouseDes[,levels[len(levels)]]),])
+            hierarchize(levels,mouseDes[!is.na(mouseDes[,levels[len(levels)]]) & !is.na(regionGroups[[region()]]),])
+            # hierarchize(levels,mouseDes[!is.na(mouseDes[,levels[len(levels)]]),])
         })
     })
     
@@ -254,11 +259,18 @@ shinyServer(function(input, output, session) {
     
     # generate new hierarchies every time region changes
     observe({
-       # browser()
+        # browser()
         vals$hierarchies = lapply(hierarchyNames, function(levels){
             hierarchize(levels,mouseDes[!is.na(mouseDes[,levels[len(levels)]]) & !is.na(regionGroups[[region()]]),])
-            })
         })
+    })
+    
+    #     observe({
+    #         frame()
+    #         print('coinize')
+    #         delay(1000,
+    #               js$coinPlot())
+    #     })
     
     observe({
         if (!is.null(input$treeChoice)){
@@ -266,8 +278,8 @@ shinyServer(function(input, output, session) {
             jsInput = toTreeJSON(vals$hierarchies[[input$treeChoice]])
             js$changeTree(jsInput) 
             delay(500,{
-            js$open()
-            js$deselect()
+                js$open()
+                js$deselect()
             })
         }
     })
@@ -282,11 +294,11 @@ shinyServer(function(input, output, session) {
                     choices = names(hierarchyNames))
     })
     
- 
-     output$tree = renderTree({
+    
+    output$tree = renderTree({
         # browser()
-         #vals$hierarchies[[input$treeChoice]]
-         vals$hierarchInit
-     })
-     
+        #vals$hierarchies[[input$treeChoice]]
+        vals$hierarchInit
+    })
+    
 })

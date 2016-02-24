@@ -1,11 +1,12 @@
 library(dplyr)
 library(magrittr)
 
-mouseDes2 = read.design('Data/meltedDesign2.tsv')
-expression2 = read.exp('Data/finalExp2.csv')
+mouseDes2 = read.design('/home/omancarci/wholeOtto/omancarci/brainCellTypeSpecificGenes/data/meltedDesign2.tsv')
+expression2 = read.exp('/home/omancarci/wholeOtto/omancarci/brainCellTypeSpecificGenes/data/finalExp2.csv')
 
-mouseDes = read.design('Data/meltedDesign.tsv')
-expression = read.exp('Data/finalExp.csv')
+mouseDes = read.design('/home/omancarci/wholeOtto/omancarci/brainCellTypeSpecificGenes/data/meltedDesign.tsv')
+expression = read.exp('/home/omancarci/wholeOtto/omancarci/brainCellTypeSpecificGenes/data/finalExp.csv')
+
 
 list[gene,exp] = sepExpr(expression)
 list[gene2,exp2] = sepExpr(expression2)
@@ -23,6 +24,8 @@ gene2 %<>% select(Probe, Gene.Symbol, GemmaIDs,GeneNames,NCBIids)
 write.table(gene,'Data/mouseGene',sep=',',row.names=F)
 write.table(format(exp,digits=3),'Data/mouseExpr',sep=',',row.names=F,quote=F)
 
+write.design(mouseDes,'Data/meltedDesign.tsv')
+write.design(mouseDes2,'Data/meltedDesign2.tsv')
 
 
 write.table(gene2,'Data/mouseGene2',sep=',',row.names=F)

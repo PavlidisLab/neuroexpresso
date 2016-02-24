@@ -79,7 +79,7 @@ hierarchize = function(levels,design){
     
     out = lapply(out,function(x){structure('',stselected = TRUE)})
     names(out) = unique(design[levels[1]]) %>% trimNAs %>% sort
-
+    
     if (len(levels)>1){
         out = lapply(names(out),function(x){
             hierarchize(levels[-1] ,design[design[,levels[1]] %in% x,])
@@ -122,6 +122,7 @@ coloring = c(Oligo = 'darkgreen',
              # Gaba = 'firebrick4',
              Astrocyte = 'yellow',
              GabaPV = 'firebrick2',
+             'FS Basket (G42)' = 'firebrick2',
              Stem = 'blue' ,
              Ependymal = 'orange',
              Serotonergic = 'darkolivegreen',
@@ -129,7 +130,9 @@ coloring = c(Oligo = 'darkgreen',
              Dopaminergic = 'gray0',
              Th_positive_LC = 'blueviolet',
              GabaVIPReln = 'firebrick4',
+             'VIPReln (G30)' = 'firebrick4',
              GabaRelnCalb = 'firebrick3',
+             'Martinotti (GIN)' = 'firebrick3',
              GabaSSTReln = 'firebrick1',
              GabaReln = 'firebrick',
              GabaOxtr = 'firebrick2',
@@ -162,7 +165,6 @@ createFrame = function(gene,
                        order = 'Cell type',
                        treeChoice,
                        treeSelected){
-    # browser()
     treeSelected  = sapply(treeSelected,function(x){x[1]})
     mouseExpr = expression[,!is.na(regionSelect),]
     mouseDes = design[!is.na(regionSelect),]
@@ -213,7 +215,7 @@ createFrame = function(gene,
     if (nrow(frame)==0){
         frame[,2] = integer(0)
     }
- 
+    
     frame$color = apply(col2rgb(frame$color),2,function(x){
         x = x/255
         rgb(x[1],x[2],x[3])
