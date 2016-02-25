@@ -53,7 +53,7 @@ shinyUI(fluidPage(
     useShinyjs(),
     includeCSS('www/style.css'),
     extendShinyjs(text = javaScript),
-    titlePanel("Neuroexpresso"),
+    titlePanel("NeuroExpresso"),
     sidebarLayout(
         sidebarPanel(
             tags$head(tags$script('$(function () { $("#expressionPlot").click(function(e){ $("#ggvis-tooltip").hide(); }); })')),
