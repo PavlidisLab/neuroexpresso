@@ -12,8 +12,9 @@ shinyServer(function(input, output, session) {
                            ipid = '',  # will become user's ip address
                            searchedGenes = 'Ogn Cortex', # a history of searched genes to be saved
                            querry = 'NULL', # will become the querry string if something is being querried
-                           hierarchies=NULL,
-                           hierarchInit = NULL)
+                           hierarchies=NULL, # which hierarchy is selected
+                           hierarchInit = NULL # will be set to the initial hierarchy
+                           )
     
     observe({
         vals$querry = parseQueryString(session$clientData$url_search)
@@ -33,8 +34,9 @@ shinyServer(function(input, output, session) {
     output$regionSelectHtml = renderUI({
         
         if (!is.null(vals$querry$region)){
+            browser()
             regQuerry  = names(regionGroups)[tolower(names(regionGroups)) %in% tolower(vals$querry$region)]
-            
+
             selectInput(inputId = "regionChoice",
                         label= 'Select region',
                         selected = regQuerry,
@@ -51,7 +53,7 @@ shinyServer(function(input, output, session) {
     
     
     session$onSessionEnded(function(){
-        privacy = TRUE
+        privacy = TRUE # this was there when logging was opt-outable. no more...
         
         if (privacy){
             isolate({
@@ -251,7 +253,7 @@ shinyServer(function(input, output, session) {
         # browser()
         region = 'Cortex'
         if (!is.null(vals$querry$region)){
-            region = vals$querry$region
+            region = names(regionGroups)[tolower(names(regionGroups)) %in% tolower(vals$querry$region)]
         }
         levels = hierarchyNames[[1]]
         vals$hierarchInit = hierarchize(levels, mouseDes[!is.na(mouseDes[,levels[len(levels)]]) & !is.na(regionGroups[[region]]),])
