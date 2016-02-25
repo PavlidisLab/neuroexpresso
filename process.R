@@ -34,4 +34,8 @@ write.table(format(exp2,digits=3),'Data/mouseExpr2',sep=',',row.names=F,quote=F)
 file.remove('Data/finalExp.csv')
 file.remove('Data/finalExp2.csv')
 
+# re-creation of token
+token <- drop_auth()
+saveRDS(token, "droptoken.rds")
+
 purge()
