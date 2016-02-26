@@ -34,7 +34,7 @@ shinyServer(function(input, output, session) {
     output$regionSelectHtml = renderUI({
         
         if (!is.null(vals$querry$region)){
-            browser()
+            # browser()
             regQuerry  = names(regionGroups)[tolower(names(regionGroups)) %in% tolower(vals$querry$region)]
 
             selectInput(inputId = "regionChoice",
@@ -238,14 +238,6 @@ shinyServer(function(input, output, session) {
         }
     })
     
-    # this part selects trees based on regions. broken due to a bug
-    observe({
-        #browser()
-        vals$hierarchies = lapply(hierarchyNames, function(levels){
-            hierarchize(levels,mouseDes[!is.na(mouseDes[,levels[len(levels)]]) & !is.na(regionGroups[[region()]]),])
-            # hierarchize(levels,mouseDes[!is.na(mouseDes[,levels[len(levels)]]),])
-        })
-    })
     
     
     observe({
@@ -262,9 +254,18 @@ shinyServer(function(input, output, session) {
     # generate new hierarchies every time region changes
     observe({
         # browser()
-        vals$hierarchies = lapply(hierarchyNames, function(levels){
-            hierarchize(levels,mouseDes[!is.na(mouseDes[,levels[len(levels)]]) & !is.na(regionGroups[[region()]]),])
-        })
+        vals$hierarchies = switch(input$platform,
+               GPL339 =  lapply(hierarchyNames, function(levels){
+                   hierarchize(levels,mouseDes[!is.na(mouseDes[,levels[len(levels)]]) & !is.na(regionGroups[[region()]]),])
+               }),
+               GPL1261 = lapply(hierarchyNames, function(levels){
+                   hierarchize(levels,mouseDes2[!is.na(mouseDes2[,levels[len(levels)]]) & !is.na(regionGroups2[[region()]]),])
+               }))
+        # browser()
+        
+        # vals$hierarchies = lapply(hierarchyNames, function(levels){
+        #     hierarchize(levels,mouseDes[!is.na(mouseDes[,levels[len(levels)]]) & !is.na(regionGroups[[region()]]),])
+        # })
     })
     
     #     observe({

@@ -50,6 +50,7 @@ $('#tree').jstree(true).deselect_all();
 # UI ------------------------
 
 shinyUI(fluidPage(
+    #tags$head(includeScript("www/js/google-analytics.js")),
     useShinyjs(),
     includeCSS('www/style.css'),
     extendShinyjs(text = javaScript),

@@ -73,14 +73,14 @@ names(regionGroups2) = sapply(names(regionGroups2), function(x){
 })
 regionGroups2$All =  mouseDes2[,prop]
 
-
+# creates the tree to input for treejs given levels and a design file subset
 hierarchize = function(levels,design){
     out = vector(mode = 'list', length = len(unique(design[levels[1]]) %>% trimNAs))
     
     out = lapply(out,function(x){structure('',stselected = TRUE)})
     names(out) = unique(design[levels[1]]) %>% trimNAs %>% sort
     
-    if (len(levels)>1){
+    if ((len(levels)>1) & (nrow(design)>0)){
         out = lapply(names(out),function(x){
             hierarchize(levels[-1] ,design[design[,levels[1]] %in% x,])
         })
@@ -165,7 +165,9 @@ createFrame = function(gene,
                        order = 'Cell type',
                        treeChoice,
                        treeSelected){
-    treeSelected  = sapply(treeSelected,function(x){x[1]})
+    # browser()
+    treeSelectedNames  = sapply(treeSelected,function(x){x[1]})
+    names(treeSelected) = treeSelectedNames
     mouseExpr = expression[,!is.na(regionSelect),]
     mouseDes = design[!is.na(regionSelect),]
     mouseGene = geneList
@@ -186,21 +188,38 @@ createFrame = function(gene,
         treeSelected = hierarchies[[treeChoice]] %>% unlist %>% names %>% gsub("^.*[.]",'',.)
     }
     
-    if (order == 'A-Z'){
-        treeSelected = sort(treeSelected)
-    }
+    # if (order == 'A-Z'){
+    #     treeSelectedNames = sort(treeSelectedNames)
+    # }
     
     tree = hierarchyNames[[treeChoice]]
     
     # to create groups to display have the fields relevant to the selected tree and find indexes of the choices in it
     selectFrom = mouseDes %>% select_(.dots=tree)
-    groups = lapply(treeSelected, function(x){
-        selectFrom %>% apply(1,function(y){x %in% y}) %>% which
-    })
+    # groups = lapply(treeSelectedNames, function(x){
+    #     selectFrom %>% apply(1,function(y){x %in% y}) %>% which
+    # })
     
+    groups = lapply(treeSelected, function(x){
+        if (is.null(attr(x,'ancestry'))){
+            selectFrom[,len(tree)] %in% x %>% which
+        } else{
+            selectFrom[,len(attr(x,'ancestry'))+1] %in% x[1] %>% which
+        }
+        # selectFrom %>% apply(1,function(y){x %in% y}) %>% which
+    })
+    names(groups) = treeSelected # in case 
+    
+    
+    while(groups %>% names %>% duplicated %>% any){
+        names(groups)[groups %>% names %>% duplicated] %<>% paste0(' ')
+    }
+    
+    if (order == 'A-Z'){
+        groups = groups[groups %>% names %>% order]
+    }
     expression = t(mouseExpr[mouseGene[,field] %in% gene,])
     
-    names(groups) = treeSelected
     frame = groups %>% melt
     colors = toColor(mouseDes$ShinyNames[frame$value],coloring)$col
     frame %<>% mutate(GSM = mouseDes$sampleName[value], 
@@ -237,6 +256,9 @@ createFrame = function(gene,
 
 # turns a list acceptable by shinyTree into JSON format accetpable by jsTree.
 toTreeJSON = function(list){
+    if(length(list)==0){
+        return("[{'text' : 'No cells in group'}]")
+    }
     outString = '['
     for (i in 1:length(list)){
         outString %<>% paste0("{'text' : '",  names(list)[i], "'")
@@ -274,9 +296,7 @@ toTreeJSON = function(list){
         
     }
     outString %<>% paste0(']')
-    
     return(outString)
-    
 }
 
 
