@@ -35,7 +35,8 @@ prop ='ShinyNames'
 
 regionNames = 'Region'
 
-hierarchyNames = list(NeuronTypes = c('MajorType','Neurotransmitter1','ShinyNames'))
+hierarchyNames = list(NeuronTypes = c('MajorType','Neurotransmitter1','ShinyNames'),
+                      Methodology = c('Method', 'Reference'))
 
 # loading data ----------
 # allDataPre = read.csv(paste0(outFolder,'/','finalExp.csv'), header = T)  
@@ -185,7 +186,7 @@ createFrame = function(gene,
     
     if (len(treeSelected)==0){
         # treeSelected = design[hierarchyNames[[treeChoice]][len(hierarchyNames[[treeChoice]])]] %>% unique %>% trimNAs
-        treeSelected = hierarchies[[treeChoice]] %>% unlist %>% names %>% gsub("^.*[.]",'',.)
+        treeSelected = hierarchies[[treeChoice]] %>% unlist %>% names %>% gsub("^.*[.](?![ ,])",'',.,perl = T)
     }
     
     # if (order == 'A-Z'){
@@ -204,7 +205,15 @@ createFrame = function(gene,
         if (is.null(attr(x,'ancestry'))){
             selectFrom[,len(tree)] %in% x %>% which
         } else{
-            selectFrom[,len(attr(x,'ancestry'))+1] %in% x[1] %>% which
+            out = selectFrom[,len(attr(x,'ancestry'))+1] %in% x[1] %>% which
+            # limit selection to its ancestor in case there are leaves with the same name
+            if (len(attr(x,'ancestry'))>0){
+                limitToParent = lapply(1:len(attr(x,'ancestry')),function(i){
+                    selectFrom[,tree[i]] %in% attr(x,'ancestry')[i] %>% which
+                })
+                out = intersectList(c(list(out),limitToParent))
+            }
+            return(out)
         }
         # selectFrom %>% apply(1,function(y){x %in% y}) %>% which
     })
