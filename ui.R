@@ -5,7 +5,8 @@ library(ogbox)
 library(shinyTree)
 library(shinyjs)
 library(V8)
-
+library(shinythemes
+        )
 # user ID system
 inputUserid <- function(inputId, value='') {
     #   print(paste(inputId, "=", value))
@@ -49,7 +50,7 @@ $('#tree').jstree(true).deselect_all();
 
 # UI ------------------------
 
-shinyUI(fluidPage(
+shinyUI(fluidPage(theme = shinytheme('flatly'),
     #tags$head(includeScript("www/js/google-analytics.js")),
     useShinyjs(),
     includeCSS('www/style.css'),

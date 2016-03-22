@@ -1,0 +1,27 @@
+#ggvis-tooltip{
+    background-color: #798d8f;
+    box-shadow: none;
+    border: none;
+    opacity: 1;
+}
+
+h2 {
+    color: #ecf0f1;
+}
+
+#ggvis-tooltip a:link{
+    color: #ecf0f1;
+}
+#ggvis-tooltip a:visited{
+    color: #ecf0f1;
+}
+
+
+.container-fluid{
+    background-color: #798d8f;
+}
+
+#expressionPlot{
+    background-color: #ecf0f1;
+    border-radius: 5px;
+}
