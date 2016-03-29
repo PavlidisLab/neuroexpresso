@@ -104,6 +104,12 @@ shinyUI(fluidPage(theme = shinytheme('flatly'),
         mainPanel(
             htmlOutput('warning'),
             ggvisOutput('expressionPlot')
-        )
+        ),
+        #fluidRow('sadasd')
+        #fluidRow(#column(2,
+                   #     wellPanel(
+                  #          p('hello nurse')
+                 #       ))
+         #        )
     )
 ))

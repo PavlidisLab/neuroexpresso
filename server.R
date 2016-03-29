@@ -32,7 +32,6 @@ shinyServer(function(input, output, session) {
     })
     
     output$regionSelectHtml = renderUI({
-        
         if (!is.null(vals$querry$region)){
             # browser()
             regQuerry  = names(regionGroups)[tolower(names(regionGroups)) %in% tolower(vals$querry$region)]
