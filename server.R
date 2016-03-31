@@ -299,6 +299,7 @@ shinyServer(function(input, output, session) {
     
     output$tree = renderTree({
         # browser()
+        js$setDefaultTree()
         #vals$hierarchies[[input$treeChoice]]
         vals$hierarchInit
     })

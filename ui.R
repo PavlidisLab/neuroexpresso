@@ -46,6 +46,10 @@ shinyjs.deselect = function(){
 $('#tree').jstree(true).deselect_all();
 }
 
+shinyjs.setDefaultTree = function(){
+$.jstree.defaults.checkbox.three_state= false
+}
+
 "
 
 # UI ------------------------
@@ -97,33 +101,24 @@ shinyUI(fluidPage(theme = shinytheme('flatly'),
             column(7, 
                    htmlOutput(outputId = 'selectTree'),
                    #htmlOutput('tree'))
-                   shinyTree("tree",search = TRUE))
+                   shinyTree("tree",search = TRUE, checkbox = TRUE))
         )
+    ),
+    wellPanel(
+        p('Developed and maintained by',
+          a(href="https://github.com/oganm/", 'Ogan Mancarci'), 'at',
+          a(href="http://www.chibi.ubc.ca/faculty/paul-pavlidis/pavlidis-lab/", 'Pavlidis Lab')
+        ),
+        br(),
+        p('Supported by'),
+        a(href = 'http://neurodevnet.ca/',
+          img(src = 'NeuroDevNet.png',height = '100')),
+        a(href= 'http://www.nih.gov/',
+          img(src='NIH.png', height = '100')),
+        a(href = 'http://www.cihr-irsc.gc.ca/e/193.html',
+          img(src = 'cihr.png', height = '100'))
     )),
     column(7, 
            htmlOutput('warning'),
-           ggvisOutput('expressionPlot'))),
-    fluidRow(column(4,
-                    wellPanel(
-                        p('Developed and maintained by',
-                          a(href="https://github.com/oganm/", 'Ogan Mancarci'), 'at',
-                          a(href="http://www.chibi.ubc.ca/faculty/paul-pavlidis/pavlidis-lab/", 'Pavlidis Lab')
-                          ),
-                        br(),
-                        p('Supported by'),
-                        a(href = 'http://neurodevnet.ca/',
-                          img(src = 'NeuroDevNet.png',height = '100')),
-                        a(href= 'http://www.nih.gov/',
-                          img(src='NIH.png', height = '100')),
-                        a(href = 'http://www.cihr-irsc.gc.ca/e/193.html',
-                          img(src = 'cihr.png', height = '100'))
-                        )
-                    )
-             )
-        #fluidRow('sadasd')
-        #fluidRow(#column(2,
-                   #     wellPanel(
-                  #          p('hello nurse')
-                 #       ))
-         #        )
+           ggvisOutput('expressionPlot')))
 ))
