@@ -54,3 +54,12 @@ body{
     background-color: #ecf0f1;
     border-radius: 5px;
 }
+
+
+.jstree-anchor>.jstree-themeicon{
+    margin-right: -14px;
+} 
+
+.jstree-default .jstree-themeicon{
+    background-position: -260px 118px;
+} 
