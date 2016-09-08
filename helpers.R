@@ -13,10 +13,18 @@ library(dplyr)
 library(magrittr)
 library(shinyTree)
 library(reshape2)
+library(viridis)
+library(lazyeval)
+library(memoise)
+library(data.tree)
+
 print('now it begins')
 
+#sourceGithub(OganM,toSource,'regionize.R')
 
 sourceGithub(OganM,brainCellTypeSpecificGenes,'R/regionize.R')
+sourceGithub(OganM,brainCellTypeSpecificGenes,'R/regionHierarchy.R')
+
 
 print('now we start')
 token <- readRDS("droptoken.rds")
@@ -62,17 +70,19 @@ print('data loaded 2')
 print('one heart')
 
 # load the region data -------
-regionGroups = regionize(mouseDes,regionNames,prop)
+regionGroups = regionize(mouseDes,regionNames,prop,
+                         regionHierarchy = regionHierarchy
+                         )
 names(regionGroups) = sapply(names(regionGroups), function(x){
     strsplit(x,split = '_')[[1]][1]
 })
-regionGroups$All =  mouseDes[,prop]
 # second regions
-regionGroups2 = regionize(mouseDes2,regionNames,prop)
+regionGroups2 = regionize(mouseDes2,regionNames,prop, 
+                          regionHierarchy= regionHierarchy
+                          )
 names(regionGroups2) = sapply(names(regionGroups2), function(x){
     strsplit(x,split = '_')[[1]][1]
 })
-regionGroups2$All =  mouseDes2[,prop]
 
 # creates the tree to input for treejs given levels and a design file subset
 hierarchize = function(levels,design){
@@ -95,6 +105,37 @@ hierarchize = function(levels,design){
 }
 
 
+# add region as an hierarchy currently working wierdly. check later
+# hierarchDummy = regionHierarchy
+# 
+# members = hierarchDummy %>% unlist %>% names
+# depth = members %>% strsplit(split = '\\.') %>% sapply(len) %>% max
+# members = members %>% strsplit(split = '\\.')
+# 
+# for (i in 1:depth){
+#     mouseDes[paste0('region',i)] = NA
+#     layerMembers = members%>% sapply(function(x){x[i]})
+#     for (j in unique(layerMembers)){
+#         mouseDes[!is.na(regionGroups[[j]]),paste0('region',i)] = j
+#     }
+#     # clear na's for shorter branches
+#     mouseDes[,paste0('region',i)][is.na(mouseDes[,paste0('region',i)])] =
+#         mouseDes[is.na(mouseDes[,paste0('region',i)]),paste0('region',i-1)]
+# }
+# 
+# for (i in 1:depth){
+#     mouseDes2[paste0('region',i)] = NA
+#     layerMembers = members%>% sapply(function(x){x[i]})
+#     for (j in unique(layerMembers)){
+#         mouseDes2[!is.na(regionGroups2[[j]]),paste0('region',i)] = j
+#     }
+#     # clear na's for shorter branches
+#     mouseDes2[,paste0('region',i)][is.na(mouseDes2[,paste0('region',i)])] =
+#         mouseDes2[is.na(mouseDes2[,paste0('region',i)]),paste0('region',i-1)]
+# }
+#
+#hierarchyNames$BrainRegions = c(paste0('region',1:depth),'ShinyNames')
+
 # deal with hierarchies 
 hierarchies = lapply(hierarchyNames, function(levels){
     hierarchize(levels,mouseDes[!is.na(mouseDes[,levels[len(levels)]]),])
@@ -102,49 +143,20 @@ hierarchies = lapply(hierarchyNames, function(levels){
 
 
 
+
+
 # some settings required for the plotting function -----
+sourceGithub(OganM,brainCellTypeSpecificGenes,'R/cellColors.R')
 
-coloring = c(Oligo = 'darkgreen',
-             Oligodendrocyte = 'darkgreen',
-             Bergmann = 'palegreen',
-             MotorCholin = 'darkorange4',
-             Cholin = 'darkorange',
-             Cholinergic = 'darkorange',
-             Spiny = 'blanchedalmond',
-             Gluta = 'slategray',
-             Basket = 'mediumpurple4',
-             Golgi = 'orchid',
-             Pyramidal = 'turquoise',
-             Purkinje = 'purple',
-             Inter = 'pink',
-             CerebGranule = 'thistle',
-             DentateGranule = 'thistle3',
-             Microglia = 'white',
-             # Gaba = 'firebrick4',
-             Astrocyte = 'yellow',
-             GabaPV = 'firebrick2',
-             'FS Basket (G42)' = 'firebrick2',
-             Stem = 'blue' ,
-             Ependymal = 'orange',
-             Serotonergic = 'darkolivegreen',
-             Hypocretinergic = 'cadetblue',
-             Dopaminergic = 'gray0',
-             Th_positive_LC = 'blueviolet',
-             GabaVIPReln = 'firebrick4',
-             'VIPReln (G30)' = 'firebrick4',
-             GabaRelnCalb = 'firebrick3',
-             'Martinotti (GIN)' = 'firebrick3',
-             GabaSSTReln = 'firebrick1',
-             GabaReln = 'firebrick',
-             GabaOxtr = 'firebrick2',
-             GabaHtr3a = 'darkred',
-             Pyramidal_Thy1 = 'turquoise',
-             PyramidalCorticoThalam = 'blue',
-             Pyramidal_Glt_25d2 = 'blue4',
-             Pyramidal_S100a10 ='deepskyblue3',
-             Layer5Pyra = 'blue3'
-)
-
+coloring = cellColors()
+coloring = c(coloring,
+             ShreejoyGabaergic = 'pink',
+             ShreejoyPurkinje = 'pink',
+             "*Purkinje" = 'pink',
+             ShreejoyPyramidal = 'pink',
+             ShreejoyOligo = 'pink',
+             ShreejoyAstrocyte= 'pink',
+             ShreejoyThPosLC = 'pink')
 
 
 print("Even death won't part us now.")
@@ -166,7 +178,7 @@ createFrame = function(gene,
                        order = 'Cell type',
                        treeChoice,
                        treeSelected){
-    # browser()
+    #browser()
     treeSelectedNames  = sapply(treeSelected,function(x){x[1]})
     names(treeSelected) = treeSelectedNames
     mouseExpr = expression[,!is.na(regionSelect),]

@@ -4,9 +4,8 @@ library(ggvis)
 library(ogbox)
 library(shinyTree)
 library(shinyjs)
-library(V8)
-library(shinythemes
-        )
+#library(V8)
+library(shinythemes)
 # user ID system
 inputUserid <- function(inputId, value='') {
     #   print(paste(inputId, "=", value))
@@ -58,12 +57,15 @@ shinyUI(fluidPage(theme = shinytheme('flatly'),
     #tags$head(includeScript("www/js/google-analytics.js")),
     useShinyjs(),
     includeCSS('www/style.css'),
-    extendShinyjs(text = javaScript),
+    extendShinyjs(text = javaScript,functions = c('changeTree',
+                                                  'open',
+                                                  'deselect',
+                                                  'setDefaultTree')),
     titlePanel("NeuroExpresso"),
     fluidRow(column(4,wellPanel(
         tags$head(tags$script('$(function () { $("#expressionPlot").click(function(e){ $("#ggvis-tooltip").hide(); }); })')),
-        inputIp("ipid"),
-        inputUserid("fingerprint"),
+        #inputIp("ipid"),
+        #inputUserid("fingerprint"),
         h1('About'),
         p('This application aims to make it easier to visualize gene expression in mouse brain cell types. The data here is compiled for a project aiming to select cell type specific genes in brain.'),
         p('It is compiled by combining data from', 
@@ -76,6 +78,7 @@ shinyUI(fluidPage(theme = shinytheme('flatly'),
         a(href="https://github.com/oganm/brainCellTypeSpecificGenes", 'Project Page'),
         br(),
         p('Wait until the plot renders then enter a gene symbol.'),
+        # tabsetPanel(id = 'tabs', tabPanel('Gene Search', value = 'genes',
         fluidRow(
             column(4,htmlOutput(outputId = 'geneSearchHtml')),
             column(4, htmlOutput(outputId ='regionSelectHtml')),
@@ -90,19 +93,28 @@ shinyUI(fluidPage(theme = shinytheme('flatly'),
         
         uiOutput('expressionUI'),
         fluidRow(
-            column(2,
+            column(5,
+            fluidRow(column(5,
                    checkboxInput(inputId = 'color',
                                  label = 'Color?', 
                                  value = T)),
-            column(3,
+            column(7,
                    radioButtons(inputId = 'ordering',
                                 label = 'Order by',
-                                choices = c('Cell type','A-Z'), selected = NULL, inline = FALSE, width = NULL)),
+                                choices = c('Cell type','A-Z'), selected = NULL, inline = FALSE, width = NULL))
+            ),
+            sliderInput('plotWidth','width',
+                        min = 20, max  = 1500, sep = '', post = ' px',
+                        value = 750),
+            sliderInput('plotHeight','height',
+                        min = 20, max  = 1500, sep = '', post = ' px',
+                        value = 700)),
             column(7, 
                    htmlOutput(outputId = 'selectTree'),
                    #htmlOutput('tree'))
                    shinyTree("tree",search = TRUE, checkbox = TRUE))
-        )
+        )#),
+       # tabPanel('Bulk Search',value = 'bulk', p('yo')))
     ),
     wellPanel(
         p('Developed and maintained by',

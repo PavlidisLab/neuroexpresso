@@ -40,49 +40,50 @@ shinyServer(function(input, output, session) {
                         label= 'Select region',
                         selected = regQuerry,
                         # choices = c(regions,'All','.messy details')),
-                        choices = c(names(regionGroups),'All'))
+                        choices = names(regionGroups))
         } else{
             selectInput(inputId = "regionChoice",
                         label= 'Select region',
+                        selected = 'Cortex',
                         # choices = c(regions,'All','.messy details')),
-                        choices = c(names(regionGroups),'All'))
+                        choices = names(regionGroups))
         }
     })
     
     
-    
-    session$onSessionEnded(function(){
-        privacy = TRUE # this was there when logging was opt-outable. no more...
-        
-        if (privacy){
-            isolate({
-                fingerprint = vals$fingerprint
-                ipid = vals$ipid
-                searchedGenes = vals$searchedGenes
-            })
-            
-            print(fingerprint)
-            print(ipid)
-            
-            print(searchedGenes)
-            
-            files = drop_dir(outputDir, n = 0)
-            if ((ncol(files)>0)&&(paste0(ipid,'.',fingerprint) %in% unlist(apply(files[,1],2,basename)))){
-                toWrite = drop_read_csv(unlist(files[unlist(apply(files[,1],2,basename)) %in% paste0(ipid,'.',fingerprint),1]), header=F)
-            } else{
-                toWrite = data.frame(V1= character(0))
-            }
-            toWrite = rbind(toWrite, data.frame(V1=searchedGenes))
-            write.table(toWrite,paste0(ipid,'.',fingerprint) ,quote=F, row.names=F,col.names=F)
-            drop_upload(file=paste0(ipid,'.',fingerprint), dest = outputDir)
-        }
-    }) 
-    # for user fingerprinting
-    observe({
-        print('Fingerprinting done')
-        vals$fingerprint = input$fingerprint
-        vals$ipid = input$ipid
-    })
+    # doesn't seem to work right. will have to remove it to add to the package anyway
+    # session$onSessionEnded(function(){
+    #     privacy = TRUE # this was there when logging was opt-outable. no more...
+    #     
+    #     if (privacy){
+    #         isolate({
+    #             fingerprint = vals$fingerprint
+    #             ipid = vals$ipid
+    #             searchedGenes = vals$searchedGenes
+    #         })
+    #         
+    #         print(fingerprint)
+    #         print(ipid)
+    #         
+    #         print(searchedGenes)
+    #         
+    #         files = drop_dir(outputDir, n = 0)
+    #         if ((ncol(files)>0)&&(paste0(ipid,'.',fingerprint) %in% unlist(apply(files[,1],2,basename)))){
+    #             toWrite = drop_read_csv(unlist(files[unlist(apply(files[,1],2,basename)) %in% paste0(ipid,'.',fingerprint),1]), header=F)
+    #         } else{
+    #             toWrite = data.frame(V1= character(0))
+    #         }
+    #         toWrite = rbind(toWrite, data.frame(V1=searchedGenes))
+    #         write.table(toWrite,paste0(ipid,'.',fingerprint) ,quote=F, row.names=F,col.names=F)
+    #         drop_upload(file=paste0(ipid,'.',fingerprint), dest = outputDir)
+    #     }
+    # }) 
+    # # for user fingerprinting
+    # observe({
+    #     print('Fingerprinting done')
+    #     vals$fingerprint = input$fingerprint
+    #     vals$ipid = input$ipid
+    # })
     
     
     
@@ -108,7 +109,6 @@ shinyServer(function(input, output, session) {
             design = mouseDes2
             regionSelect = regionGroups2[[region()]]
         }
-        # browser()
         frame = createFrame(selected,
                             geneList,
                             expression,
@@ -195,7 +195,7 @@ shinyServer(function(input, output, session) {
             add_axis('x',title='', properties = axis_props(labels = list(angle=45,
                                                                          align='left',
                                                                          fontSize = 20))) %>%
-            set_options(height = 700, width = 750)
+            set_options(height = input$plotHeight, width = input$plotWidth)
         return(p)
     }) %>%  bind_shiny('expressionPlot', 'expressionUI')
     

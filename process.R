@@ -1,11 +1,16 @@
 library(dplyr)
 library(magrittr)
 #library(ogbox)
-#mouseDes2 = read.design('/home/omancarci/wholeOtto/omancarci/brainCellTypeSpecificGenes/data/meltedDesign2.tsv')
-#expression2 = read.exp('/home/omancarci/wholeOtto/omancarci/brainCellTypeSpecificGenes/data/finalExp2.csv')
+prop = 'ShinyNames'
+mouseDes2 =
+    read.design('/home/omancarci/wholeOtto/omancarci/brainCellTypeSpecificGenes/data/meltedDesign2.tsv')
+expression2 = 
+    read.exp('/home/omancarci/wholeOtto/omancarci/brainCellTypeSpecificGenes/data/finalExp2.csv')
 
-#mouseDes = read.design('/home/omancarci/wholeOtto/omancarci/brainCellTypeSpecificGenes/data/meltedDesign.tsv')
-#expression = read.exp('/home/omancarci/wholeOtto/omancarci/brainCellTypeSpecificGenes/data/finalExp.csv')
+mouseDes = 
+    read.design('/home/omancarci/wholeOtto/omancarci/brainCellTypeSpecificGenes/data/meltedDesign.tsv')
+expression = 
+    read.exp('/home/omancarci/wholeOtto/omancarci/brainCellTypeSpecificGenes/data/finalExp.csv')
 
 
 list[gene,exp] = sepExpr(expression)
@@ -21,6 +26,13 @@ gene2 = gene2[!grepl('[|]',gene2$Gene.Symbol),]
 gene %<>% select(Probe, Gene.Symbol,GemmaIDs,GeneNames,NCBIids)
 gene2 %<>% select(Probe, Gene.Symbol, GemmaIDs,GeneNames,NCBIids)
 
+
+exp = exp[,!is.na(mouseDes[prop])]
+mouseDes = mouseDes[!is.na(mouseDes[prop]),]
+
+exp2 = exp2[,!is.na(mouseDes2[prop])]
+mouseDes2 = mouseDes2[!is.na(mouseDes2[prop]),]
+
 write.table(gene,'Data/mouseGene',sep=',',row.names=F)
 write.table(format(exp,digits=3),'Data/mouseExpr',sep=',',row.names=F,quote=F)
 
@@ -35,7 +47,7 @@ write.table(format(exp2,digits=3),'Data/mouseExpr2',sep=',',row.names=F,quote=F)
 # file.remove('Data/finalExp2.csv')
 
 # re-creation of token
-token <- drop_auth()
-saveRDS(token, "droptoken.rds")
+#token <- drop_auth()
+#saveRDS(token, "droptoken.rds")
 
 purge()
