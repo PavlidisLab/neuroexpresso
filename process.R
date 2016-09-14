@@ -3,14 +3,14 @@ library(magrittr)
 #library(ogbox)
 prop = 'ShinyNames'
 mouseDes2 =
-    read.design('/home/omancarci/wholeOtto/omancarci/brainCellTypeSpecificGenes/data/meltedDesign2.tsv')
+    read.design('/home/omancarci/wholeOtto/omancarci/brainGenesManuscript/data-raw/Mouse_Cell_Type_Data/n_expressoSamples2.tsv')
 expression2 = 
-    read.exp('/home/omancarci/wholeOtto/omancarci/brainCellTypeSpecificGenes/data/finalExp2.csv')
+    read.exp('/home/omancarci/wholeOtto/omancarci/brainGenesManuscript/data-raw/Mouse_Cell_Type_Data/n_expressoExpr2.csv')
 
 mouseDes = 
-    read.design('/home/omancarci/wholeOtto/omancarci/brainCellTypeSpecificGenes/data/meltedDesign.tsv')
+    read.design('/home/omancarci/wholeOtto/omancarci/brainGenesManuscript/data-raw/Mouse_Cell_Type_Data/n_expressoSamples.tsv')
 expression = 
-    read.exp('/home/omancarci/wholeOtto/omancarci/brainCellTypeSpecificGenes/data/finalExp.csv')
+    read.exp('/home/omancarci/wholeOtto/omancarci/brainGenesManuscript/data-raw/Mouse_Cell_Type_Data/n_expressoExpr.csv')
 
 
 list[gene,exp] = sepExpr(expression)
