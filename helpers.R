@@ -22,9 +22,8 @@ print('now it begins')
 
 #sourceGithub(OganM,toSource,'regionize.R')
 
-sourceGithub(OganM,brainCellTypeSpecificGenes,'R/regionize.R')
-sourceGithub(OganM,brainCellTypeSpecificGenes,'R/regionHierarchy.R')
-
+#sourceGithub(OganM,brainGenesManuscript,'R/regionize.R')
+load('memoReg.rda')
 
 print('now we start')
 token <- readRDS("droptoken.rds")
@@ -43,7 +42,7 @@ prop ='ShinyNames'
 
 regionNames = 'Region'
 
-hierarchyNames = list(NeuronTypes = c('MajorType','Neurotransmitter1','ShinyNames'),
+hierarchyNames = list(NeuronTypes = c('MajorType','Neurotransmitter','ShinyNames'),
                       Methodology = c('Method', 'Reference'))
 
 # loading data ----------
@@ -53,16 +52,27 @@ hierarchyNames = list(NeuronTypes = c('MajorType','Neurotransmitter1','ShinyName
 # rm(allDataPre)
 
 # mouseExpr = read.csv('Data/mouseExpr')
-mouseExpr =  fread('Data/mouseExpr',data.table = FALSE)
-mouseGene = read.csv('Data/mouseGene')
-mouseDes = read.design('Data/meltedDesign.tsv')
+#mouseExpr =  fread('Data/mouseExpr',data.table = FALSE)
+#mouseGene = read.csv('Data/mouseGene')
+#mouseDes = read.design('Data/meltedDesign.tsv')
+
+mouseExpr = readRDS('Data/mouseExpr.rds')
+mouseGene = readRDS('Data/gene.rds')
+mouseDes = readRDS('Data/mouseDes.rds')
 mouseDes = mouseDes[match(colnames(mouseExpr),make.names(mouseDes$sampleName)),]
 rownames(mouseExpr) = mouseGene$Gene.Symbol
 print('data loaded 1')
-mouseExpr2 =  fread('Data/mouseExpr2',data.table = FALSE)
-mouseGene2 = read.csv('Data/mouseGene2')
-mouseDes2 = read.design('Data/meltedDesign2.tsv')
+
+#mouseExpr2 =  fread('Data/mouseExpr2',data.table = FALSE)
+#mouseGene2 = read.csv('Data/mouseGene2')
+#mouseDes2 = read.design('Data/meltedDesign2.tsv')
+
+mouseExpr2 = readRDS('Data/mouseExpr2.rds')
+mouseGene2 = readRDS('Data/gene2.rds')
+mouseDes2 = readRDS('Data/mouseDes2.rds')
 mouseDes2 = mouseDes2[match(colnames(mouseExpr2),make.names(mouseDes2$sampleName)),]
+
+
 rownames(mouseExpr2) = mouseGene2$Gene.Symbol
 # mouseExpr2 = mouseExpr2[,!mouseDes2$PyramidalDeep %in% 'Layer5Pyra',with=F]
 # mouseDes2 = mouseDes2[!mouseDes2$PyramidalDeep %in% 'Layer5Pyra',]
@@ -70,14 +80,14 @@ print('data loaded 2')
 print('one heart')
 
 # load the region data -------
-regionGroups = regionize(mouseDes,regionNames,prop,
+regionGroups = memoReg(mouseDes,regionNames,prop,
                          regionHierarchy = regionHierarchy
                          )
 names(regionGroups) = sapply(names(regionGroups), function(x){
     strsplit(x,split = '_')[[1]][1]
 })
 # second regions
-regionGroups2 = regionize(mouseDes2,regionNames,prop, 
+regionGroups2 = memoReg(mouseDes2,regionNames,prop, 
                           regionHierarchy= regionHierarchy
                           )
 names(regionGroups2) = sapply(names(regionGroups2), function(x){
@@ -146,7 +156,7 @@ hierarchies = lapply(hierarchyNames, function(levels){
 
 
 # some settings required for the plotting function -----
-sourceGithub(OganM,brainCellTypeSpecificGenes,'R/cellColors.R')
+sourceGithub(OganM,brainGenesManuscript,'R/cellColors.R')
 
 coloring = cellColors()
 coloring = c(coloring,
@@ -178,7 +188,6 @@ createFrame = function(gene,
                        order = 'Cell type',
                        treeChoice,
                        treeSelected){
-    #browser()
     treeSelectedNames  = sapply(treeSelected,function(x){x[1]})
     names(treeSelected) = treeSelectedNames
     mouseExpr = expression[,!is.na(regionSelect),]
@@ -212,7 +221,6 @@ createFrame = function(gene,
     # groups = lapply(treeSelectedNames, function(x){
     #     selectFrom %>% apply(1,function(y){x %in% y}) %>% which
     # })
-    
     groups = lapply(treeSelected, function(x){
         if (is.null(attr(x,'ancestry'))){
             selectFrom[,len(tree)] %in% x %>% which
