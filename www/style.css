@@ -55,6 +55,10 @@ body{
     border-radius: 5px;
 }
 
+#difPlot{
+    background-color: #ecf0f1;
+    border-radius: 5px;
+}
 
 .jstree-anchor>.jstree-themeicon{
     margin-right: -14px;

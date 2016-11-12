@@ -1,20 +1,39 @@
 source('helpers.R')
 library(shinyjs)
 #library(xkcd)
-
+library(DT)
+library(readr)
 
 print('starting stuff')
 
 # beginning of server -----------
 shinyServer(function(input, output, session) {
     
+    lb = linked_brush2(keys = NULL, "red")
+    
     vals =  reactiveValues(fingerprint = '', # will become user's fingerprint hash
                            ipid = '',  # will become user's ip address
                            searchedGenes = 'Ogn Cortex', # a history of searched genes to be saved
                            querry = 'NULL', # will become the querry string if something is being querried
                            hierarchies=NULL, # which hierarchy is selected
-                           hierarchInit = NULL # will be set to the initial hierarchy
-                           )
+                           hierarchInit = NULL, # will be set to the initial hierarchy
+                           difGroup1= NULL,
+                           difGroup2 = NULL,
+                           differentiallyExpressed = NULL)
+    hide(id="group2Selected")
+    hide(id = 'newSelection')
+    hide(id = 'downloadDifGenes')
+    hide(id = 'difGenePanel')
+    
+    observe({
+        if(input$tabs=='genes'){
+            hide(id = 'difPlot-container')
+            show(id = 'expressionPlot-container')
+        } else if(input$tabs == 'difExp'){
+            hide(id = 'expressionPlot-container')
+            show(id = 'difPlot-container')
+        }
+    })
     
     observe({
         vals$querry = parseQueryString(session$clientData$url_search)
@@ -49,41 +68,6 @@ shinyServer(function(input, output, session) {
                         choices = names(regionGroups))
         }
     })
-    
-    
-    # doesn't seem to work right. will have to remove it to add to the package anyway
-    # session$onSessionEnded(function(){
-    #     privacy = TRUE # this was there when logging was opt-outable. no more...
-    #     
-    #     if (privacy){
-    #         isolate({
-    #             fingerprint = vals$fingerprint
-    #             ipid = vals$ipid
-    #             searchedGenes = vals$searchedGenes
-    #         })
-    #         
-    #         print(fingerprint)
-    #         print(ipid)
-    #         
-    #         print(searchedGenes)
-    #         
-    #         files = drop_dir(outputDir, n = 0)
-    #         if ((ncol(files)>0)&&(paste0(ipid,'.',fingerprint) %in% unlist(apply(files[,1],2,basename)))){
-    #             toWrite = drop_read_csv(unlist(files[unlist(apply(files[,1],2,basename)) %in% paste0(ipid,'.',fingerprint),1]), header=F)
-    #         } else{
-    #             toWrite = data.frame(V1= character(0))
-    #         }
-    #         toWrite = rbind(toWrite, data.frame(V1=searchedGenes))
-    #         write.table(toWrite,paste0(ipid,'.',fingerprint) ,quote=F, row.names=F,col.names=F)
-    #         drop_upload(file=paste0(ipid,'.',fingerprint), dest = outputDir)
-    #     }
-    # }) 
-    # # for user fingerprinting
-    # observe({
-    #     print('Fingerprinting done')
-    #     vals$fingerprint = input$fingerprint
-    #     vals$ipid = input$ipid
-    # })
     
     
     
@@ -124,10 +108,84 @@ shinyServer(function(input, output, session) {
                             input$treeChoice, get_selected(input$tree))
         
         # oldFrame <<- frame
+        lb$set_keys(1:nrow(frame))
         return(frame)
     })
     
+    observe({
+        print(input$group1Selected)
+        isolate({
+            if(input$group1Selected>=1){
+                print('save 1')
+                hide(id = 'group1Selected')
+                show(id = 'group2Selected')
+                vals$difGroup1 = frame()[lb$selected(),]$GSM
+                print(vals$difGroup1)
+            }
+        })
+    })
     
+    observe({
+        print(input$group2Selected)
+        isolate({
+            if(input$group2Selected>=1){
+                print('save 2')
+                hide(id = 'group2Selected')
+                show(id = 'newSelection')
+                show(id = 'downloadDifGenes')
+                vals$difGroup2 = frame()[lb$selected(),]$GSM
+                print(vals$difGroup2)
+                if(all(c(vals$difGroup1,vals$difGroup2) %in% colnames(mouseExpr2))){
+                    toDif = mouseExpr2[c(vals$difGroup1,vals$difGroup2)]
+                } else if (all(c(vals$difGroup1,vals$difGroup2) %in% colnames(mouseExpr))){
+                    toDif = mouseExpr[c(vals$difGroup1,vals$difGroup2)]
+                } else{
+                    stop('WTF')
+                }
+                mm = model.matrix(~ groups,
+                                  data.frame(groups = c(rep('a',length(vals$difGroup1)),
+                                                        rep('b',length(vals$difGroup2)))))
+                
+                fit <- limma::lmFit(toDif, mm)
+                fit <- limma::eBayes(fit)
+                dif = limma::topTable(fit, coef=colnames(fit$design)[2],
+                                      number = Inf)
+                vals$differentiallyExpressed = data.frame(Symbol = rownames(dif),dif)
+                
+                show('difGenePanel')
+            }
+        })
+    })
+    output$difGeneTable = renderDataTable({
+        vals$differentiallyExpressed %<>% 
+            mutate(logFC =  format(logFC, digits=3, scientific=TRUE),
+                   AveExpr =  format(AveExpr, digits=3, scientific=TRUE),
+                   t =  format(t, digits=3, scientific=TRUE),
+                   P.Value =  format(P.Value, digits=3, scientific=TRUE),
+                   adj.P.Val =  format(adj.P.Val, digits=3, scientific=TRUE),
+                   B =  format(B, digits=3, scientific=TRUE))
+        datatable(vals$differentiallyExpressed)
+    })
+    
+    output$downloadDifGenes = downloadHandler(
+        filename = 'difGenes.tsv',
+        content = function(file) {
+            write_tsv(vals$differentiallyExpressed, file)
+        })
+    
+    observe({
+        print(input$newSelection)
+        isolate({
+            if(input$newSelection>=1){
+                print('new selection')
+                hide(id = 'newSelection')
+                hide(id = 'downloadDifGenes')
+                hide(id = 'difGenePanel')
+                show(id = 'group1Selected')
+                print(lb$selected())
+            }
+        })
+    })
     
     gene = reactive({
         if (input$platform == 'GPL339'){
@@ -151,6 +209,30 @@ shinyServer(function(input, output, session) {
             input$regionChoice
         }
     })
+    
+    
+    frame %>%  #hede %>%
+        ggvis(~prop,~gene,fill := ~color,
+              key := ~id,size :=140 ,
+              stroke := 'black',
+              opacity := 0.7,
+              size.brush := 300) %>%
+        layer_points() %>% lb$input() %>%
+        set_options(height = 700, width = 750) %>%
+        add_axis('x',
+                 #shame shame shame! but its mostly ggvis' fault
+                 title='                                                                                                                                                                                                                            ',
+                 properties = axis_props(labels = list(angle=45,
+                                                       align='left',
+                                                       fontSize = 20)),
+                 title_offset = 150) %>%
+        add_axis('y',
+                 title = 'log2 expression',
+                 properties = axis_props(title = list(fontSize = 17),
+                                         labels = list(fontSize =14)),
+                 title_offset = 50) %>%
+        bind_shiny('difPlot')
+    
     
     # the plot has to be reactively created for its title to be prone to changes. anything that is not part of the frame
     # has to be passed inside this reactive block and will cause plot to be refreshed.
