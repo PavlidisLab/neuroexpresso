@@ -1,5 +1,6 @@
 # initialization -----------
 library(shiny)
+library(plotly)
 library(ggvis)
 library(ggplot2)
 library(RCurl)
@@ -26,7 +27,7 @@ print('now it begins')
 load('memoReg.rda')
 
 print('now we start')
-token <- readRDS("droptoken.rds")
+#token <- readRDS("droptoken.rds")
 
 if ((Sys.info()["nodename"])=='kent.pavlab.chibi.ubc.ca'){
     set_config(config(cainfo = '/home/omancarci/R/x86_64-unknown-linux-gnu-library/3.1/httr/cacert.pem')) 
@@ -35,7 +36,7 @@ if ((Sys.info()["nodename"])=='kent.pavlab.chibi.ubc.ca'){
 print('one hand')
 
 
-drop_acc(dtoken = token)
+#drop_acc(dtoken = token)
 
 outputDir = "Gene Searches"
 prop ='ShinyNames'
