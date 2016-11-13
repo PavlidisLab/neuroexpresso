@@ -41,13 +41,16 @@ shinyServer(function(input, output, session) {
     })
     
     output$geneSearchHtml = renderUI({
+        
         if (!is.null(vals$querry$gene)){
-            textInput(inputId = 'geneSearch',value = vals$querry$gene,
-                      label = 'Select Gene')
+            out = textInput(inputId = 'geneSearch',value = vals$querry$gene,
+                            label = 'Select Gene')
         } else {
-            textInput(inputId = 'geneSearch',value = 'Ogn',
-                      label = 'Select Gene')
+            out = textInput(inputId = 'geneSearch',value = 'Ogn',
+                            label = 'Select Gene')
         }
+        
+        return(out)
     })
     
     output$regionSelectHtml = renderUI({
@@ -158,13 +161,24 @@ shinyServer(function(input, output, session) {
     })
     output$difGeneTable = renderDataTable({
         vals$differentiallyExpressed %<>% 
-            mutate(logFC =  format(logFC, digits=3, scientific=TRUE),
-                   AveExpr =  format(AveExpr, digits=3, scientific=TRUE),
-                   t =  format(t, digits=3, scientific=TRUE),
-                   P.Value =  format(P.Value, digits=3, scientific=TRUE),
-                   adj.P.Val =  format(adj.P.Val, digits=3, scientific=TRUE),
-                   B =  format(B, digits=3, scientific=TRUE))
-        datatable(vals$differentiallyExpressed)
+            mutate(logFC =  round(logFC, digits=3),
+                   AveExpr =  round(AveExpr, digits=3),
+                   t =  round(t, digits=3),
+                   P.Value =  round(P.Value, digits=3),
+                   adj.P.Val =  round(adj.P.Val, digits=3),
+                   B =  round(B, digits=3))
+        datatable(vals$differentiallyExpressed,selection = 'single')
+    })
+    
+    
+    observe({
+        input$difGeneTable_rows_selected
+        isolate({
+            if(!is.null(input$difGeneTable_rows_selected)){
+                tableGene = vals$differentiallyExpressed[input$difGeneTable_rows_selected,'Symbol']
+                updateTextInput(session,'geneSearch','Select Gene', value = tableGene)
+                }
+        })
     })
     
     output$downloadDifGenes = downloadHandler(

@@ -74,9 +74,9 @@ shinyUI(fluidPage(theme = shinytheme('lumen'),
                         a(href="http://www.chibi.ubc.ca/Gemma/arrays/showArrayDesign.html?id=3", 'GPL1261')),
                       p('To see genes that are only available for GPL1261, choose that platform below. This will remove some of the samples'),
                       p('Click on data points to see their sources'),
-                      a(href="https://github.com/oganm/cellTypeExpression", 'Source Code'),
+                      a(href="https://github.com/oganm/neuroexpresso", 'Source Code'),
                       br(),
-                      a(href="https://github.com/oganm/brainCellTypeSpecificGenes", 'Project Page'),
+                      a(href="https://github.com/oganm/brainGenesManuscript", 'Project Page'),
                       br(),
                       p('Wait until the plot renders then enter a gene symbol.'),
                       tabsetPanel(id = 'tabs', 
@@ -145,7 +145,7 @@ shinyUI(fluidPage(theme = shinytheme('lumen'),
                          htmlOutput('warning'),
                          ggvisOutput('expressionPlot'),
                          ggvisOutput('difPlot'),
-                         wellPanel(id = 'difGenePanel',dataTableOutput('difGeneTable'))
+                         wellPanel(id = 'difGenePanel',type='hidden',dataTableOutput('difGeneTable'))
                          )
                   )
 ))
