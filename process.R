@@ -5,12 +5,12 @@ library(memoise)
 prop = 'ShinyNames'
 # mouseDes2 =
 #     read.design('/home/omancarci/wholeOtto/omancarci/brainGenesManuscript/data-raw/Mouse_Cell_Type_Data/n_expressoSamples2.tsv')
-# expression2 = 
+# expression2 =
 #     read.exp('/home/omancarci/wholeOtto/omancarci/brainGenesManuscript/data-raw/Mouse_Cell_Type_Data/n_expressoExpr2.csv')
 # 
-# mouseDes = 
+# mouseDes =
 #     read.design('/home/omancarci/wholeOtto/omancarci/brainGenesManuscript/data-raw/Mouse_Cell_Type_Data/n_expressoSamples.tsv')
-# expression = 
+# expression =
 #     read.exp('/home/omancarci/wholeOtto/omancarci/brainGenesManuscript/data-raw/Mouse_Cell_Type_Data/n_expressoExpr.csv')
 
 

@@ -61,14 +61,22 @@ shinyServer(function(input, output, session) {
             selectInput(inputId = "regionChoice",
                         label= 'Select region',
                         selected = regQuerry,
-                        # choices = c(regions,'All','.messy details')),
                         choices = names(regionGroups))
+                        # #planned feature
+                        # selected = nametreeVector(regionHierarchy)[
+                        #     str_extract(regionHierarchy %>% nametreeVector,'([A-Z]|[a-z])*?(?=\n)') %in% regQuerry
+                        #     ],
+                        # choices = regionHierarchy %>% nametreeVector)
         } else{
             selectInput(inputId = "regionChoice",
                         label= 'Select region',
                         selected = 'Cortex',
-                        # choices = c(regions,'All','.messy details')),
                         choices = names(regionGroups))
+                        # planned feature
+                        # selected = nametreeVector(regionHierarchy)[
+                        #     str_extract(regionHierarchy %>% nametreeVector,'([A-Z]|[a-z])*?(?=\n)') %in% 'Cortex'
+                        #     ],
+                        # choices = regionHierarchy %>% nametreeVector)
         }
     })
     
@@ -222,6 +230,7 @@ shinyServer(function(input, output, session) {
             return('Cortex')
         } else{
             input$regionChoice
+            #str_extract(input$regionChoice,'([A-Z]|[a-z])*?(?=\n)')
         }
     })
     
