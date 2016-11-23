@@ -216,6 +216,7 @@ shinyServer(function(input, output, session) {
     })
     
     region = reactive({
+      #browser()
         if (len(input$regionChoice)==0){
             print('ello?')
             return('Cortex')
