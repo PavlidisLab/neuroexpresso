@@ -70,20 +70,24 @@ shinyUI(fluidPage(theme = shinytheme('lumen'),
                       h1('About'),
                       p('This application aims to make it easier to visualize gene expression in mouse brain cell types. The data here is compiled for a project aiming to select cell type specific genes in brain.'),
                       p('It is compiled by combining data from', 
-                        a(href="http://www.chibi.ubc.ca/Gemma/arrays/showArrayDesign.html?id=7", target="_blank", 'GPL339'),'and',
-                        a(href="http://www.chibi.ubc.ca/Gemma/arrays/showArrayDesign.html?id=3", target="_blank", 'GPL1261')),
+                        a(href="http://www.chibi.ubc.ca/Gemma/arrays/showArrayDesign.html?id=7", 'GPL339'),'and',
+                        a(href="http://www.chibi.ubc.ca/Gemma/arrays/showArrayDesign.html?id=3", 'GPL1261')),
                       p('To see genes that are only available for GPL1261, choose that platform below. This will remove some of the samples'),
                       p('Click on data points to see their sources'),
-                      a(href="https://github.com/oganm/neuroexpresso", target="_blank", 'Source Code'),
+                      a(href="https://github.com/oganm/neuroexpresso", 'Source Code'),
                       br(),
-                      a(href="https://github.com/oganm/brainGenesManuscript", target="_blank", 'Project Page'),
+                      a(href="https://github.com/oganm/brainGenesManuscript", 'Project Page'),
                       br(),
                       p('Wait until the plot renders then enter a gene symbol.'),
                       tabsetPanel(id = 'tabs', 
                                   tabPanel('Gene Search', value = 'genes',
                                            fluidRow(
-                                               column(4,htmlOutput(outputId = 'geneSearchHtml')),
-                                               column(4, htmlOutput(outputId ='regionSelectHtml')),
+                                               column(4,textInput(inputId = 'geneSearch',value = 'Ogn',
+                                                                  label = 'Select Gene')),
+                                               column(4,  selectInput(inputId = "regionChoice",
+                                                                      label= 'Select region',
+                                                                      selected = 'Cortex',
+                                                                      choices = names(regionGroups))),
                                                column(4,selectInput(inputId = 'platform',
                                                                     label = 'Select Platform',
                                                                     choices = c('GPL339','GPL1261')))
@@ -101,33 +105,31 @@ shinyUI(fluidPage(theme = shinytheme('lumen'),
                                            actionButton(inputId = "group1Selected", label = "Save group 1"),
                                            actionButton(inputId = "group2Selected", label = "Save group 2"),
                                            actionButton(inputId = 'newSelection', label = 'New Selection'),
-                                           downloadButton(outputId = 'downloadDifGenes', label = 'Download')),
-                                  tabPanel('Marker Genes', value = 'marker'
-                                  )), # end of tabPanel
-                      conditionalPanel( condition = "input.tabs!='marker'",
-                                        br(),
-                                        fluidRow(
-                                            column(5,
-                                                   fluidRow(column(5,
-                                                                   checkboxInput(inputId = 'color',
-                                                                                 label = 'Color?', 
-                                                                                 value = T)),
-                                                            column(7,
-                                                                   radioButtons(inputId = 'ordering',
-                                                                                label = 'Order by',
-                                                                                choices = c('Cell type','A-Z'), selected = NULL, inline = FALSE, width = NULL))
-                                                   ),
-                                                   sliderInput('plotWidth','width',
-                                                               min = 20, max  = 1500, sep = '', post = ' px',
-                                                               value = 750),
-                                                   sliderInput('plotHeight','height',
-                                                               min = 20, max  = 1500, sep = '', post = ' px',
-                                                               value = 700)),
-                                            column(7, 
-                                                   htmlOutput(outputId = 'selectTree'),
-                                                   #htmlOutput('tree'))
-                                                   shinyTree("tree",search = TRUE, checkbox = TRUE))
-                                        ))
+                                           downloadButton(outputId = 'downloadDifGenes', label = 'Download'))),
+                      br(),
+                      fluidRow(
+                          column(5,
+                                 fluidRow(column(5,
+                                                 checkboxInput(inputId = 'color',
+                                                               label = 'Color?', 
+                                                               value = T)),
+                                          column(7,
+                                                 radioButtons(inputId = 'ordering',
+                                                              label = 'Order by',
+                                                              choices = c('Cell type','A-Z'), selected = NULL, inline = FALSE, width = NULL))
+                                 ),
+                                 sliderInput('plotWidth','width',
+                                             min = 20, max  = 1500, sep = '', post = ' px',
+                                             value = 750),
+                                 sliderInput('plotHeight','height',
+                                             min = 20, max  = 1500, sep = '', post = ' px',
+                                             value = 700)),
+                          column(7, 
+                                 htmlOutput(outputId = 'selectTree'),
+                                 #htmlOutput('tree'))
+                                 shinyTree("tree",search = TRUE, checkbox = TRUE))
+                      )#),
+                      # tabPanel('Bulk Search',value = 'bulk', p('yo')))
                   ),
                   wellPanel(
                       p('Developed and maintained by',
@@ -143,24 +145,11 @@ shinyUI(fluidPage(theme = shinytheme('lumen'),
                       a(href = 'http://www.cihr-irsc.gc.ca/e/193.html',
                         img(src = 'cihr.png', height = '100'))
                   )),
-                  column(7,
-                         conditionalPanel( condition = "input.tabs!='marker'",
-                                           htmlOutput('warning'),
-                                           ggvisOutput('expressionPlot'),
-                                           ggvisOutput('difPlot'),
-                                           wellPanel(id = 'difGenePanel',type='hidden',dataTableOutput('difGeneTable'))),
-                         conditionalPanel(condition ="input.tabs == 'marker'",
-                                          # tags$iframe(src = 'https://github.com/oganm/brainGenesManuscript/tree/master/analysis/01.SelectGenes/FinalGenes1/PyramidalDeep',
-                                          #             style="overflow:hidden;height:100%;width:100%",
-                                          #             height="100%",
-                                          #             width="100%"
-                                          wellPanel(h3('Marker Genes'),
-                                                    p('The list of marker genes identified in the study can be accessed ',
-                                                      a(href = 'https://github.com/oganm/brainGenesManuscript/tree/master/analysis/01.SelectGenes/FinalGenes1', 
-                                                        target="_blank",'here.'))
-                                          )
+                  column(7, 
+                         htmlOutput('warning'),
+                         ggvisOutput('expressionPlot'),
+                         ggvisOutput('difPlot'),
+                         wellPanel(id = 'difGenePanel',type='hidden',dataTableOutput('difGeneTable'))
                          )
-                         
-                  )
                   )
 ))

@@ -35,48 +35,36 @@ shinyServer(function(input, output, session) {
         }
     })
     
+    # querry parsing ------
     observe({
         vals$querry = parseQueryString(session$clientData$url_search)
         print(vals$querry)
     })
     
-    output$geneSearchHtml = renderUI({
-        
+    observe({
         if (!is.null(vals$querry$gene)){
-            out = textInput(inputId = 'geneSearch',value = vals$querry$gene,
-                            label = 'Select Gene')
-        } else {
-            out = textInput(inputId = 'geneSearch',value = 'Ogn',
+            updateTextInput(session,
+                            inputId = 'geneSearch',value = vals$querry$gene,
                             label = 'Select Gene')
         }
-        
-        return(out)
     })
     
-    output$regionSelectHtml = renderUI({
+    
+    observe({
         if (!is.null(vals$querry$region)){
             # browser()
             regQuerry  = names(regionGroups)[tolower(names(regionGroups)) %in% tolower(vals$querry$region)]
-
-            selectInput(inputId = "regionChoice",
-                        label= 'Select region',
-                        selected = regQuerry,
-                        choices = names(regionGroups))
-                        # #planned feature
-                        # selected = nametreeVector(regionHierarchy)[
-                        #     str_extract(regionHierarchy %>% nametreeVector,'([A-Z]|[a-z])*?(?=\n)') %in% regQuerry
-                        #     ],
-                        # choices = regionHierarchy %>% nametreeVector)
-        } else{
-            selectInput(inputId = "regionChoice",
-                        label= 'Select region',
-                        selected = 'Cortex',
-                        choices = names(regionGroups))
-                        # planned feature
-                        # selected = nametreeVector(regionHierarchy)[
-                        #     str_extract(regionHierarchy %>% nametreeVector,'([A-Z]|[a-z])*?(?=\n)') %in% 'Cortex'
-                        #     ],
-                        # choices = regionHierarchy %>% nametreeVector)
+            
+            updateSelectInput(session,
+                              inputId = "regionChoice",
+                              label= 'Select region',
+                              selected = regQuerry,
+                              choices = names(regionGroups))
+            # #planned feature
+            # selected = nametreeVector(regionHierarchy)[
+            #     str_extract(regionHierarchy %>% nametreeVector,'([A-Z]|[a-z])*?(?=\n)') %in% regQuerry
+            #     ],
+            # choices = regionHierarchy %>% nametreeVector)
         }
     })
     
