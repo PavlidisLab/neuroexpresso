@@ -105,30 +105,32 @@ shinyUI(fluidPage(theme = shinytheme('lumen'),
                                            actionButton(inputId = "group1Selected", label = "Save group 1"),
                                            actionButton(inputId = "group2Selected", label = "Save group 2"),
                                            actionButton(inputId = 'newSelection', label = 'New Selection'),
-                                           downloadButton(outputId = 'downloadDifGenes', label = 'Download'))),
-                      br(),
-                      fluidRow(
-                          column(5,
-                                 fluidRow(column(5,
-                                                 checkboxInput(inputId = 'color',
-                                                               label = 'Color?', 
-                                                               value = T)),
-                                          column(7,
-                                                 radioButtons(inputId = 'ordering',
-                                                              label = 'Order by',
-                                                              choices = c('Cell type','A-Z'), selected = NULL, inline = FALSE, width = NULL))
-                                 ),
-                                 sliderInput('plotWidth','width',
-                                             min = 20, max  = 1500, sep = '', post = ' px',
-                                             value = 750),
-                                 sliderInput('plotHeight','height',
-                                             min = 20, max  = 1500, sep = '', post = ' px',
-                                             value = 700)),
-                          column(7, 
-                                 htmlOutput(outputId = 'selectTree'),
-                                 #htmlOutput('tree'))
-                                 shinyTree("tree",search = TRUE, checkbox = TRUE))
-                      )#),
+                                           downloadButton(outputId = 'downloadDifGenes', label = 'Download')),
+                                  tabPanel('Marker Genes', value = 'marker')),
+                      conditionalPanel(condition = "input.tabs!='marker'",
+                                       br(),
+                                       fluidRow(
+                                           column(5,
+                                                  fluidRow(column(5,
+                                                                  checkboxInput(inputId = 'color',
+                                                                                label = 'Color?', 
+                                                                                value = T)),
+                                                           column(7,
+                                                                  radioButtons(inputId = 'ordering',
+                                                                               label = 'Order by',
+                                                                               choices = c('Cell type','A-Z'), selected = NULL, inline = FALSE, width = NULL))
+                                                  ),
+                                                  sliderInput('plotWidth','width',
+                                                              min = 20, max  = 1500, sep = '', post = ' px',
+                                                              value = 750),
+                                                  sliderInput('plotHeight','height',
+                                                              min = 20, max  = 1500, sep = '', post = ' px',
+                                                              value = 700)),
+                                           column(7, 
+                                                  htmlOutput(outputId = 'selectTree'),
+                                                  #htmlOutput('tree'))
+                                                  shinyTree("tree",search = TRUE, checkbox = TRUE))
+                                       ))
                       # tabPanel('Bulk Search',value = 'bulk', p('yo')))
                   ),
                   wellPanel(
@@ -145,11 +147,16 @@ shinyUI(fluidPage(theme = shinytheme('lumen'),
                       a(href = 'http://www.cihr-irsc.gc.ca/e/193.html',
                         img(src = 'cihr.png', height = '100'))
                   )),
-                  column(7, 
-                         htmlOutput('warning'),
-                         ggvisOutput('expressionPlot'),
-                         ggvisOutput('difPlot'),
-                         wellPanel(id = 'difGenePanel',type='hidden',dataTableOutput('difGeneTable'))
-                         )
+                  column(7,
+                         conditionalPanel(condition = "input.tabs!='marker'",
+                                          htmlOutput('warning'),
+                                          ggvisOutput('expressionPlot'),
+                                          ggvisOutput('difPlot'),
+                                          wellPanel(id = 'difGenePanel',type='hidden',dataTableOutput('difGeneTable'))),
+                         conditionalPanel(condition = "input.tabs == 'marker'",
+                                          wellPanel(h3('Marker Genes'),
+                                                    p('The list of marker genes identified in the study can be accessed ',
+                                                      a(href = 'https://github.com/oganm/brainGenesManuscript/tree/master/analysis/01.SelectGenes/FinalGenes1', 
+                                                        target="_blank",'here.'))))
                   )
-))
+)))
