@@ -1,11 +1,9 @@
 # initialization -----------
 library(shiny)
 library(ggvis)
-library(ggplot2)
 library(RCurl)
 library(GGally)
 library(data.table)
-library(rdrop2)
 library(httr)
 library(ogbox)
 library(geneSynonym)
@@ -156,7 +154,7 @@ hierarchies = lapply(hierarchyNames, function(levels){
 
 
 # some settings required for the plotting function -----
-sourceGithub(OganM,brainGenesManuscript,'R/cellColors.R')
+sourceGithub('oganm/brainGenesManuscript/R/cellColors.R')
 
 coloring = cellColors()
 coloring = c(coloring,
