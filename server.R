@@ -127,10 +127,15 @@ shinyServer(function(input, output, session) {
         print(input$group1Selected)
         isolate({
             if(input$group1Selected>=1){
+                if(!any(lb$selected())){
+                    selected = TRUE
+                } else {
+                    selected = lb$selected()
+                }
                 print('save 1')
                 hide(id = 'group1Selected')
                 show(id = 'group2Selected')
-                vals$difGroup1 = frame()[lb$selected(),]$GSM
+                vals$difGroup1 = frame()[selected,]$GSM
                 print(vals$difGroup1)
             }
         })
@@ -140,11 +145,16 @@ shinyServer(function(input, output, session) {
         print(input$group2Selected)
         isolate({
             if(input$group2Selected>=1){
+                if(!any(lb$selected())){
+                    selected = TRUE
+                } else {
+                    selected = lb$selected()
+                }
                 print('save 2')
                 hide(id = 'group2Selected')
                 show(id = 'newSelection')
                 show(id = 'downloadDifGenes')
-                vals$difGroup2 = frame()[lb$selected(),]$GSM
+                vals$difGroup2 = frame()[selected,]$GSM
                 print(vals$difGroup2)
                 if(all(c(vals$difGroup1,vals$difGroup2) %in% colnames(mouseExpr2))){
                     toDif = mouseExpr2[c(vals$difGroup1,vals$difGroup2)]
