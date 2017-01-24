@@ -316,11 +316,18 @@ shinyServer(function(input, output, session) {
     }) %>%  bind_shiny('expressionPlot', 'expressionUI')
     
     output$didYouMean = renderText({
-        if(any(tolower(mouseGene$Gene.Symbol) %in% tolower(input$geneSearch))){
+        if(any(tolower(mouseGene$Gene.Symbol) %in% tolower(input$geneSearch)) & input$platform =='GPL339'){
             return('')
-        } else {
-            return(paste('Did you mean:\n',paste(mouseGene$Gene.Symbol[order(adist(tolower(input$geneSearch), 
-                                                                                   tolower(mouseGene$Gene.Symbol)))[1:5]],
+        } else if (any(tolower(mouseGene2$Gene.Symbol) %in% tolower(input$geneSearch)) & input$platform =='GPL1261'){
+            return('')
+        }else {
+            if (input$platform =='GPL339'){
+                symbolList = mouseGene$Gene.Symbol
+            } else if (input$platform =='GPL1261'){
+                symbolList = mouseGene2$Gene.Symbol
+            }
+            return(paste('Did you mean:\n',paste(symbolList[order(adist(tolower(input$geneSearch), 
+                                                                                   tolower(symbolList)))[1:5]],
                                                  collapse=', ')))
         }
     })
@@ -346,9 +353,11 @@ shinyServer(function(input, output, session) {
     
     
     output$warning = renderText({
-        if(any(tolower(mouseGene$Gene.Symbol) %in% tolower(input$geneSearch))){
+        if(any(tolower(mouseGene$Gene.Symbol) %in% tolower(input$geneSearch)) & input$platform =='GPL339'){
             return('')
-        } else {
+        } else if (any(tolower(mouseGene2$Gene.Symbol) %in% tolower(input$geneSearch)) & input$platform =='GPL1261'){
+            return('')
+        }else {
             stop('Gene symbol is not found!')
         }
     })
