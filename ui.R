@@ -100,8 +100,12 @@ shinyUI(fluidPage(theme = shinytheme('lumen'),
                                            downloadButton(outputId = 'downloadDifGenes', label = 'Download')),
                                   tabPanel('Marker Genes', value = 'marker')),
                       conditionalPanel(condition = "input.tabs!='marker'",
-                                       br(),
+                                       #br(),
                                        fluidRow(
+                                           column(7, 
+                                                  htmlOutput(outputId = 'selectTree'),
+                                                  #htmlOutput('tree'))
+                                                  shinyTree("tree",search = TRUE, checkbox = TRUE)),
                                            column(5,
                                                   fluidRow(column(5,
                                                                   checkboxInput(inputId = 'color',
@@ -111,17 +115,14 @@ shinyUI(fluidPage(theme = shinytheme('lumen'),
                                                                   radioButtons(inputId = 'ordering',
                                                                                label = 'Order by',
                                                                                choices = c('Cell type','A-Z'), selected = NULL, inline = FALSE, width = NULL))
-                                                  ),
-                                                  sliderInput('plotWidth','width',
-                                                              min = 20, max  = 1500, sep = '', post = ' px',
-                                                              value = 750),
-                                                  sliderInput('plotHeight','height',
-                                                              min = 20, max  = 1500, sep = '', post = ' px',
-                                                              value = 700)),
-                                           column(7, 
-                                                  htmlOutput(outputId = 'selectTree'),
-                                                  #htmlOutput('tree'))
-                                                  shinyTree("tree",search = TRUE, checkbox = TRUE))
+                                                  )# ,
+                                                  # sliderInput('','width',
+                                                  #             min = 20, max  = 1500, sep = '', post = ' px',
+                                                  #             value = 750),
+                                                  # sliderInput('plotHeight','height',
+                                                  #             min = 20, max  = 1500, sep = '', post = ' px',
+                                                  #             value = 700)
+                                                  )
                                        ))
                       # tabPanel('Bulk Search',value = 'bulk', p('yo')))
                   ),

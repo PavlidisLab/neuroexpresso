@@ -302,7 +302,7 @@ shinyServer(function(input, output, session) {
             add_axis('x',title='', properties = axis_props(labels = list(angle=45,
                                                                          align='left',
                                                                          fontSize = 20))) %>%
-            set_options(height = input$plotHeight, width = input$plotWidth)
+            set_options(height = 700, width = 750)
         return(p)
     }) %>%  bind_shiny('expressionPlot', 'expressionUI')
     
