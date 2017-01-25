@@ -1,4 +1,3 @@
-source('helpers.R')
 library(shinyjs)
 #library(xkcd)
 library(DT)
