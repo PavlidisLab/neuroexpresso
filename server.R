@@ -13,7 +13,11 @@ shinyServer(function(input, output, session) {
     
     vals =  reactiveValues(fingerprint = '', # will become user's fingerprint hash
                            ipid = '',  # will become user's ip address
-                           searchedGenes = 'Ogn Cortex', # a history of searched genes to be saved
+                           searchedGenes = 'Ogn Cortex GPL339', # a history of searched genes to be saved
+                           gene = 'Ogn',
+                           region = 'Cortex',
+                           platform = 'GPL339',
+                           new = TRUE, # did the app just start?
                            querry = 'NULL', # will become the querry string if something is being querried
                            hierarchies=NULL, # which hierarchy is selected
                            hierarchInit = NULL, # will be set to the initial hierarchy
@@ -41,12 +45,28 @@ shinyServer(function(input, output, session) {
         print(vals$querry)
     })
     
+    # observe({
+    #     if (!is.null(vals$querry$gene)){
+    #         updateTextInput(session,
+    #                         inputId = 'geneSearch',value = vals$querry$gene,
+    #                         label = 'Select Gene')
+    #     }
+    # })
+    
+    # this shouldn't be necesarry but first plot does not show the axis labels for no real reason.
     observe({
-        if (!is.null(vals$querry$gene)){
+        if(vals$new & is.null(vals$querry$gene)){
+            updateTextInput(session,
+                            inputId = 'geneSearch',value = 'Ogn',
+                            label = 'Select Gene')
+            vals$new= TRUE
+        } else if (vals$new & !is.null(vals$querry$gene)){
             updateTextInput(session,
                             inputId = 'geneSearch',value = vals$querry$gene,
                             label = 'Select Gene')
+            vals$new= TRUE
         }
+
     })
     
     
@@ -69,28 +89,39 @@ shinyServer(function(input, output, session) {
     })
     
     
-    
+    # check validity of input -----------
     observe({
-        vals$searchedGenes <- c(isolate(vals$searchedGenes), paste(as.character(gene()),region()))
-        print(vals$searchedGenes)
+        if (input$platform == 'GPL339'){
+            selected = mouseGene$Gene.Symbol[tolower(mouseGene$Gene.Symbol) %in% tolower(input$geneSearch)]
+        } else if (input$platform == 'GPL1261'){
+            selected = mouseGene2$Gene.Symbol[tolower(mouseGene2$Gene.Symbol) %in% tolower(input$geneSearch)]
+        }
+        if (len(selected)>0){
+            vals$searchedGenes <- c(isolate(vals$searchedGenes), paste(selected,input$regionChoice,input$platform))
+            vals$gene = strsplit(vals$searchedGenes[len(vals$searchedGenes)],' ')[[1]][1]
+            vals$region = strsplit(vals$searchedGenes[len(vals$searchedGenes)],' ')[[1]][2]
+            vals$platform = strsplit(vals$searchedGenes[len(vals$searchedGenes)],' ')[[1]][3]
+            print(vals$searchedGenes)
+        }
     })
-    
     
     
     # create frame as a reactive object to pass to ggvis
     frame = reactive({
-        selected = gene()
+        selected = vals$gene
+        region =  vals$region
+        platform = vals$platform
         
-        if (input$platform == 'GPL339'){
+        if (platform == 'GPL339'){
             geneList = mouseGene
             expression = mouseExpr
             design = mouseDes
-            regionSelect = regionGroups[[region()]]
-        } else if (input$platform == 'GPL1261'){
+            regionSelect = regionGroups[[region]]
+        } else if (platform == 'GPL1261'){
             geneList = mouseGene2
             expression = mouseExpr2
             design = mouseDes2
-            regionSelect = regionGroups2[[region()]]
+            regionSelect = regionGroups2[[region]]
         }
         frame = createFrame(selected,
                             geneList,
@@ -111,6 +142,7 @@ shinyServer(function(input, output, session) {
         return(frame)
     })
     
+    # differential expression -----------------
     observe({
         print(input$group1Selected)
         isolate({
@@ -207,31 +239,6 @@ shinyServer(function(input, output, session) {
         })
     })
     
-    gene = reactive({
-        if (input$platform == 'GPL339'){
-            selected = mouseGene$Gene.Symbol[tolower(mouseGene$Gene.Symbol) %in% tolower(input$geneSearch)]
-        } else if (input$platform == 'GPL1261'){
-            selected = mouseGene2$Gene.Symbol[tolower(mouseGene2$Gene.Symbol) %in% tolower(input$geneSearch)]
-        }
-        if (len(selected)==0){
-            isolate({
-                return(strsplit(vals$searchedGenes[len(vals$searchedGenes)],' ')[[1]][1])
-            })
-        }
-        return(selected)
-    })
-    
-    region = reactive({
-      #browser()
-        if (len(input$regionChoice)==0){
-            print('ello?')
-            return('Cortex')
-        } else{
-            input$regionChoice
-            #str_extract(input$regionChoice,'([A-Z]|[a-z])*?(?=\n)')
-        }
-    })
-    
     
     frame %>%  #hede %>%
         ggvis(~prop,~gene,fill := ~color,
@@ -259,6 +266,7 @@ shinyServer(function(input, output, session) {
     # the plot has to be reactively created for its title to be prone to changes. anything that is not part of the frame
     # has to be passed inside this reactive block and will cause plot to be refreshed.
     reactive({
+        gene = vals$gene
         p = frame %>%
             ggvis(~prop,~gene,fill := ~color,key := ~id,size :=140 , stroke := 'black', opacity := 0.7) %>%
             layer_points() %>%
@@ -292,7 +300,7 @@ shinyServer(function(input, output, session) {
                 return(paste0(paper,src))
             }, on = 'click') %>% 
             add_axis('y',
-                     title = paste(gene(),"log2 expression"),
+                     title = paste(gene,"log2 expression"),
                      properties = axis_props(title = list(fontSize = 17),
                                              labels = list(fontSize =14)),
                      title_offset = 50) %>%
@@ -366,12 +374,12 @@ shinyServer(function(input, output, session) {
     # generate new hierarchies every time region changes
     observe({
         # browser()
-        vals$hierarchies = switch(input$platform,
+        vals$hierarchies = switch(vals$platform,
                GPL339 =  lapply(hierarchyNames, function(levels){
-                   hierarchize(levels,mouseDes[!is.na(mouseDes[,levels[len(levels)]]) & !is.na(regionGroups[[region()]]),])
+                   hierarchize(levels,mouseDes[!is.na(mouseDes[,levels[len(levels)]]) & !is.na(regionGroups[[vals$region]]),])
                }),
                GPL1261 = lapply(hierarchyNames, function(levels){
-                   hierarchize(levels,mouseDes2[!is.na(mouseDes2[,levels[len(levels)]]) & !is.na(regionGroups2[[region()]]),])
+                   hierarchize(levels,mouseDes2[!is.na(mouseDes2[,levels[len(levels)]]) & !is.na(regionGroups2[[vals$region]]),])
                }))
         # browser()
         

@@ -82,7 +82,7 @@ shinyUI(fluidPage(theme = shinytheme('lumen'),
                       tabsetPanel(id = 'tabs', 
                                   tabPanel('Gene Search', value = 'genes',
                                            fluidRow(
-                                               column(4,textInput(inputId = 'geneSearch',value = 'Ogn',
+                                               column(4,textInput(inputId = 'geneSearch',value = 'Dok5', # this gene will work badly when querry is used
                                                                   label = 'Select Gene')),
                                                column(4,  selectInput(inputId = "regionChoice",
                                                                       label= 'Select region',
