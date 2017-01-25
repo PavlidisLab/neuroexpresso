@@ -1,7 +1,3 @@
-library(shinyjs)
-#library(xkcd)
-library(DT)
-library(readr)
 
 print('starting stuff')
 

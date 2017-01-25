@@ -1,12 +1,4 @@
-library(shiny)
-library(RCurl)
-library(ggvis)
-library(ogbox)
-library(shinyTree)
-library(shinyjs)
-library(DT)
 #library(V8)
-library(shinythemes)
 # user ID system
 inputUserid <- function(inputId, value='') {
     #   print(paste(inputId, "=", value))
