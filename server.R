@@ -51,6 +51,8 @@ shinyServer(function(input, output, session) {
     # this shouldn't be necesarry but first plot does not show the axis labels for no real reason.
     observe({
         if(vals$new & is.null(vals$querry$gene)){
+            # this replaces the initial configuration of the textInput so that the plot will be drawn twice
+            # this shouldn't be necesarry, alas it seems to be...
             updateTextInput(session,
                             inputId = 'geneSearch',value = 'Ogn',
                             label = 'Select Gene')
