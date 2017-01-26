@@ -191,12 +191,6 @@ createFrame = function(gene,
                        order = 'Cell type',
                        treeChoice,
                        treeSelected){
-    treeSelectedNames  = sapply(treeSelected,function(x){x[1]})
-    names(treeSelected) = treeSelectedNames
-    mouseExpr = expression[,!is.na(regionSelect),]
-    mouseDes = design[!is.na(regionSelect),]
-    mouseGene = geneList
-    
     # if selection boxes are not yet loaded send an empty data frame
     if (len(treeChoice)==0){
         return(data.frame(GSM = character(0),
@@ -207,6 +201,14 @@ createFrame = function(gene,
                           PMID = character(0),
                           id = integer(0)))
     }
+    
+    treeSelectedNames  = sapply(treeSelected,function(x){x[1]})
+    names(treeSelected) = treeSelectedNames
+    mouseExpr = expression[,!is.na(regionSelect),]
+    mouseDes = design[!is.na(regionSelect),]
+    mouseGene = geneList
+    
+
     
     if (len(treeSelected)==0){
         # treeSelected = design[hierarchyNames[[treeChoice]][len(hierarchyNames[[treeChoice]])]] %>% unique %>% trimNAs
