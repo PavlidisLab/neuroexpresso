@@ -75,6 +75,8 @@ mouseGene2 = readRDS('Data/gene2.rds')
 mouseDes2 = readRDS('Data/mouseDes2.rds')
 mouseDes2 = mouseDes2[match(colnames(mouseExpr2),make.names(mouseDes2$sampleName)),]
 
+minValue = min(min(mouseExpr),min(mouseExpr2))
+maxValue = max(max(mouseExpr),max(mouseExpr2))
 
 rownames(mouseExpr2) = mouseGene2$Gene.Symbol
 # mouseExpr2 = mouseExpr2[,!mouseDes2$PyramidalDeep %in% 'Layer5Pyra',with=F]

@@ -30,9 +30,11 @@ shinyServer(function(input, output, session) {
         if(input$tabs=='genes'){
             hide(id = 'difPlot-container')
             show(id = 'expressionPlot-container')
+            enable(selector = "input[value = 'Fixed Y axis']")
         } else if(input$tabs == 'difExp'){
             hide(id = 'expressionPlot-container')
             show(id = 'difPlot-container')
+            disable(selector = "input[value = 'Fixed Y axis']")
         }
     })
     
@@ -152,7 +154,7 @@ shinyServer(function(input, output, session) {
                             coloring,
                             'Gene.Symbol', 
                             regionSelect,
-                            input$color,
+                            'Color' %in% input$graphSettings,
                             input$ordering,
                             vals$treeChoice, vals$treeSelected)
         
@@ -327,6 +329,10 @@ shinyServer(function(input, output, session) {
                                                                          align='left',
                                                                          fontSize = 20))) %>%
             set_options(height = 700, width = 750)
+        if('Fixed Y axis' %in% input$graphSettings){
+            p = p %>% scale_numeric('y',domain = c(minValue,maxValue))
+        }
+        
         return(p)
     }) %>%  bind_shiny('expressionPlot', 'expressionUI')
     
