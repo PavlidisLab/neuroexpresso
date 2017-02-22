@@ -108,12 +108,11 @@ shinyServer(function(input, output, session) {
     
     # validity of trees
     observe({
-
         treeSelected = get_selected(input$tree)
         treeChoice =  input$treeChoice
 
         validTree = hierarchies %>% sapply(function(x){
-            hiearNames = x %>% unlist %>% names %>% strsplit('\\.') %>% unlist %>% unique
+            hiearNames = x %>% unlist %>% names %>% strsplit('\\.(?![ ,])',perl=TRUE) %>% unlist %>% unique
             all(treeSelected %in% hiearNames) | length(treeSelected)==0
         })
         
