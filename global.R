@@ -62,7 +62,7 @@ hierarchyNames = list(NeuronTypes = c('MajorType','Neurotransmitter','ShinyNames
 mouseExpr = readRDS('Data/mouseExpr.rds')
 mouseGene = readRDS('Data/gene.rds')
 mouseDes = readRDS('Data/mouseDes.rds')
-mouseDes = mouseDes[match(colnames(mouseExpr),make.names(mouseDes$sampleName)),]
+mouseDes = mouseDes[match(colnames(mouseExpr),mouseDes$sampleName),]
 rownames(mouseExpr) = mouseGene$Gene.Symbol
 print('data loaded 1')
 
@@ -73,10 +73,15 @@ print('data loaded 1')
 mouseExpr2 = readRDS('Data/mouseExpr2.rds')
 mouseGene2 = readRDS('Data/gene2.rds')
 mouseDes2 = readRDS('Data/mouseDes2.rds')
-mouseDes2 = mouseDes2[match(colnames(mouseExpr2),make.names(mouseDes2$sampleName)),]
+mouseDes2 = mouseDes2[match(colnames(mouseExpr2),mouseDes2$sampleName),]
 
-minValue = min(min(mouseExpr),min(mouseExpr2))
-maxValue = max(max(mouseExpr),max(mouseExpr2))
+mouseExpr3 = readRDS('Data/mouseExpr3.rds')
+mouseGene3 = readRDS('Data/gene3.rds')
+mouseDes3 = readRDS('Data/mouseDes3.rds')
+mouseDes3 = mouseDes3[match(colnames(mouseExpr3),mouseDes3$sampleName),]
+
+minValue = min(c(min(mouseExpr),min(mouseExpr2),min(mouseExpr3)))
+maxValue = max(c(max(mouseExpr),max(mouseExpr2),max(mouseExpr3)))
 
 rownames(mouseExpr2) = mouseGene2$Gene.Symbol
 # mouseExpr2 = mouseExpr2[,!mouseDes2$PyramidalDeep %in% 'Layer5Pyra',with=F]
@@ -96,6 +101,14 @@ regionGroups2 = memoReg(mouseDes2,regionNames,prop,
                           regionHierarchy= regionHierarchy
                           )
 names(regionGroups2) = sapply(names(regionGroups2), function(x){
+    strsplit(x,split = '_')[[1]][1]
+})
+
+# rnaseq region groups
+regionGroups3 = memoReg(mouseDes3,regionNames,prop, 
+                        regionHierarchy= regionHierarchy
+)
+names(regionGroups3) = sapply(names(regionGroups3), function(x){
     strsplit(x,split = '_')[[1]][1]
 })
 
@@ -171,7 +184,13 @@ coloring = c(coloring,
              ShreejoyPyramidal = 'pink',
              ShreejoyOligo = 'pink',
              ShreejoyAstrocyte= 'pink',
-             ShreejoyThPosLC = 'pink')
+             ShreejoyThPosLC = 'pink',
+             'Layer 4 Pyra' = 'blue',
+             'Layer 2 3 Pyra' = 'blue',
+             'Layer 6a Pyra' = 'blue',
+             'Layer 6b Pyra' = 'blue',
+             'Oligodendrocyte precursors' ='darkgreen',
+             Endothelial = 'yellow')
 
 
 print("Even death won't part us now.")
@@ -201,9 +220,9 @@ createFrame = function(gene,
                           color = character(0),
                           reference = character(0),
                           PMID = character(0),
+                          rnaSeq = character(0),
                           id = integer(0)))
     }
-    
     treeSelectedNames  = sapply(treeSelected,function(x){x[1]})
     names(treeSelected) = treeSelectedNames
     mouseExpr = expression[,!is.na(regionSelect),]
@@ -255,16 +274,16 @@ createFrame = function(gene,
         groups = groups[groups %>% names %>% order]
     }
     expression = t(mouseExpr[mouseGene[,field] %in% gene,])
-    
     frame = groups %>% melt
     colors = toColor(mouseDes$ShinyNames[frame$value],coloring)$col
     frame %<>% mutate(GSM = mouseDes$sampleName[value], 
                       gene = expression[value,], 
                       prop= L1,  
                       color = colors ,
-                      reference = mouseDes$Reference[value], 
+                      reference = mouseDes$Reference[value],
+                      rnaSeq = mouseDes$Platform[value] %in%  'RNAseq',
                       PMID = mouseDes$PMID[value]) %>% 
-        select(GSM,gene,prop,color, reference,PMID)
+        select(GSM,gene,prop,color, reference,rnaSeq,PMID)
     
     # amygdala fix. if a region doesnt exist returns an empty matrix
     if (nrow(frame)==0){
@@ -285,7 +304,6 @@ createFrame = function(gene,
         return(frame)
     }
     # this has to be unique because of gviss' key requirement
-    
     frame$id = 1:nrow(frame)
     return(frame)
 }

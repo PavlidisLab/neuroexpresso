@@ -96,6 +96,9 @@ shinyServer(function(input, output, session) {
             selected = mouseGene$Gene.Symbol[tolower(mouseGene$Gene.Symbol) %in% tolower(input$geneSearch)]
         } else if (input$platform == 'GPL1261'){
             selected = mouseGene2$Gene.Symbol[tolower(mouseGene2$Gene.Symbol) %in% tolower(input$geneSearch)]
+        } else if(input$platform == 'RNAseq'){
+            selected = mouseGene3$Gene.Symbol[tolower(mouseGene3$Gene.Symbol) %in% tolower(input$geneSearch)]
+            
         }
         if (len(selected)>0){
             vals$searchedGenes <- c(isolate(vals$searchedGenes), paste(selected,input$regionChoice,input$platform))
@@ -142,6 +145,11 @@ shinyServer(function(input, output, session) {
             expression = mouseExpr2
             design = mouseDes2
             regionSelect = regionGroups2[[region]]
+        } else if(platform =='RNAseq'){
+            geneList = mouseGene3
+            expression = mouseExpr3
+            design = mouseDes3
+            regionSelect = regionGroups3[[region]]
         }
         frame = createFrame(selected,
                             geneList,
@@ -156,7 +164,9 @@ shinyServer(function(input, output, session) {
                             'Color' %in% input$graphSettings,
                             input$ordering,
                             vals$treeChoice, vals$treeSelected)
-        
+        display = input$display %>% replaceElement(c(Microarray=FALSE,RNAseq = TRUE)) %$% newVector
+        frame %<>% filter( rnaSeq %in% display)
+
         # oldFrame <<- frame
         lb$set_keys(1:nrow(frame))
         return(frame)
@@ -261,7 +271,7 @@ shinyServer(function(input, output, session) {
     
     
     frame %>%  #hede %>%
-        ggvis(~prop,~gene,fill := ~color,
+        ggvis(~prop,~gene,fill := ~color,shape = ~factor(rnaSeq) ,
               key := ~id,size :=140 ,
               stroke := 'black',
               opacity := 0.7,
@@ -288,7 +298,7 @@ shinyServer(function(input, output, session) {
     reactive({
         gene = vals$gene
         p = frame %>%
-            ggvis(~prop,~gene,fill := ~color,key := ~id,size :=140 , stroke := 'black', opacity := 0.7) %>%
+            ggvis(~prop,~gene,fill := ~color,key := ~id,shape = ~factor(rnaSeq) ,size :=140, stroke := 'black', opacity := 0.7) %>%
             layer_points() %>%
             add_tooltip(function(x){
                 # get links to GSM
@@ -340,11 +350,16 @@ shinyServer(function(input, output, session) {
             return('')
         } else if (any(tolower(mouseGene2$Gene.Symbol) %in% tolower(input$geneSearch)) & input$platform =='GPL1261'){
             return('')
+        } else if (any(tolower(mouseGene3$Gene.Symbol) %in% tolower(input$geneSearch)) & input$platform =='RNAseq'){
+            return('')
         }else {
             if (input$platform =='GPL339'){
                 symbolList = mouseGene$Gene.Symbol
             } else if (input$platform =='GPL1261'){
                 symbolList = mouseGene2$Gene.Symbol
+            } else if (input$platform =='RNAseq'){
+                symbolList = mouseGene3$Gene.Symbol
+                
             }
             return(paste('Did you mean:\n',paste(symbolList[order(adist(tolower(input$geneSearch), 
                                                                                    tolower(symbolList)))[1:5]],
@@ -377,6 +392,8 @@ shinyServer(function(input, output, session) {
             return('')
         } else if (any(tolower(mouseGene2$Gene.Symbol) %in% tolower(input$geneSearch)) & input$platform =='GPL1261'){
             return('')
+        } else if (any(tolower(mouseGene3$Gene.Symbol) %in% tolower(input$geneSearch)) & input$platform =='RNAseq'){
+            return('')
         }else {
             stop('Gene symbol is not found!')
         }
@@ -404,6 +421,9 @@ shinyServer(function(input, output, session) {
                }),
                GPL1261 = lapply(hierarchyNames, function(levels){
                    hierarchize(levels,mouseDes2[!is.na(mouseDes2[,levels[len(levels)]]) & !is.na(regionGroups2[[vals$region]]),])
+               }),
+               RNAseq = lapply(hierarchyNames, function(levels){
+                   hierarchize(levels,mouseDes3[!is.na(mouseDes3[,levels[len(levels)]]) & !is.na(regionGroups3[[vals$region]]),])
                }))
         # browser()
         

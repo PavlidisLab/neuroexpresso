@@ -82,7 +82,7 @@ shinyUI(fluidPage(theme = shinytheme('lumen'),
                                                                       choices = names(regionGroups))),
                                                column(4,selectInput(inputId = 'platform',
                                                                     label = 'Select Platform',
-                                                                    choices = c('GPL339','GPL1261')))
+                                                                    choices = c('GPL339','GPL1261','RNAseq')))
                                            ),
                                            
                                            
@@ -112,7 +112,11 @@ shinyUI(fluidPage(theme = shinytheme('lumen'),
                                                                                      label = 'Options',
                                                                                      selected = c('Color'),
                                                                                      choices = c('Fixed Y axis',
-                                                                                                 'Color'))),
+                                                                                                 'Color')),
+                                                                  checkboxGroupInput(inputId = 'display',
+                                                                                     label = 'Display',
+                                                                                     selected =  c('Microarray','RNAseq'),
+                                                                                     choices =  c('Microarray','RNAseq'))),
                                                            column(7,
                                                                   radioButtons(inputId = 'ordering',
                                                                                label = 'Order by',
