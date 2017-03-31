@@ -164,8 +164,10 @@ shinyServer(function(input, output, session) {
                             'Color' %in% input$graphSettings,
                             input$ordering,
                             vals$treeChoice, vals$treeSelected)
-        display = input$display %>% replaceElement(c(Microarray=FALSE,RNAseq = TRUE)) %$% newVector
-        frame %<>% filter( rnaSeq %in% display)
+        frame$rnaSeq %<>% replaceElement(c("FALSE" = 'Microarray', 'TRUE' = 'RNAseq')) %$% newVector %>% factor()
+        frame$`Data Source` = frame$rnaSeq
+        # display = input$display %>% replaceElement(c(Microarray=FALSE,RNAseq = TRUE)) %$% newVector
+        frame %<>% filter( rnaSeq %in% input$display)
 
         # oldFrame <<- frame
         lb$set_keys(1:nrow(frame))
@@ -271,7 +273,7 @@ shinyServer(function(input, output, session) {
     
     
     frame %>%  #hede %>%
-        ggvis(~prop,~gene,fill := ~color,shape = ~factor(rnaSeq) ,
+        ggvis(~prop,~gene,fill := ~color,shape = ~`Data Source` ,
               key := ~id,size :=140 ,
               stroke := 'black',
               opacity := 0.7,
@@ -280,7 +282,7 @@ shinyServer(function(input, output, session) {
         set_options(height = 700, width = 750) %>%
         add_axis('x',
                  #shame shame shame! but its mostly ggvis' fault
-                 title='                                                                                                                                                                                                                            ',
+                 title=' ',
                  properties = axis_props(labels = list(angle=45,
                                                        align='left',
                                                        fontSize = 20)),
@@ -298,7 +300,7 @@ shinyServer(function(input, output, session) {
     reactive({
         gene = vals$gene
         p = frame %>%
-            ggvis(~prop,~gene,fill := ~color,key := ~id,shape = ~factor(rnaSeq) ,size :=140, stroke := 'black', opacity := 0.7) %>%
+            ggvis(~prop,~gene,fill := ~color,key := ~id,shape = ~`Data Source` ,size :=140, stroke := 'black', opacity := 0.7) %>%
             layer_points() %>%
             add_tooltip(function(x){
                 # get links to GSM
@@ -403,7 +405,6 @@ shinyServer(function(input, output, session) {
     
     observe({
         # print(get_selected(input$tree))
-        # browser()
         region = 'Cortex'
         if (!is.null(vals$querry$region)){
             region = names(regionGroups)[tolower(names(regionGroups)) %in% tolower(vals$querry$region)]
