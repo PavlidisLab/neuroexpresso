@@ -59,6 +59,7 @@ hierarchyNames = list(NeuronTypes = c('MajorType','Neurotransmitter','ShinyNames
 #mouseGene = read.csv('Data/mouseGene')
 #mouseDes = read.design('Data/meltedDesign.tsv')
 
+
 mouseExpr = readRDS('Data/mouseExpr.rds')
 mouseGene = readRDS('Data/gene.rds')
 mouseDes = readRDS('Data/mouseDes.rds')
@@ -212,6 +213,7 @@ createFrame = function(gene,
                        order = 'Cell type',
                        treeChoice,
                        treeSelected){
+    # browser()
     # if selection boxes are not yet loaded send an empty data frame
     if (len(treeChoice)==0){
         return(data.frame(GSM = character(0),
@@ -220,8 +222,7 @@ createFrame = function(gene,
                           color = character(0),
                           reference = character(0),
                           PMID = character(0),
-                          rnaSeq = character(0),
-                          id = integer(0)))
+                          rnaSeq = character(0)))
     }
     treeSelectedNames  = sapply(treeSelected,function(x){x[1]})
     names(treeSelected) = treeSelectedNames
@@ -303,8 +304,6 @@ createFrame = function(gene,
         frame = cbind(frame,data.frame(id=character(0)))
         return(frame)
     }
-    # this has to be unique because of gviss' key requirement
-    frame$id = 1:nrow(frame)
     return(frame)
 }
 

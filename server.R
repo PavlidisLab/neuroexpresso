@@ -129,7 +129,7 @@ shinyServer(function(input, output, session) {
         # vals$treeChoice =  treeChoice
     })
     
-    # create frame as a reactive object to pass to ggvis
+    # create frame as a reactive object to pass to ggvis --------------------
     frame = reactive({
         selected = vals$gene
         region =  vals$region
@@ -164,6 +164,7 @@ shinyServer(function(input, output, session) {
                             'Color' %in% input$graphSettings,
                             input$ordering,
                             vals$treeChoice, vals$treeSelected)
+        # browser()
         frame$rnaSeq %<>% replaceElement(c("FALSE" = 'Microarray', 'TRUE' = 'RNAseq')) %$% newVector %>% factor()
         frame$`Data Source` = frame$rnaSeq
         # display = input$display %>% replaceElement(c(Microarray=FALSE,RNAseq = TRUE)) %$% newVector
@@ -171,6 +172,13 @@ shinyServer(function(input, output, session) {
 
         # oldFrame <<- frame
         lb$set_keys(1:nrow(frame))
+        
+        # this has to be unique because of gviss' key requirement and has to be ordered because
+        if(nrow(frame)>0){
+            frame$id = 1:nrow(frame)
+        } else{
+            frame$id = integer(0)
+        }
         return(frame)
     })
     
@@ -294,7 +302,7 @@ shinyServer(function(input, output, session) {
                  title_offset = 50) %>%
         bind_shiny('difPlot')
     
-    
+    # main plot -----------------
     # the plot has to be reactively created for its title to be prone to changes. anything that is not part of the frame
     # has to be passed inside this reactive block and will cause plot to be refreshed.
     reactive({
@@ -347,6 +355,7 @@ shinyServer(function(input, output, session) {
         return(p)
     }) %>%  bind_shiny('expressionPlot', 'expressionUI')
     
+    # did you mean?--------
     output$didYouMean = renderText({
         if(any(tolower(mouseGene$Gene.Symbol) %in% tolower(input$geneSearch)) & input$platform =='GPL339'){
             return('')
