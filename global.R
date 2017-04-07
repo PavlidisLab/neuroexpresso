@@ -48,70 +48,30 @@ regionNames = 'Region'
 hierarchyNames = list(NeuronTypes = c('MajorType','Neurotransmitter','ShinyNames'),
                       Methodology = c('Method', 'Reference'))
 
-# loading data ----------
-# allDataPre = read.csv(paste0(outFolder,'/','finalExp.csv'), header = T)  
-# allDataPre = allDataPre[!grepl('[|]',allDataPre$Gene.Symbol),]
-# list[mouseGene, mouseExpr]=sepExpr(allDataPre)
-# rm(allDataPre)
 
-# mouseExpr = read.csv('Data/mouseExpr')
-#mouseExpr =  fread('Data/mouseExpr',data.table = FALSE)
-#mouseGene = read.csv('Data/mouseGene')
-#mouseDes = read.design('Data/meltedDesign.tsv')
+exprs  = readRDS('Data/exprs.rds')
+designs = readRDS('Data/designs.rds')
+genes = readRDS('Data/genes.rds')
 
+minValue = exprs %>% sapply(min) %>% min
+maxValue = exprs %>% sapply(max) %>% max
 
-mouseExpr = readRDS('Data/mouseExpr.rds')
-mouseGene = readRDS('Data/gene.rds')
-mouseDes = readRDS('Data/mouseDes.rds')
-mouseDes = mouseDes[match(colnames(mouseExpr),mouseDes$sampleName),]
-rownames(mouseExpr) = mouseGene$Gene.Symbol
-print('data loaded 1')
-
-#mouseExpr2 =  fread('Data/mouseExpr2',data.table = FALSE)
-#mouseGene2 = read.csv('Data/mouseGene2')
-#mouseDes2 = read.design('Data/meltedDesign2.tsv')
-
-mouseExpr2 = readRDS('Data/mouseExpr2.rds')
-mouseGene2 = readRDS('Data/gene2.rds')
-mouseDes2 = readRDS('Data/mouseDes2.rds')
-mouseDes2 = mouseDes2[match(colnames(mouseExpr2),mouseDes2$sampleName),]
-
-mouseExpr3 = readRDS('Data/mouseExpr3.rds')
-mouseGene3 = readRDS('Data/gene3.rds')
-mouseDes3 = readRDS('Data/mouseDes3.rds')
-mouseDes3 = mouseDes3[match(colnames(mouseExpr3),mouseDes3$sampleName),]
-
-minValue = min(c(min(mouseExpr),min(mouseExpr2),min(mouseExpr3)))
-maxValue = max(c(max(mouseExpr),max(mouseExpr2),max(mouseExpr3)))
-
-rownames(mouseExpr2) = mouseGene2$Gene.Symbol
-# mouseExpr2 = mouseExpr2[,!mouseDes2$PyramidalDeep %in% 'Layer5Pyra',with=F]
-# mouseDes2 = mouseDes2[!mouseDes2$PyramidalDeep %in% 'Layer5Pyra',]
 print('data loaded 2')
 print('one heart')
 
 # load the region data -------
-regionGroups = memoReg(mouseDes,regionNames,prop,
-                         regionHierarchy = regionHierarchy
-                         )
-names(regionGroups) = sapply(names(regionGroups), function(x){
-    strsplit(x,split = '_')[[1]][1]
-})
-# second regions
-regionGroups2 = memoReg(mouseDes2,regionNames,prop, 
-                          regionHierarchy= regionHierarchy
-                          )
-names(regionGroups2) = sapply(names(regionGroups2), function(x){
-    strsplit(x,split = '_')[[1]][1]
+regionGroups = designs %>% lapply(function(x){
+    out = memoReg(x,regionNames,prop,
+            regionHierarchy = regionHierarchy
+    )
+    
+    names(out) = sapply(names(out),function(x){
+        strsplit(x,split = '_')[[1]][1]
+    })
+    return(out)
 })
 
-# rnaseq region groups
-regionGroups3 = memoReg(mouseDes3,regionNames,prop, 
-                        regionHierarchy= regionHierarchy
-)
-names(regionGroups3) = sapply(names(regionGroups3), function(x){
-    strsplit(x,split = '_')[[1]][1]
-})
+
 
 # creates the tree to input for treejs given levels and a design file subset
 hierarchize = function(levels,design){
@@ -167,7 +127,7 @@ hierarchize = function(levels,design){
 
 # deal with hierarchies 
 hierarchies = lapply(hierarchyNames, function(levels){
-    hierarchize(levels,mouseDes[!is.na(mouseDes[,levels[len(levels)]]),])
+    hierarchize(levels,designs$GPL339[!is.na(designs$GPL339[,levels[len(levels)]]),])
 })
 
 

@@ -74,13 +74,13 @@ shinyServer(function(input, output, session) {
     observe({
         if (!is.null(vals$querry$region)){
             # browser()
-            regQuerry  = names(regionGroups)[tolower(names(regionGroups)) %in% tolower(vals$querry$region)]
+            regQuerry  = names(regionGroups$GPL339)[tolower(names(regionGroups$GPL339)) %in% tolower(vals$querry$region)]
             
             updateSelectInput(session,
                               inputId = "regionChoice",
                               label= 'Select region',
                               selected = regQuerry,
-                              choices = names(regionGroups))
+                              choices = names(regionGroups$GPL339))
             # #planned feature
             # selected = nametreeVector(regionHierarchy)[
             #     str_extract(regionHierarchy %>% nametreeVector,'([A-Z]|[a-z])*?(?=\n)') %in% regQuerry
@@ -92,14 +92,9 @@ shinyServer(function(input, output, session) {
     
     # check validity of input -----------
     observe({
-        if (input$platform == 'GPL339'){
-            selected = mouseGene$Gene.Symbol[tolower(mouseGene$Gene.Symbol) %in% tolower(input$geneSearch)]
-        } else if (input$platform == 'GPL1261'){
-            selected = mouseGene2$Gene.Symbol[tolower(mouseGene2$Gene.Symbol) %in% tolower(input$geneSearch)]
-        } else if(input$platform == 'RNAseq'){
-            selected = mouseGene3$Gene.Symbol[tolower(mouseGene3$Gene.Symbol) %in% tolower(input$geneSearch)]
-            
-        }
+        #browser()
+        selected  =  genes[[input$platform]]$Gene.Symbol[tolower(genes[[input$platform]]$Gene.Symbol) %in% tolower(input$geneSearch)]
+
         if (len(selected)>0){
             vals$searchedGenes <- c(isolate(vals$searchedGenes), paste(selected,input$regionChoice,input$platform))
             vals$gene = strsplit(vals$searchedGenes[len(vals$searchedGenes)],' ')[[1]][1]
@@ -135,22 +130,11 @@ shinyServer(function(input, output, session) {
         region =  vals$region
         platform = vals$platform
         
-        if (platform == 'GPL339'){
-            geneList = mouseGene
-            expression = mouseExpr
-            design = mouseDes
-            regionSelect = regionGroups[[region]]
-        } else if (platform == 'GPL1261'){
-            geneList = mouseGene2
-            expression = mouseExpr2
-            design = mouseDes2
-            regionSelect = regionGroups2[[region]]
-        } else if(platform =='RNAseq'){
-            geneList = mouseGene3
-            expression = mouseExpr3
-            design = mouseDes3
-            regionSelect = regionGroups3[[region]]
-        }
+        geneList = genes[[platform]]
+        expression = exprs[[platform]]
+        design = designs[[platform]]
+        regionSelect = regionGroups[[platform]][[region]]
+        # browser()
         frame = createFrame(selected,
                             geneList,
                             expression,
@@ -204,6 +188,7 @@ shinyServer(function(input, output, session) {
     observe({
         print(input$group2Selected)
         isolate({
+            # browser()
             if(input$group2Selected>=1){
                 if(!any(lb$selected())){
                     selected = TRUE
@@ -216,13 +201,13 @@ shinyServer(function(input, output, session) {
                 show(id = 'downloadDifGenes')
                 vals$difGroup2 = frame()[selected,]$GSM
                 print(vals$difGroup2)
-                if(all(c(vals$difGroup1,vals$difGroup2) %in% colnames(mouseExpr2))){
-                    toDif = mouseExpr2[c(vals$difGroup1,vals$difGroup2)]
-                } else if (all(c(vals$difGroup1,vals$difGroup2) %in% colnames(mouseExpr))){
-                    toDif = mouseExpr[c(vals$difGroup1,vals$difGroup2)]
-                } else{
-                    stop('WTF')
-                }
+                
+                whichDif = exprs %>% sapply(function(x){
+                    all(c(vals$difGroup1,vals$difGroup2) %in% colnames(x))
+                })
+                
+                toDif = exprs[whichDif] %>% sapply(nrow) %>% which.max %>% names %>% {exprs[[.]][c(vals$difGroup1,vals$difGroup2)]}
+
                 mm = model.matrix(~ groups,
                                   data.frame(groups = c(rep('a',length(vals$difGroup1)),
                                                         rep('b',length(vals$difGroup2)))))
@@ -357,23 +342,13 @@ shinyServer(function(input, output, session) {
     
     # did you mean?--------
     output$didYouMean = renderText({
-        if(any(tolower(mouseGene$Gene.Symbol) %in% tolower(input$geneSearch)) & input$platform =='GPL339'){
+        if(any(tolower(genes[[input$platform]]$Gene.Symbol) %in% tolower(input$geneSearch))){
             return('')
-        } else if (any(tolower(mouseGene2$Gene.Symbol) %in% tolower(input$geneSearch)) & input$platform =='GPL1261'){
-            return('')
-        } else if (any(tolower(mouseGene3$Gene.Symbol) %in% tolower(input$geneSearch)) & input$platform =='RNAseq'){
-            return('')
-        }else {
-            if (input$platform =='GPL339'){
-                symbolList = mouseGene$Gene.Symbol
-            } else if (input$platform =='GPL1261'){
-                symbolList = mouseGene2$Gene.Symbol
-            } else if (input$platform =='RNAseq'){
-                symbolList = mouseGene3$Gene.Symbol
-                
-            }
+        } else{
+            symbolList = genes[[input$platform]]$Gene.Symbol
+            
             return(paste('Did you mean:\n',paste(symbolList[order(adist(tolower(input$geneSearch), 
-                                                                                   tolower(symbolList)))[1:5]],
+                                                                        tolower(symbolList)))[1:5]],
                                                  collapse=', ')))
         }
     })
@@ -399,13 +374,9 @@ shinyServer(function(input, output, session) {
     
     
     output$warning = renderText({
-        if(any(tolower(mouseGene$Gene.Symbol) %in% tolower(input$geneSearch)) & input$platform =='GPL339'){
+        if(any(tolower(genes[[input$platform]]$Gene.Symbol) %in% tolower(input$geneSearch))){
             return('')
-        } else if (any(tolower(mouseGene2$Gene.Symbol) %in% tolower(input$geneSearch)) & input$platform =='GPL1261'){
-            return('')
-        } else if (any(tolower(mouseGene3$Gene.Symbol) %in% tolower(input$geneSearch)) & input$platform =='RNAseq'){
-            return('')
-        }else {
+        } else{
             stop('Gene symbol is not found!')
         }
     })
@@ -416,30 +387,18 @@ shinyServer(function(input, output, session) {
         # print(get_selected(input$tree))
         region = 'Cortex'
         if (!is.null(vals$querry$region)){
-            region = names(regionGroups)[tolower(names(regionGroups)) %in% tolower(vals$querry$region)]
+            region = names(regionGroups$GPL339)[tolower(names(regionGroups$GPL339)) %in% tolower(vals$querry$region)]
         }
         levels = hierarchyNames[[1]]
-        vals$hierarchInit = hierarchize(levels, mouseDes[!is.na(mouseDes[,levels[len(levels)]]) & !is.na(regionGroups[[region]]),])
+        vals$hierarchInit = hierarchize(levels, designs$GPL339[!is.na(designs$GPL339[,levels[len(levels)]]) & !is.na(regionGroups$GPL339[[region]]),])
     })
     
     # generate new hierarchies every time region changes
     observe({
         # browser()
-        vals$hierarchies = switch(vals$platform,
-               GPL339 =  lapply(hierarchyNames, function(levels){
-                   hierarchize(levels,mouseDes[!is.na(mouseDes[,levels[len(levels)]]) & !is.na(regionGroups[[vals$region]]),])
-               }),
-               GPL1261 = lapply(hierarchyNames, function(levels){
-                   hierarchize(levels,mouseDes2[!is.na(mouseDes2[,levels[len(levels)]]) & !is.na(regionGroups2[[vals$region]]),])
-               }),
-               RNAseq = lapply(hierarchyNames, function(levels){
-                   hierarchize(levels,mouseDes3[!is.na(mouseDes3[,levels[len(levels)]]) & !is.na(regionGroups3[[vals$region]]),])
-               }))
-        # browser()
-        
-        # vals$hierarchies = lapply(hierarchyNames, function(levels){
-        #     hierarchize(levels,mouseDes[!is.na(mouseDes[,levels[len(levels)]]) & !is.na(regionGroups[[region()]]),])
-        # })
+        vals$hierarchies = lapply(hierarchyNames, function(levels){
+            hierarchize(levels,designs[[vals$platform]][!is.na(designs[[vals$platform]][,levels[len(levels)]]) & !is.na(regionGroups[[vals$platform]][[vals$region]]),])
+        })
     })
     
     #     observe({
