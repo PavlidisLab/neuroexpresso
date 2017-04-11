@@ -1,6 +1,37 @@
 
 print('starting stuff')
 
+customRender = 
+    '{option: function(item, escape){
+    return "<div><span><div><strong>" + escape(item.symbol) + "</strong></div>" + 
+ escape(item.GeneNames) + "</span></div>";
+}}'
+
+customRenderRNAseq = 
+    '{option: function(item, escape){
+    return "<div><span><div><strong>" + escape(item.symbol) + "</strong></div>" + "</span></div>";
+}}'
+
+selectizeOptions = list(maxOptions = 20,
+                        searchField = c('symbol','GeneNames','Probe','NCBIids'),
+                        valueField = 'symbol',
+                        labelField = 'symbol',
+                        render = I(customRender),
+                        create=TRUE
+)
+
+selectizeOptionsRNAseq =  list(maxOptions = 20,
+                               searchField = c('symbol'),
+                               valueField = 'symbol',
+                               labelField = 'symbol',
+                               render = I(customRenderRNAseq),
+                               create=TRUE
+)
+
+sOptions = list(GPL339 = selectizeOptions,
+                GPL1261 = selectizeOptions,
+                RNAseq = selectizeOptionsRNAseq)
+
 # beginning of server -----------
 shinyServer(function(input, output, session) {
     
@@ -57,19 +88,33 @@ shinyServer(function(input, output, session) {
         if(vals$new & is.null(vals$querry$gene)){
             # this replaces the initial configuration of the textInput so that the plot will be drawn twice
             # this shouldn't be necesarry, alas it seems to be...
-            updateTextInput(session,
-                            inputId = 'geneSearch',value = 'Ogn',
-                            label = 'Select Gene')
-            vals$new= TRUE
+             updateSelectizeInput(session,
+                                  inputId = 'searchGenes', selected = genes[[vals$platform]] %>% mutate(symbol = Gene.Symbol) %>% filter(symbol =='Ogn'),
+                                  label='Select Gene', choices =genes[[vals$platform]] %>% mutate(symbol = Gene.Symbol),
+                                  server = TRUE,
+                                  options = sOptions[[vals$platform]])
+                                 
+
+            vals$new= FALSE
         } else if (vals$new & !is.null(vals$querry$gene)){
-            updateTextInput(session,
-                            inputId = 'geneSearch',value = vals$querry$gene,
-                            label = 'Select Gene')
-            vals$new= TRUE
+            updateSelectizeInput(session,
+                                 inputId = 'searchGenes', selected = vals$querry$gene,
+                                 label='Select Gene', choices =genes$GPL339 %>% mutate(symbol = Gene.Symbol),
+                                 server = TRUE,
+                                 options = selectizeOptions)
+            vals$new= FALSE
         }
 
     })
     
+    observe({
+        # browser()
+        updateSelectizeInput(session,
+                             inputId = 'searchGenes', selected = isolate(genes[[vals$platform]] %>% mutate(symbol = Gene.Symbol) %>% filter(symbol ==vals$gene)),
+                             label='Select Gene', choices =isolate(genes[[vals$platform]] %>% mutate(symbol = Gene.Symbol)),
+                             server = TRUE,
+                             options = sOptions[[vals$platform]])
+    })
     
     observe({
         if (!is.null(vals$querry$region)){
@@ -81,6 +126,7 @@ shinyServer(function(input, output, session) {
                               label= 'Select region',
                               selected = regQuerry,
                               choices = names(regionGroups$GPL339))
+            
             # #planned feature
             # selected = nametreeVector(regionHierarchy)[
             #     str_extract(regionHierarchy %>% nametreeVector,'([A-Z]|[a-z])*?(?=\n)') %in% regQuerry
@@ -93,7 +139,7 @@ shinyServer(function(input, output, session) {
     # check validity of input -----------
     observe({
         #browser()
-        selected  =  genes[[input$platform]]$Gene.Symbol[tolower(genes[[input$platform]]$Gene.Symbol) %in% tolower(input$geneSearch)]
+        selected  =  genes[[input$platform]]$Gene.Symbol[tolower(genes[[input$platform]]$Gene.Symbol) %in% tolower(input$searchGenes)]
 
         if (len(selected)>0){
             vals$searchedGenes <- c(isolate(vals$searchedGenes), paste(selected,input$regionChoice,input$platform))
@@ -126,6 +172,7 @@ shinyServer(function(input, output, session) {
     
     # create frame as a reactive object to pass to ggvis --------------------
     frame = reactive({
+        # browser()
         selected = vals$gene
         region =  vals$region
         platform = vals$platform
@@ -239,7 +286,11 @@ shinyServer(function(input, output, session) {
         isolate({
             if(!is.null(input$difGeneTable_rows_selected)){
                 tableGene = vals$differentiallyExpressed[input$difGeneTable_rows_selected,'Symbol']
-                updateTextInput(session,'geneSearch','Select Gene', value = tableGene)
+                updateSelectizeInput(session,
+                                     inputId = 'searchGenes', selected = isolate(genes[[vals$platform]] %>% mutate(symbol = Gene.Symbol) %>% filter(symbol ==tableGene)),
+                                     label='Select Gene', choices =isolate(genes[[vals$platform]] %>% mutate(symbol = Gene.Symbol)),
+                                     server = TRUE,
+                                     options = sOptions[[vals$platform]])
                 }
         })
     })
@@ -342,12 +393,12 @@ shinyServer(function(input, output, session) {
     
     # did you mean?--------
     output$didYouMean = renderText({
-        if(any(tolower(genes[[input$platform]]$Gene.Symbol) %in% tolower(input$geneSearch))){
+        if(any(tolower(genes[[input$platform]]$Gene.Symbol) %in% tolower(input$searchGenes))){
             return('')
         } else{
             symbolList = genes[[input$platform]]$Gene.Symbol
             
-            return(paste('Did you mean:\n',paste(symbolList[order(adist(tolower(input$geneSearch), 
+            return(paste('Did you mean:\n',paste(symbolList[order(adist(tolower(input$searchGenes), 
                                                                         tolower(symbolList)))[1:5]],
                                                  collapse=', ')))
         }
@@ -355,9 +406,9 @@ shinyServer(function(input, output, session) {
     
     # find if entered gene is a synonym of something else
     output$synonyms = renderText({
-        synos = mouseSyno(input$geneSearch)[[1]]
+        synos = mouseSyno(input$searchGenes)[[1]]
         synos = sapply(synos, function(x){
-            if(!x[1] == input$geneSearch){
+            if(!x[1] == input$searchGenes){
                 return(x[1])
             } else{
                 return(NULL)
@@ -374,7 +425,7 @@ shinyServer(function(input, output, session) {
     
     
     output$warning = renderText({
-        if(any(tolower(genes[[input$platform]]$Gene.Symbol) %in% tolower(input$geneSearch))){
+        if(any(tolower(genes[[input$platform]]$Gene.Symbol) %in% tolower(input$searchGenes))){
             return('')
         } else{
             stop('Gene symbol is not found!')
