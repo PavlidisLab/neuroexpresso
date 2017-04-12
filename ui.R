@@ -160,7 +160,7 @@ shinyUI(fluidPage(theme = shinytheme('lumen'),
                          conditionalPanel(condition = "input.tabs == 'marker'",
                                           wellPanel(h3('Marker Genes'),
                                                     p('The list of marker genes identified in the study can be accessed ',
-                                                      a(href = 'https://github.com/oganm/brainGenesManuscript/tree/master/analysis/01.SelectGenes/FinalGenes1', 
+                                                      a(href = 'http://www.chibi.ubc.ca/supplement-to-mancarci-et-al-neuroexpresso/', 
                                                         target="_blank",'here.'))))
                   )
 )))
