@@ -136,7 +136,7 @@ hierarchies = lapply(hierarchyNames, function(levels){
 
 # some settings required for the plotting function -----
 sourceGithub('oganm/brainGenesManuscript/R/cellColors.R')
-
+library(scales)
 coloring = cellColors()
 coloring = c(coloring,
              ShreejoyGabaergic = 'pink',
