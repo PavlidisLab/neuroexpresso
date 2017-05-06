@@ -44,7 +44,7 @@ regionNames = 'Region'
 
 for(i in 1:length(genes)){
     rownames(exprs[[i]]) = genes[[i]]$Gene.Symbol
-    designs[[i]] = designs[[i]][match(colnames(exprs[[i]]),designs[[i]]$sampleName),]
+    designs[[i]] = designs[[i]][match(make.names(colnames(exprs[[i]])),make.names(designs[[i]]$sampleName)),]
     
     regionGroups = memoReg(designs[[i]],regionNames,prop,
             regionHierarchy = regionHierarchy)
