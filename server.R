@@ -199,7 +199,7 @@ shinyServer(function(input, output, session) {
         frame$rnaSeq %<>% replaceElement(c("FALSE" = 'Microarray', 'TRUE' = 'RNAseq')) %$% newVector %>% factor()
         frame$`Data Source` = frame$rnaSeq
         # display = input$display %>% replaceElement(c(Microarray=FALSE,RNAseq = TRUE)) %$% newVector
-        frame %<>% filter( rnaSeq %in% input$display)
+        frame %<>% filter( rnaSeq %in% input$display & !is.na(gene))
 
         # oldFrame <<- frame
         lb$set_keys(1:nrow(frame))
@@ -345,6 +345,7 @@ shinyServer(function(input, output, session) {
         gene = vals$gene
         p = frame %>%
             ggvis(~prop,~gene,fill := ~color,key := ~id,shape = ~`Data Source` ,size :=140, stroke := 'black', opacity := 0.7) %>%
+            scale_nominal('shape',c('Microarray', 'RNAseq')) %>% 
             layer_points() %>%
             add_tooltip(function(x){
                 # get links to GSM
