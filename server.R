@@ -393,15 +393,27 @@ shinyServer(function(input, output, session) {
     }) %>%  bind_shiny('expressionPlot', 'expressionUI')
     
     # did you mean?--------
-    output$didYouMean = renderText({
+    output$didYouMean = renderUI({
         if(any(tolower(genes[[input$platform]]$Gene.Symbol) %in% tolower(input$searchGenes))){
             return('')
         } else{
             symbolList = genes[[input$platform]]$Gene.Symbol
             
-            return(paste('Did you mean:\n',paste(symbolList[order(adist(tolower(input$searchGenes), 
-                                                                        tolower(symbolList)))[1:5]],
-                                                 collapse=', ')))
+            inPlatforms = names(genes) %>% sapply(function(x){
+                tolower(input$searchGenes) %in% tolower(genes[[x]]$Gene.Symbol)
+            })
+            
+            if(sum(inPlatforms)>0){
+                inPlatforms = paste('Available in',paste(names(inPlatforms[inPlatforms]),collapse= ', '),'platforms')
+            } else{
+                inPlatforms = ''
+            }
+            
+            didYouMean = paste('Did you mean:\n',paste(symbolList[order(adist(tolower(input$searchGenes), 
+                                                                              tolower(symbolList)))[1:5]],
+                                                       collapse=', '))
+            
+            return(HTML(paste0(inPlatforms,'<br/>',didYouMean)))
         }
     })
     

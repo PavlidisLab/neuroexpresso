@@ -91,7 +91,7 @@ shinyUI(fluidPage(theme = shinytheme('lumen'),
                                            ),
                                            
                                            
-                                           textOutput(outputId = 'didYouMean'),
+                                           htmlOutput(outputId = 'didYouMean'),
                                            textOutput(outputId = 'synonyms'),
                                            
                                            uiOutput('expressionUI')
