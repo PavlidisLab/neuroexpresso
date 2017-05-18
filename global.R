@@ -19,6 +19,7 @@ library(shinythemes)
 library(DT)
 library(shinyjs)
 library(shinyTree)
+library(glue)
 # library(readr)
 
 print('now it begins')

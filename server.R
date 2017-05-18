@@ -1,36 +1,8 @@
 
 print('starting stuff')
 
-customRender = 
-    '{option: function(item, escape){
-    return "<div><span><div><strong>" + escape(item.symbol) + "</strong></div>" + 
- escape(item.GeneNames) + "</span></div>";
-}}'
 
-customRenderRNAseq = 
-    '{option: function(item, escape){
-    return "<div><span><div><strong>" + escape(item.symbol) + "</strong></div>" + "</span></div>";
-}}'
 
-selectizeOptions = list(maxOptions = 20,
-                        searchField = c('symbol','GeneNames','Probe','NCBIids'),
-                        valueField = 'symbol',
-                        labelField = 'symbol',
-                        render = I(customRender),
-                        create=TRUE
-)
-
-selectizeOptionsRNAseq =  list(maxOptions = 20,
-                               searchField = c('symbol'),
-                               valueField = 'symbol',
-                               labelField = 'symbol',
-                               render = I(customRenderRNAseq),
-                               create=TRUE
-)
-
-sOptions = list(GPL339 = selectizeOptions,
-                GPL1261 = selectizeOptions,
-                RNAseq = selectizeOptionsRNAseq)
 
 # beginning of server -----------
 shinyServer(function(input, output, session) {
@@ -74,46 +46,29 @@ shinyServer(function(input, output, session) {
         vals$querry = parseQueryString(session$clientData$url_search)
         print(vals$querry)
     })
-    
-    # observe({
-    #     if (!is.null(vals$querry$gene)){
-    #         updateTextInput(session,
-    #                         inputId = 'geneSearch',value = vals$querry$gene,
-    #                         label = 'Select Gene')
-    #     }
-    # })
-    
+
     # this shouldn't be necesarry but first plot does not show the axis labels for no real reason.
     observe({
         if(vals$new & is.null(vals$querry$gene)){
             # this replaces the initial configuration of the textInput so that the plot will be drawn twice
             # this shouldn't be necesarry, alas it seems to be...
-             updateSelectizeInput(session,
-                                  inputId = 'searchGenes', selected = genes[[vals$platform]] %>% mutate(symbol = Gene.Symbol) %>% filter(symbol =='Ogn'),
-                                  label='Select Gene', choices =genes[[vals$platform]] %>% mutate(symbol = Gene.Symbol),
-                                  server = TRUE,
-                                  options = sOptions[[vals$platform]])
+            
+            updateTextInput(session,
+                            inputId = 'searchGenes', value= 'Ogn',
+                            label = 'Select Gene')
                                  
 
             vals$new= FALSE
         } else if (vals$new & !is.null(vals$querry$gene)){
-            updateSelectizeInput(session,
-                                 inputId = 'searchGenes', selected = vals$querry$gene,
-                                 label='Select Gene', choices =genes$GPL339 %>% mutate(symbol = Gene.Symbol),
-                                 server = TRUE,
-                                 options = selectizeOptions)
+           # browser()
+            updateTextInput(session,
+                            inputId = 'searchGenes',
+                            value = vals$querry$gene,
+                            label = 'Select Gene')
+            
             vals$new= FALSE
         }
 
-    })
-    
-    observe({
-        # browser()
-        updateSelectizeInput(session,
-                             inputId = 'searchGenes', selected = isolate(genes[[vals$platform]] %>% mutate(symbol = Gene.Symbol) %>% filter(symbol ==vals$gene)),
-                             label='Select Gene', choices =isolate(genes[[vals$platform]] %>% mutate(symbol = Gene.Symbol)),
-                             server = TRUE,
-                             options = sOptions[[vals$platform]])
     })
     
     observe({
@@ -281,17 +236,14 @@ shinyServer(function(input, output, session) {
     })
     
     
+    # replace the selected gene with the one selected from the table
     observe({
         input$difGeneTable_rows_selected
         isolate({
             if(!is.null(input$difGeneTable_rows_selected)){
                 tableGene = vals$differentiallyExpressed[input$difGeneTable_rows_selected,'Symbol']
-                updateSelectizeInput(session,
-                                     inputId = 'searchGenes', selected = isolate(genes[[vals$platform]] %>% mutate(symbol = Gene.Symbol) %>% filter(symbol ==tableGene)),
-                                     label='Select Gene', choices =isolate(genes[[vals$platform]] %>% mutate(symbol = Gene.Symbol)),
-                                     server = TRUE,
-                                     options = sOptions[[vals$platform]])
-                }
+                updateTextInput(session, 'searchGenes','Select Gene', value= tableGene)
+            }
         })
     })
     
@@ -404,7 +356,13 @@ shinyServer(function(input, output, session) {
             })
             
             if(sum(inPlatforms)>0){
-                inPlatforms = paste('Available in',paste(names(inPlatforms[inPlatforms]),collapse= ', '),'platforms')
+                inPlatforms = names(inPlatforms[inPlatforms])
+                if(length(inPlatforms)>1){
+                    s= 's'
+                } else{
+                    s =''
+                }
+                inPlatforms = glue('Available in {paste(inPlatforms,collapse=", ")} platform{s}')
             } else{
                 inPlatforms = ''
             }
