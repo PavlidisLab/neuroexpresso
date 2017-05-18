@@ -54,8 +54,8 @@ exprs  = readRDS('Data/exprs.rds')
 designs = readRDS('Data/designs.rds')
 genes = readRDS('Data/genes.rds')
 
-minValue = exprs %>% sapply(min) %>% min
-maxValue = exprs %>% sapply(max) %>% max
+minValue = readRDS('Data/minValue.rds')
+maxValue = readRDS('Data/maxValue.rds')
 
 print('data loaded 2')
 print('one heart')

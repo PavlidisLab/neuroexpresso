@@ -57,6 +57,11 @@ saveRDS(exprs, file = 'Data/exprs.rds')
 saveRDS(genes, file = 'Data/genes.rds')
 saveRDS(designs, file = 'Data/designs.rds')
 
+minValue = exprs %>% sapply(function(x){x %>% unlist %>% trimNAs %>% min}) %>% min
+maxValue = exprs %>% sapply(function(x){x %>% unlist %>% trimNAs %>% max}) %>% max
+
+saveRDS(minValue, file = 'Data/minValue.rds')
+saveRDS(maxValue, file = 'Data/maxValue.rds')
 
 
 # re-creation of token
