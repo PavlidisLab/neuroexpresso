@@ -150,7 +150,6 @@ shinyServer(function(input, output, session) {
                             'Color' %in% input$graphSettings,
                             input$ordering,
                             vals$treeChoice, vals$treeSelected)
-        # browser()
         frame$rnaSeq %<>% replaceElement(c("FALSE" = 'Microarray', 'TRUE' = 'RNAseq')) %$% newVector %>% factor()
         frame$`Data Source` = frame$rnaSeq
         # display = input$display %>% replaceElement(c(Microarray=FALSE,RNAseq = TRUE)) %$% newVector
@@ -301,7 +300,9 @@ shinyServer(function(input, output, session) {
             layer_points() %>%
             add_tooltip(function(x){
                 # get links to GSM
-                if (!grepl('GSM',frame()$GSM[x$id])){
+                if (frame()$rnaSeq[x$id]){
+                    src = glue("<p><a target='_blank' href='https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE71585'>{frame()$GSM[x$id]}</a></p>")
+                } else if(!grepl('GSM',frame()$GSM[x$id])){
                     src = paste0('<p>Contact authors</p>',frame()$GSM[x$id])
                 } else {
                     src = paste0("<p><a target='_blank' href=",
