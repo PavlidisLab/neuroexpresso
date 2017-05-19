@@ -90,6 +90,19 @@ shinyServer(function(input, output, session) {
         }
     })
     
+    observe({
+        if (!is.null(vals$querry$platform)){
+            # browser()
+            regQuerry  = names(exprs)[tolower(names(exprs)) %in% tolower(vals$querry$platform)]
+            
+            updateSelectInput(session,
+                              inputId = "platform",
+                              label= 'Select Platform',
+                              selected = regQuerry,
+                              choices =  names(exprs))
+        }
+    })
+    
     
     # check validity of input -----------
     observe({

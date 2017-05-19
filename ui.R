@@ -87,7 +87,7 @@ shinyUI(fluidPage(theme = shinytheme('lumen'),
                                                                       choices = names(regionGroups$GPL339))),
                                                column(4,selectInput(inputId = 'platform',
                                                                     label = 'Select Platform',
-                                                                    choices = c('GPL339','GPL1261','RNAseq')))
+                                                                    choices =  names(exprs)))
                                            ),
                                            
                                            
