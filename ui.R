@@ -161,6 +161,12 @@ shinyUI(fluidPage(theme = shinytheme('lumen'),
                                           wellPanel(h3('Marker Genes'),
                                                     p('The list of marker genes identified in the study can be accessed ',
                                                       a(href = 'http://www.chibi.ubc.ca/supplement-to-mancarci-et-al-neuroexpresso/', 
-                                                        target="_blank",'here.'))))
+                                                        target="_blank",'here.')))),
+                         br(),
+                         wellPanel(h3('How to cite'),
+                                   p('If using NeuroExpresso or the data provided, please cite our pre-print:'),
+                                   p('Mancarci BO, Toker L, Tripathy SJ, Li B, Rocco B, Sibille E, et al. Cross-laboratory analysis of brain cell type transcriptomes with applications to interpretation of bulk tissue data. bioRxiv. 2017 May 18;89219.'),
+                                   p('Or wait for us to publish the paper. (This box will be updated)')
+                                   )
                   )
 )))
