@@ -20,6 +20,7 @@ library(DT)
 library(shinyjs)
 library(shinyTree)
 library(glue)
+library(limma)
 # library(readr)
 
 print('now it begins')

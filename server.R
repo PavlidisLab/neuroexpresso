@@ -1,5 +1,5 @@
 
-print('starting stuff')
+print('starting server')
 
 
 
@@ -31,13 +31,13 @@ shinyServer(function(input, output, session) {
     
     observe({
         if(input$tabs=='genes'){
-            hide(id = 'difPlot-container')
-            show(id = 'expressionPlot-container')
-            enable(selector = "input[value = 'Fixed Y axis']")
+            shinyjs::hide(id = 'difPlot-container')
+            shinyjs::show(id = 'expressionPlot-container')
+            shinyjs::enable(selector = "input[value = 'Fixed Y axis']")
         } else if(input$tabs == 'difExp'){
-            hide(id = 'expressionPlot-container')
-            show(id = 'difPlot-container')
-            disable(selector = "input[value = 'Fixed Y axis']")
+            shinyjs::hide(id = 'expressionPlot-container')
+            shinyjs::show(id = 'difPlot-container')
+            shinyjs::disable(selector = "input[value = 'Fixed Y axis']")
         }
     })
     
@@ -140,7 +140,6 @@ shinyServer(function(input, output, session) {
     
     # create frame as a reactive object to pass to ggvis --------------------
     frame = reactive({
-        # browser()
         selected = vals$gene
         region =  vals$region
         platform = vals$platform
@@ -237,14 +236,16 @@ shinyServer(function(input, output, session) {
         })
     })
     output$difGeneTable = renderDataTable({
-        vals$differentiallyExpressed %<>% 
-            mutate(logFC =  round(logFC, digits=3),
-                   AveExpr =  round(AveExpr, digits=3),
-                   t =  round(t, digits=3),
-                   P.Value =  round(P.Value, digits=3),
-                   adj.P.Val =  round(adj.P.Val, digits=3),
-                   B =  round(B, digits=3))
-        datatable(vals$differentiallyExpressed,selection = 'single')
+        if(!is.null(vals$differentiallyExpressed)){
+            vals$differentiallyExpressed %<>% 
+                mutate(logFC =  round(logFC, digits=3),
+                       AveExpr =  round(AveExpr, digits=3),
+                       t =  round(t, digits=3),
+                       P.Value =  round(P.Value, digits=3),
+                       adj.P.Val =  round(adj.P.Val, digits=3),
+                       B =  round(B, digits=3))
+            datatable(vals$differentiallyExpressed,selection = 'single')
+        }
     })
     
     

@@ -166,7 +166,10 @@ shinyUI(fluidPage(theme = shinytheme('lumen'),
                          wellPanel(h3('How to cite'),
                                    p('If using NeuroExpresso or the data provided, please cite our pre-print:'),
                                    p('Mancarci BO, Toker L, Tripathy SJ, Li B, Rocco B, Sibille E, et al. Cross-laboratory analysis of brain cell type transcriptomes with applications to interpretation of bulk tissue data. bioRxiv. 2017 May 18;89219.'),
-                                   p('Or wait for us to publish the paper. (This box will be updated)')
+                                   p('Or wait for us to publish the paper. (This box will be updated)'),
+                                   h3('Contact'),
+                                   p('If you have questions or problems, mail', a(href="mailto:ogan.mancarci@msl.ubc.ca",target= '_blank', 'Ogan Mancarci'),". Please mention NeuroExpresso by name to ensure avoiding spam detectors"),
+                                   p('To report bugs, open an issue on the',a(href="https://github.com/oganm/neuroexpresso/issues",target= '_blank', 'github repo'))
                                    )
                   )
 )))
