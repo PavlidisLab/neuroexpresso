@@ -348,3 +348,6 @@ linked_brush2 <- function(keys, fill = "red") {
         set_brush = set_brush
     )
 }
+
+
+readRDS('Data/rnaSeqMap.rds')

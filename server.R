@@ -315,7 +315,8 @@ shinyServer(function(input, output, session) {
             add_tooltip(function(x){
                 # get links to GSM
                 if (frame()$rnaSeq[x$id]){
-                    src = glue("<p><a target='_blank' href='https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE71585'>{frame()$GSM[x$id]}</a></p>")
+                    src = glue("<p><a target='_blank' href='https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE71585'>{frame()$GSM[x$id]}</a></p>",
+                               "<p><a target='_blank' href='http://casestudies.brain-map.org/celltax#section_explorea'>Allen Atlas Vis App</a></p>")
                 } else if(!grepl('GSM',frame()$GSM[x$id])){
                     src = paste0('<p>Contact authors</p>',frame()$GSM[x$id])
                 } else {

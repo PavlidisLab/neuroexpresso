@@ -22,6 +22,7 @@ exprs  = list(GPL339 = read.exp('/home/omancarci/wholeOtto/omancarci/brainGenesM
               RNAseq =  read.exp('/home/omancarci/wholeOtto/omancarci/brainGenesManuscript/data-raw/Mouse_Cell_Type_Data/TasicPrimaryMeanComparable.csv',check.names=FALSE))
 
 
+
 exprs %<>% lapply(function(x){
     x %<>% filter(!grepl('[|]',Gene.Symbol))
     x %>% sepExpr
@@ -53,6 +54,16 @@ for(i in 1:length(genes)){
 save(memoReg,regionHierarchy,file = 'memoReg.rda')
 
 
+
+# stuff to map tasic data to original source ------
+
+rnaSeqMap = read.design('/home/omancarci/wholeOtto/omancarci/brainGenesManuscript/data-raw/Mouse_Cell_Type_Data/singleCellMatchings.tsv')
+
+saveRDS(rnaSeqMap, file = 'Data/rnaSeqMap.rds')
+
+
+
+# saving of data ------------------
 saveRDS(exprs, file = 'Data/exprs.rds')
 saveRDS(genes, file = 'Data/genes.rds')
 saveRDS(designs, file = 'Data/designs.rds')
@@ -62,6 +73,8 @@ maxValue = exprs %>% sapply(function(x){x %>% unlist %>% trimNAs %>% max}) %>% m
 
 saveRDS(minValue, file = 'Data/minValue.rds')
 saveRDS(maxValue, file = 'Data/maxValue.rds')
+
+
 
 
 # re-creation of token
