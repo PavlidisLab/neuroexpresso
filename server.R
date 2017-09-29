@@ -190,8 +190,8 @@ shinyServer(function(input, output, session) {
                     selected = lb$selected()
                 }
                 print('save 1')
-                hide(id = 'group1Selected')
-                show(id = 'group2Selected')
+                shinyjs::hide(id = 'group1Selected')
+                shinyjs::show(id = 'group2Selected')
                 vals$difGroup1 = frame()[selected,]$GSM
                 print(vals$difGroup1)
             }
@@ -210,8 +210,8 @@ shinyServer(function(input, output, session) {
                 }
                 print('save 2')
                 hide(id = 'group2Selected')
-                show(id = 'newSelection')
-                show(id = 'downloadDifGenes')
+                shinyjs::show(id = 'newSelection')
+                shinyjs::show(id = 'downloadDifGenes')
                 vals$difGroup2 = frame()[selected,]$GSM
                 print(vals$difGroup2)
                 
@@ -231,7 +231,7 @@ shinyServer(function(input, output, session) {
                                       number = Inf)
                 vals$differentiallyExpressed = data.frame(Symbol = rownames(dif),dif)
                 
-                show('difGenePanel')
+                shinyjs::show('difGenePanel')
             }
         })
     })
@@ -274,7 +274,7 @@ shinyServer(function(input, output, session) {
                 hide(id = 'newSelection')
                 hide(id = 'downloadDifGenes')
                 hide(id = 'difGenePanel')
-                show(id = 'group1Selected')
+                shinyjs::show(id = 'group1Selected')
                 print(lb$selected())
             }
         })
