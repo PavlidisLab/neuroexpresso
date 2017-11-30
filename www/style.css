@@ -1,3 +1,20 @@
+.nav-tabs>li>a{
+    border-width:2px;
+    border-color:#ddd;
+}
+
+.nav-tabs {
+    border-bottom: 1px solid #ddd;
+}
+
+.nav-tabs>li.active>a, .nav-tabs>li.active>a:hover, .nav-tabs>li.active>a:focus {
+    color: #555555;
+    background-color: #ffffff;
+    border: 2px solid #999;
+    border-bottom-color: transparent;
+    cursor: default;
+}
+
 #ggvis-tooltip{
     background-color: #798d8f;
     box-shadow: none;
