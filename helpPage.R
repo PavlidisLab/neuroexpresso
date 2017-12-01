@@ -43,10 +43,14 @@ helpPage = function(){
               h4('6. Display'),
               p('Use if you not want to display Microarray and RNA-seq data together. Note that RNA-seq data in this visualization is normalized
                 to be on the scale of microarray data. To get the real expression values, please refer to the original data source.'),
-              h5('7. The plot'),
+              h4('7. The plot'),
               p('The plot shows expression of all samples (in the case of RNA-seq data clusters) for the choosen gene. You can get more information
                 about a particular sample by clicking on the points. The plot can be resized from the bottom-right corner and an image can be downloaded
-                using the gear icon on the upper-right corner.')
+                using the gear icon on the upper-right corner.'),
+              h4('8. Differential expression'),
+              p('This tab allows you to assign samples into two groups to run a basic differential expression analysis. You pick samples by drawing
+                a box around them on the plot and clicking to "Save group" button. If no samples are selected when the button is pressed, all samples
+                on display are assigned to the group so you can use other sample filtering methods to pick your samples.')
               )
 
 }

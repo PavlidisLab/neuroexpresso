@@ -71,34 +71,38 @@ shinyUI(fluidPage(theme = shinytheme('lumen'),
                       #inputIp("ipid"),
                       #inputUserid("fingerprint"),
                       tabsetPanel(id = 'tabs', 
-                                  tabPanel('Gene Search', value = 'genes',
-                                           fluidRow(
-                                               column(4,
-                                                      textInput(inputId = 'searchGenes',
-                                                                label = 'Select Gene',
-                                                                value = 'Dok5')
-                                               ),
-                                               column(4,  selectInput(inputId = "regionChoice",
-                                                                      label= 'Select Region',
-                                                                      selected = 'Cortex',
-                                                                      choices = names(regionGroups$GPL339))),
-                                               column(4,selectInput(inputId = 'platform',
-                                                                    label = 'Select Platform',
-                                                                    choices =  names(exprs)))
-                                           ),
-                                           
-                                           
-                                           htmlOutput(outputId = 'didYouMean'),
-                                           textOutput(outputId = 'synonyms')
+                                  tabPanel('Gene Search', value = 'genes'),
+                                  tabPanel('Diff. Expr', value = 'difExp'),
+                                  tabPanel('Help', value = 'help')
                                   ),
-                                  tabPanel('Diff. Expr', value = 'difExp',
-                                           h4('Select groups on the graph to perform differential expression'),
-                                           h4(id = "select_text", "Please select first group"),
-                                           actionButton(inputId = "group1Selected", label = "Save group 1"),
-                                           actionButton(inputId = "group2Selected", label = "Save group 2"),
-                                           actionButton(inputId = 'newSelection', label = 'New Selection'),
-                                           downloadButton(outputId = 'downloadDifGenes', label = 'Download')),
-                                  tabPanel('Help', value = 'help')),
+                      
+                      conditionalPanel(condition = "input.tabs=='difExp'",
+                                       h4('Select groups on the graph to perform differential expression'),
+                                       h4(id = "select_text", "Please select first group"),
+                                       actionButton(inputId = "group1Selected", label = "Save group 1"),
+                                       actionButton(inputId = "group2Selected", label = "Save group 2"),
+                                       actionButton(inputId = 'newSelection', label = 'New Selection'),
+                                       downloadButton(outputId = 'downloadDifGenes', label = 'Download')),
+                      
+                      fluidRow(
+                          column(4,
+                                 textInput(inputId = 'searchGenes',
+                                           label = 'Select Gene',
+                                           value = 'Dok5')
+                          ),
+                          column(4,  selectInput(inputId = "regionChoice",
+                                                 label= 'Select Region',
+                                                 selected = 'Cortex',
+                                                 choices = names(regionGroups$GPL339))),
+                          column(4,selectInput(inputId = 'platform',
+                                               label = 'Select Platform',
+                                               choices =  names(exprs)))
+                      ),
+                      
+                      
+                      htmlOutput(outputId = 'didYouMean'),
+                      textOutput(outputId = 'synonyms'),
+                      
                       conditionalPanel(condition = "input.tabs!='help'",
                                        #br(),
                                        fluidRow(

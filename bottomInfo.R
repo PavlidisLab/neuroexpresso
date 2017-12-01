@@ -22,3 +22,20 @@ bottomInfo = function(){
         p('To report bugs, open an issue on the',a(href="https://github.com/oganm/neuroexpresso/issues",target= '_blank', 'github repo'))
     )
 }
+
+acknowledge = function(){
+    wellPanel(
+        p('Developed and maintained by',
+          a(href="https://github.com/oganm/", 'Ogan Mancarci'), 'at',
+          a(href="http://www.chibi.ubc.ca/faculty/paul-pavlidis/pavlidis-lab/", 'Pavlidis Lab')
+        ),
+        br(),
+        p('Supported by'),
+        a(href = 'http://neurodevnet.ca/',
+          img(src = 'NeuroDevNet.png',height = '100')),
+        a(href= 'http://www.nih.gov/',
+          img(src='NIH.png', height = '100')),
+        a(href = 'http://www.cihr-irsc.gc.ca/e/193.html',
+          img(src = 'cihr.png', height = '100'))
+    )
+}
