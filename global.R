@@ -26,6 +26,7 @@ library(readr)
 
 print('now it begins')
 source('helpPage.R')
+source('bottomInfo.R')
 
 #sourceGithub(OganM,toSource,'regionize.R')
 
