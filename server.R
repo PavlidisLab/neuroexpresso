@@ -395,7 +395,7 @@ shinyServer(function(input, output, session) {
         }
     })
     
-    # find if entered gene is a synonym of something else
+    # find if entered gene is a synonym of something else -------
     output$synonyms = renderText({
         synos = mouseSyno(input$searchGenes)[[1]]
         synos = sapply(synos, function(x){
@@ -412,6 +412,25 @@ shinyServer(function(input, output, session) {
         } else{
             return('')
         }
+    })
+    # is a marker? ----------
+    output$tisAMarker = renderText({
+        markerOf = names(mouseMarkerGenesCombined) %>% lapply(function(x){
+            index = findInList(input$searchGenes,mouseMarkerGenesCombined[[x]])
+            names(mouseMarkerGenesCombined[[x]])[index]
+        })
+        names(markerOf) = names(mouseMarkerGenesCombined) 
+        types = unique(unlist(markerOf))
+        types %>% sapply(function(x){
+            paste('Identified as marker of',x,'in',
+                  paste(names(markerOf)[findInList(x,markerOf)] ,collapse = ', '))
+        }) %>% paste(collapse = '\n') -> out
+        
+        if(nchar(out)==0){
+            out ='Not identified as a marker'
+        }
+        
+        return(out)
     })
     
     

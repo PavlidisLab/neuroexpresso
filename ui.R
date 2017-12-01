@@ -74,7 +74,7 @@ shinyUI(fluidPage(theme = shinytheme('lumen'),
                                   tabPanel('Gene Search', value = 'genes'),
                                   tabPanel('Diff. Expr', value = 'difExp'),
                                   tabPanel('Help', value = 'help')
-                                  ),
+                      ),
                       
                       conditionalPanel(condition = "input.tabs=='difExp'",
                                        h4('Select groups on the graph to perform differential expression'),
@@ -102,32 +102,33 @@ shinyUI(fluidPage(theme = shinytheme('lumen'),
                       
                       htmlOutput(outputId = 'didYouMean'),
                       textOutput(outputId = 'synonyms'),
-                      
-                      conditionalPanel(condition = "input.tabs!='help'",
-                                       #br(),
-                                       fluidRow(
-                                           column(7, 
-                                                  htmlOutput(outputId = 'selectTree'),
-                                                  #htmlOutput('tree'))
-                                                  shinyTree("tree",search = TRUE, checkbox = TRUE)),
-                                           column(5,
-                                                  fluidRow(column(5,
-                                                                  checkboxGroupInput(inputId = 'graphSettings',
-                                                                                     label = 'Options',
-                                                                                     selected = c('Color'),
-                                                                                     choices = c('Fixed Y axis',
-                                                                                                 'Color')),
-                                                                  checkboxGroupInput(inputId = 'display',
-                                                                                     label = 'Display',
-                                                                                     selected =  c('Microarray','RNAseq'),
-                                                                                     choices =  c('Microarray','RNAseq'))),
-                                                           column(7,
-                                                                  radioButtons(inputId = 'ordering',
-                                                                               label = 'Order by',
-                                                                               choices = c('Cell type','A-Z'), selected = NULL, inline = FALSE, width = NULL))
-                                                  )
-                                           )
-                                       ))
+                      conditionalPanel(condition = 'input.graphSettings.indexOf("Is marker?")>-1',textOutput(outputId = 'tisAMarker')),
+                      br(),
+                      #br(),
+                      fluidRow(
+                          column(7, 
+                                 htmlOutput(outputId = 'selectTree'),
+                                 #htmlOutput('tree'))
+                                 shinyTree("tree",search = TRUE, checkbox = TRUE)),
+                          column(5,
+                                 fluidRow(column(5,
+                                                 checkboxGroupInput(inputId = 'graphSettings',
+                                                                    label = 'Options',
+                                                                    selected = c('Color'),
+                                                                    choices = c('Fixed Y axis',
+                                                                                'Color',
+                                                                                'Is marker?')),
+                                                 checkboxGroupInput(inputId = 'display',
+                                                                    label = 'Display',
+                                                                    selected =  c('Microarray','RNAseq'),
+                                                                    choices =  c('Microarray','RNAseq'))),
+                                          column(7,
+                                                 radioButtons(inputId = 'ordering',
+                                                              label = 'Order by',
+                                                              choices = c('Cell type','A-Z'), selected = NULL, inline = FALSE, width = NULL))
+                                 )
+                          )
+                      )
                   ),
                   acknowledge()
                   ),
