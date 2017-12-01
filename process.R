@@ -2,6 +2,7 @@ library(dplyr)
 library(magrittr)
 library(ogbox)
 library(memoise)
+library(allenBrain)
 prop = 'ShinyNames'
 # mouseDes2 =
 #     read.design('/home/omancarci/wholeOtto/omancarci/brainGenesManuscript/data-raw/Mouse_Cell_Type_Data/n_expressoSamples2.tsv')
@@ -39,7 +40,19 @@ exprs %<>% lapply(function(x){
 })
 
 
-sourceGithub('oganm/brainGenesManuscript/R/regionize.R')
+sourceGithub('oganm/markerGeneProfile/R/regionize.R')
+loadGithub('oganm/markerGeneProfile/data/mouseRegionHierarchy.rda')
+loadGithub('oganm/markerGeneProfile/data/mouseMarkerGenesCombined.rda')
+loadGithub('oganm/neuroExpressoAnalysis/data/publishableNameDictionary.rda')
+
+mouseMarkerGenesCombined %<>% lapply(function(x){
+    names(x) = replaceElement(names(x),dictionary = publishableNameDictionary$ShinyNames,labels = publishableNameDictionary$PyramidalDeep) %$% newVector
+    return(x)
+}) 
+
+saveRDS(mouseMarkerGenesCombined,'Data/mouseMarkerGenesCombined')
+
+regionHierarchy = mouseRegionHierarchy
 prop ='ShinyNames'
 regionNames = 'Region'
 
@@ -74,8 +87,17 @@ maxValue = exprs %>% sapply(function(x){x %>% unlist %>% trimNAs %>% max}) %>% m
 saveRDS(minValue, file = 'Data/minValue.rds')
 saveRDS(maxValue, file = 'Data/maxValue.rds')
 
+# get allen brain institute datasets for the genes ---------------
+allGenes = genes %>% purrr::map('Gene.Symbol') %>% unlist %>% unique
+allenIDs = seq_along(allGenes) %>% lapply(getGeneDatasets,function(x)planeOfSection = 'both')
+pb = txtProgressBar(min = 0, max = length(allGenes), initial = 0,style = 3) 
+allenIDs = seq_along(allGenes) %>% lapply(function(i){
+    setTxtProgressBar(pb,i)
+    getGeneDatasets(allGenes[[i]],planeOfSection = 'both')
+})
+allenIDs = allenIDs[sapply(allenIDs,length)>0]
 
-
+saveRDS(allenIDs,file = 'Data/allenIDs.rds')
 
 # re-creation of token
 #token <- drop_auth()

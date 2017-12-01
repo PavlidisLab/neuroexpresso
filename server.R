@@ -414,7 +414,7 @@ shinyServer(function(input, output, session) {
         }
     })
     # is a marker? ----------
-    output$tisAMarker = renderText({
+    output$tisAMarker = renderUI({
         markerOf = names(mouseMarkerGenesCombined) %>% lapply(function(x){
             index = findInList(input$searchGenes,mouseMarkerGenesCombined[[x]])
             names(mouseMarkerGenesCombined[[x]])[index]
@@ -424,15 +424,27 @@ shinyServer(function(input, output, session) {
         types %>% sapply(function(x){
             paste('Identified as marker of',x,'in',
                   paste(names(markerOf)[findInList(x,markerOf)] ,collapse = ', '))
-        }) %>% paste(collapse = '\n') -> out
+        }) -> out
         
-        if(nchar(out)==0){
-            out ='Not identified as a marker'
+        if(length(out)==0){
+            out =p('Not identified as a marker')
+        } else{
+            out = div(out %>% lapply(p))
         }
-        
         return(out)
     })
     
+    # allen institute ----------
+    output$allenBrain = renderUI({
+        if(!is.null(allenIDs[[input$searchGenes]])){
+            link = paste0('http://mouse.brain-map.org/experiment/ivt?id=',paste(allenIDs[[input$searchGenes]],collapse=','),'&popup=true')
+            out = p(input$searchGenes,' on ',
+              a(href=link,target= '_blank', 'Allen Institute ISH data'))
+        } else{
+            out = p('Not found in Allen Institute Mouse ISH data')
+        }
+        return(out)
+    })
     
     output$warning = renderText({
         if(any(tolower(genes[[input$platform]]$Gene.Symbol) %in% tolower(input$searchGenes))){

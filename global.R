@@ -353,4 +353,5 @@ linked_brush2 <- function(keys, fill = "red") {
 }
 
 
-readRDS('Data/rnaSeqMap.rds')
+# readRDS('Data/rnaSeqMap.rds')
+allenIDs = readRDS('Data/allenIDs.rds')
