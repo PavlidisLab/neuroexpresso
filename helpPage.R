@@ -44,7 +44,7 @@ helpPage = function(){
               h4('6. Options'),
               p('These options allow you to customize the plot and get additional information. Fixed axis option makes the axis ranges constant
                 between all plots to allow easier comparison of expression values between genes. Color option removes cell type colors from samples.
-                "Is marker?" option shows if the gene you are looking at was identified as a marker gene based on our study.')
+                "Is marker?" option shows if the gene you are looking at was identified as a marker gene based on our study.'),
               h4('7. Display'),
               p('Use if you not want to display Microarray and RNA-seq data together. Note that RNA-seq data in this visualization is normalized
                 to be on the scale of microarray data. To get the real expression values, please refer to the original data source.'),
