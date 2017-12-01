@@ -75,9 +75,9 @@ shinyUI(fluidPage(theme = shinytheme('lumen'),
                                            fluidRow(
                                                column(4,
                                                       textInput(inputId = 'searchGenes',
-                                                                     label = 'Select Gene',
-                                                                     value = 'Dok5')
-                                                                ),
+                                                                label = 'Select Gene',
+                                                                value = 'Dok5')
+                                               ),
                                                column(4,  selectInput(inputId = "regionChoice",
                                                                       label= 'Select Region',
                                                                       selected = 'Cortex',
@@ -89,9 +89,7 @@ shinyUI(fluidPage(theme = shinytheme('lumen'),
                                            
                                            
                                            htmlOutput(outputId = 'didYouMean'),
-                                           textOutput(outputId = 'synonyms'),
-                                           
-                                           uiOutput('expressionUI')
+                                           textOutput(outputId = 'synonyms')
                                   ),
                                   tabPanel('Diff. Expr', value = 'difExp',
                                            h4('Select groups on the graph to perform differential expression'),
@@ -123,31 +121,12 @@ shinyUI(fluidPage(theme = shinytheme('lumen'),
                                                                   radioButtons(inputId = 'ordering',
                                                                                label = 'Order by',
                                                                                choices = c('Cell type','A-Z'), selected = NULL, inline = FALSE, width = NULL))
-                                                  )# ,
-                                                  # sliderInput('','width',
-                                                  #             min = 20, max  = 1500, sep = '', post = ' px',
-                                                  #             value = 750),
-                                                  # sliderInput('plotHeight','height',
-                                                  #             min = 20, max  = 1500, sep = '', post = ' px',
-                                                  #             value = 700)
                                                   )
+                                           )
                                        ))
-                      # tabPanel('Bulk Search',value = 'bulk', p('yo')))
                   ),
-                  wellPanel(
-                      p('Developed and maintained by',
-                        a(href="https://github.com/oganm/", 'Ogan Mancarci'), 'at',
-                        a(href="http://www.chibi.ubc.ca/faculty/paul-pavlidis/pavlidis-lab/", 'Pavlidis Lab')
-                      ),
-                      br(),
-                      p('Supported by'),
-                      a(href = 'http://neurodevnet.ca/',
-                        img(src = 'NeuroDevNet.png',height = '100')),
-                      a(href= 'http://www.nih.gov/',
-                        img(src='NIH.png', height = '100')),
-                      a(href = 'http://www.cihr-irsc.gc.ca/e/193.html',
-                        img(src = 'cihr.png', height = '100'))
-                  )),
+                  acknowledge()
+                  ),
                   column(7,
                          conditionalPanel(condition = "input.tabs!='help'",
                                           htmlOutput('warning'),
@@ -155,8 +134,8 @@ shinyUI(fluidPage(theme = shinytheme('lumen'),
                                           ggvisOutput('expressionPlot'),
                                           wellPanel(id = 'difGenePanel',type='hidden',dataTableOutput('difGeneTable'))),
                          conditionalPanel(condition = "input.tabs == 'help'",
-                                         helpPage()
-                                          ),
+                                          helpPage()
+                         ),
                          br(),
                          bottomInfo()
                   )

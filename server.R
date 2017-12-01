@@ -362,7 +362,7 @@ shinyServer(function(input, output, session) {
         }
         
         return(p)
-    }) %>%  bind_shiny('expressionPlot', 'expressionUI')
+    }) %>%  bind_shiny('expressionPlot')
     
     # did you mean?--------
     output$didYouMean = renderUI({
