@@ -7,8 +7,9 @@ helpPage = function(){
               img(src = 'annotated.png',width = '100%'),
               h4('1. Select Gene'),
               p('Write the official symbol of the gene of interest. If a gene that is not included in the
-                                                      data is entered, suggestions will appear under the box ("Did you mean:..."). If what you enter is a synonym for
-                                                      an official symbol, you will also see suggestions (Synonym of:...)'),
+                data is entered, suggestions will appear under the box ("Did you mean:..."). If what you enter is a synonym for
+                an official symbol, you will also see suggestions (Synonym of:...). This section also gives a link to Allen Institute
+                mouse ISH data for the gene.'),
               h4('2. Select Region'),
               fluidRow(
                   column(6, 
@@ -40,14 +41,18 @@ helpPage = function(){
               p('This shows the hierarchical tree specified by "Select Hiearchy" box. By checking the boxes you can control which samples
                  do you want to display or how do you want to group them together in the hierarchy (eg. checking neurons will add a neuron group
                  to the plot, including all neuronal subtypes).'),
-              h4('6. Display'),
+              h4('6. Options'),
+              p('These options allow you to customize the plot and get additional information. Fixed axis option makes the axis ranges constant
+                between all plots to allow easier comparison of expression values between genes. Color option removes cell type colors from samples.
+                "Is marker?" option shows if the gene you are looking at was identified as a marker gene based on our study.')
+              h4('7. Display'),
               p('Use if you not want to display Microarray and RNA-seq data together. Note that RNA-seq data in this visualization is normalized
                 to be on the scale of microarray data. To get the real expression values, please refer to the original data source.'),
-              h4('7. The plot'),
+              h4('8. The plot'),
               p('The plot shows expression of all samples (in the case of RNA-seq data clusters) for the choosen gene. You can get more information
                 about a particular sample by clicking on the points. The plot can be resized from the bottom-right corner and an image can be downloaded
                 using the gear icon on the upper-right corner.'),
-              h4('8. Differential expression'),
+              h4('9. Differential expression'),
               p('This tab allows you to assign samples into two groups to run a basic differential expression analysis. You pick samples by drawing
                 a box around them on the plot and clicking to "Save group" button. If no samples are selected when the button is pressed, all samples
                 on display are assigned to the group so you can use other sample filtering methods to pick your samples.')
