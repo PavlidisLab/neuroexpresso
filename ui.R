@@ -42,6 +42,15 @@ shinyjs.setDefaultTree = function(){
 $.jstree.defaults.checkbox.three_state= false
 }
 
+shinyjs.openStaticTree = function(){
+    $('#staticRegionTree').jstree(true).open_all();
+}
+
+shyinjs.setStaticTree = function(params){
+    eval(\"$('#staticRegionTree').jstree(true).settings.core.data=\"+params);
+$('#staticRegionTree').jstree(true).refresh();
+}
+
 "
 
 # UI ------------------------
@@ -53,26 +62,14 @@ shinyUI(fluidPage(theme = shinytheme('lumen'),
                   extendShinyjs(text = javaScript,functions = c('changeTree',
                                                                 'open',
                                                                 'deselect',
-                                                                'setDefaultTree')),
+                                                                'setDefaultTree',
+                                                                'openStaticTree',
+                                                                'setStaticTree')),
                   titlePanel("NeuroExpresso"),
                   fluidRow(column(4,wellPanel(
                       tags$head(tags$script('$(function () { $("#expressionPlot").click(function(e){ $("#ggvis-tooltip").hide(); }); })')),
                       #inputIp("ipid"),
                       #inputUserid("fingerprint"),
-                      h1('About'),
-                      p('This application aims to make it easier to visualize gene expression in mouse brain cell types. The data here is compiled for a project aiming to select cell type specific genes in brain.'),
-                      p('It is compiled by combining data from', 
-                        a(href="http://www.chibi.ubc.ca/Gemma/arrays/showArrayDesign.html?id=7",target= '_blank', 'GPL339'),',',
-                        a(href="http://www.chibi.ubc.ca/Gemma/arrays/showArrayDesign.html?id=3",target= '_blank' ,'GPL1261'), 'and RNA-seq data by',
-                        a(href="https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE71585",target= '_blank' ,'Tasic et al.')),
-                      p('RNA-seq data is normalized to match distribution of microarray data for plotting purposes.'),
-                      p('To see genes that are only available for GPL1261 or RNA-seq data, choose that platform below. This will remove some of the samples'),
-                      p('Click on data points to see their sources'),
-                      a(href="https://github.com/oganm/neuroexpresso",target= '_blank', 'Source Code'),
-                      br(),
-                      a(href="https://github.com/oganm/brainGenesManuscript",target= '_blank', 'Project Page'),
-                      br(),
-                      p('Wait until the plot renders then enter a gene symbol.'),
                       tabsetPanel(id = 'tabs', 
                                   tabPanel('Gene Search', value = 'genes',
                                            fluidRow(
@@ -82,7 +79,7 @@ shinyUI(fluidPage(theme = shinytheme('lumen'),
                                                                      value = 'Dok5')
                                                                 ),
                                                column(4,  selectInput(inputId = "regionChoice",
-                                                                      label= 'Select region',
+                                                                      label= 'Select Region',
                                                                       selected = 'Cortex',
                                                                       choices = names(regionGroups$GPL339))),
                                                column(4,selectInput(inputId = 'platform',
@@ -103,8 +100,8 @@ shinyUI(fluidPage(theme = shinytheme('lumen'),
                                            actionButton(inputId = "group2Selected", label = "Save group 2"),
                                            actionButton(inputId = 'newSelection', label = 'New Selection'),
                                            downloadButton(outputId = 'downloadDifGenes', label = 'Download')),
-                                  tabPanel('Marker Genes', value = 'marker')),
-                      conditionalPanel(condition = "input.tabs!='marker'",
+                                  tabPanel('Help', value = 'help')),
+                      conditionalPanel(condition = "input.tabs!='help'",
                                        #br(),
                                        fluidRow(
                                            column(7, 
@@ -152,31 +149,36 @@ shinyUI(fluidPage(theme = shinytheme('lumen'),
                         img(src = 'cihr.png', height = '100'))
                   )),
                   column(7,
-                         conditionalPanel(condition = "input.tabs!='marker'",
+                         conditionalPanel(condition = "input.tabs!='help'",
                                           htmlOutput('warning'),
                                           ggvisOutput('difPlot'),
                                           ggvisOutput('expressionPlot'),
                                           wellPanel(id = 'difGenePanel',type='hidden',dataTableOutput('difGeneTable'))),
-                         conditionalPanel(condition = "input.tabs == 'marker'",
-                                          wellPanel(h3('Marker Genes'),
-                                                    p('The list of marker genes identified in the study can be accessed ',
-                                                      a(href = 'http://www.chibi.ubc.ca/supplement-to-mancarci-et-al-neuroexpresso/', 
-                                                        target="_blank",'here.')),
-                                                    p('markerGeneProfile, out package for calculation of marker gene profile estimations can be found ',
-                                                      a(href='https://github.com/oganm/markerGeneProfile',
-                                                        target = '_blank','here.')))),
+                         conditionalPanel(condition = "input.tabs == 'help'",
+                                         helpPage()
+                                          ),
                          br(),
-                         wellPanel(h3('How to cite'),
-                                   p('If using NeuroExpresso or the data provided, please cite:'),
-                                   a(href = 'http://www.eneuro.org/content/early/2017/11/20/ENEURO.0212-17.2017',
-                                     target="_blank", 
-                                     'B. Ogan Mancarci et al., “Cross-Laboratory Analysis of Brain Cell Type Transcriptomes with Applications to Interpretation of Bulk Tissue Data,” ENeuro, November 20, 2017, ENEURO.0212-17.2017, https://doi.org/10.1523/ENEURO.0212-17.2017.'),
-                                   h3('Contact'),
-                                   p('If you have questions or problems, mail', 
-                                     a(href="mailto:ogan.mancarci@msl.ubc.ca",
-                                       target= '_blank', 'Ogan Mancarci'),
-                                     ". Please mention NeuroExpresso by name to ensure avoiding spam detectors"),
-                                   p('To report bugs, open an issue on the',a(href="https://github.com/oganm/neuroexpresso/issues",target= '_blank', 'github repo'))
-                                   )
+                         wellPanel(
+                             h3('NeuroExpresso data and marker genes'),
+                             p('The data in NeuroExpresso compiled as part of a project aiming to select marker genes for brain cell types
+                               and calculate marker gene profiles.'),
+                             p('The data in neuroexpresso and marker genes identified in the study can be accessed ',
+                               a(href = 'http://pavlab.msl.ubc.ca/supplement-to-mancarci-et-al-neuroexpresso/', 
+                                 target="_blank",'here.')),
+                             p('R package for calculation of marker gene profiles can be found ',
+                               a(href='https://github.com/oganm/markerGeneProfile',
+                                 target = '_blank','here.')),
+                             h3('How to cite'),
+                             p('If using NeuroExpresso or the data provided, please cite:'),
+                             a(href = 'http://www.eneuro.org/content/early/2017/11/20/ENEURO.0212-17.2017',
+                               target="_blank", 
+                               'B. Ogan Mancarci et al., “Cross-Laboratory Analysis of Brain Cell Type Transcriptomes with Applications to Interpretation of Bulk Tissue Data,” ENeuro, November 20, 2017, ENEURO.0212-17.2017, https://doi.org/10.1523/ENEURO.0212-17.2017.'),
+                             h3('Contact'),
+                             p('If you have questions or problems, mail', 
+                               a(href="mailto:ogan.mancarci@msl.ubc.ca",
+                                 target= '_blank', 'Ogan Mancarci'),
+                               ". Please mention NeuroExpresso by name to ensure avoiding spam detectors"),
+                             p('To report bugs, open an issue on the',a(href="https://github.com/oganm/neuroexpresso/issues",target= '_blank', 'github repo'))
+                         )
                   )
-)))
+                  )))

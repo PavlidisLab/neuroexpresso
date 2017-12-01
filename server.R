@@ -23,7 +23,8 @@ shinyServer(function(input, output, session) {
                            hierarchInit = NULL, # will be set to the initial hierarchy
                            difGroup1= NULL,
                            difGroup2 = NULL,
-                           differentiallyExpressed = NULL)
+                           differentiallyExpressed = NULL,
+                           staticTreeInit = FALSE)
     hide(id="group2Selected")
     hide(id = 'newSelection')
     hide(id = 'downloadDifGenes')
@@ -451,7 +452,6 @@ shinyServer(function(input, output, session) {
     
     observe({
         if (!is.null(input$treeChoice)){
-            # browser()
             jsInput = toTreeJSON(vals$hierarchies[[input$treeChoice]])
             js$changeTree(jsInput) 
             delay(500,{
@@ -477,6 +477,22 @@ shinyServer(function(input, output, session) {
         js$setDefaultTree()
         #vals$hierarchies[[input$treeChoice]]
         vals$hierarchInit
+    })
+    
+    observe({
+        if (vals$staticTreeInit){
+            # browser()
+            # jsInput = toTreeJSON(regionHierarchy)
+            # js$setStaticTree(jsInput) 
+            delay(500,{
+                js$openStaticTree()
+            })
+        }
+    })
+    
+    output$staticRegionTree = renderTree({
+        vals$staticTreeInit = TRUE
+        regionHierarchy  
     })
     
 })
