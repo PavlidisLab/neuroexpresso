@@ -436,9 +436,12 @@ shinyServer(function(input, output, session) {
     
     # allen institute ----------
     output$allenBrain = renderUI({
-        if(!is.null(allenIDs[[input$searchGenes]])){
-            link = paste0('http://mouse.brain-map.org/experiment/ivt?id=',paste(allenIDs[[input$searchGenes]],collapse=','),'&popup=true')
-            out = p(input$searchGenes,' on ',
+        gene = tolower(input$searchGenes)
+        allenGenes = tolower(names(allenIDs))
+        if(gene %in% allenGenes){
+            whichMatch = which(allenGenes %in% gene)
+            link = paste0('http://mouse.brain-map.org/experiment/ivt?id=',paste(allenIDs[[whichMatch]],collapse=','),'&popup=true')
+            out = p(names(allenIDs)[whichMatch],' on ',
               a(href=link,target= '_blank', 'Allen Institute ISH data'))
         } else{
             out = p('Not found in Allen Institute Mouse ISH data')
