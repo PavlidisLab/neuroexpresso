@@ -46,11 +46,6 @@ shinyjs.openStaticTree = function(){
     $('#staticRegionTree').jstree(true).open_all();
 }
 
-shyinjs.setStaticTree = function(params){
-    eval(\"$('#staticRegionTree').jstree(true).settings.core.data=\"+params);
-$('#staticRegionTree').jstree(true).refresh();
-}
-
 "
 
 # UI ------------------------
