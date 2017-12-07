@@ -47,7 +47,7 @@ shinyServer(function(input, output, session) {
         vals$querry = parseQueryString(session$clientData$url_search)
         print(vals$querry)
     })
-
+    
     # this shouldn't be necesarry but first plot does not show the axis labels for no real reason.
     observe({
         if(vals$new & is.null(vals$querry$gene)){
@@ -57,11 +57,11 @@ shinyServer(function(input, output, session) {
             updateTextInput(session,
                             inputId = 'searchGenes', value= 'Ogn',
                             label = 'Select Gene')
-                                 
-
+            
+            
             vals$new= FALSE
         } else if (vals$new & !is.null(vals$querry$gene)){
-           # browser()
+            # browser()
             updateTextInput(session,
                             inputId = 'searchGenes',
                             value = vals$querry$gene,
@@ -69,7 +69,7 @@ shinyServer(function(input, output, session) {
             
             vals$new= FALSE
         }
-
+        
     })
     
     observe({
@@ -109,7 +109,7 @@ shinyServer(function(input, output, session) {
     observe({
         #browser()
         selected  =  genes[[input$platform]]$Gene.Symbol[tolower(genes[[input$platform]]$Gene.Symbol) %in% tolower(input$searchGenes)]
-
+        
         if (len(selected)>0){
             vals$searchedGenes <- c(isolate(vals$searchedGenes), paste(selected,input$regionChoice,input$platform))
             vals$gene = strsplit(vals$searchedGenes[len(vals$searchedGenes)],' ')[[1]][1]
@@ -123,7 +123,7 @@ shinyServer(function(input, output, session) {
     observe({
         treeSelected = get_selected(input$tree)
         treeChoice =  input$treeChoice
-
+        
         validTree = hierarchies %>% sapply(function(x){
             hiearNames = x %>% unlist %>% names %>% strsplit('\\.(?![ ,])',perl=TRUE) %>% unlist %>% unique
             all(treeSelected %in% hiearNames) | length(treeSelected)==0
@@ -167,7 +167,7 @@ shinyServer(function(input, output, session) {
         frame$`Data Source` = frame$rnaSeq
         # display = input$display %>% replaceElement(c(Microarray=FALSE,RNAseq = TRUE)) %$% newVector
         frame %<>% filter( rnaSeq %in% input$display & !is.na(gene))
-
+        
         # oldFrame <<- frame
         lb$set_keys(1:nrow(frame))
         
@@ -221,7 +221,7 @@ shinyServer(function(input, output, session) {
                 })
                 
                 toDif = exprs[whichDif] %>% sapply(nrow) %>% which.max %>% names %>% {exprs[[.]][c(vals$difGroup1,vals$difGroup2)]}
-
+                
                 mm = model.matrix(~ groups,
                                   data.frame(groups = c(rep('a',length(vals$difGroup1)),
                                                         rep('b',length(vals$difGroup2)))))
@@ -442,7 +442,7 @@ shinyServer(function(input, output, session) {
             whichMatch = which(allenGenes %in% gene)
             link = paste0('http://mouse.brain-map.org/experiment/ivt?id=',paste(allenIDs[[whichMatch]],collapse=','),'&popup=true')
             out = p(names(allenIDs)[whichMatch],' on ',
-              a(href=link,target= '_blank', 'Allen Institute ISH data'))
+                    a(href=link,target= '_blank', 'Allen Institute ISH data'))
         } else{
             out = p('Not found in Allen Institute Mouse ISH data')
         }
