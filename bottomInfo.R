@@ -11,7 +11,7 @@ bottomInfo = function(){
             target = '_blank','here.')),
         h3('How to cite'),
         p('If using NeuroExpresso or the data provided, please cite:'),
-        a(href = 'http://www.eneuro.org/content/early/2017/11/20/ENEURO.0212-17.2017',
+        a(href = 'http://www.eneuro.org/content/4/6/ENEURO.0212-17.2017',
           target="_blank", 
           'B. Ogan Mancarci et al., “Cross-Laboratory Analysis of Brain Cell Type Transcriptomes with Applications to Interpretation of Bulk Tissue Data,” ENeuro, November 20, 2017, ENEURO.0212-17.2017, https://doi.org/10.1523/ENEURO.0212-17.2017.'),
         h3('Contact'),
