@@ -1,28 +1,3 @@
-#library(V8)
-# user ID system
-inputUserid <- function(inputId, value='') {
-    #   print(paste(inputId, "=", value))
-    tagList(
-        singleton(tags$head(tags$script(src = "js/md5.js", type='text/javascript'))),
-        singleton(tags$head(tags$script(src = "js/shinyBindings.js", type='text/javascript'))),
-        tags$body(onload="setvalues()"),
-        tags$input(id = inputId, class = "userid", value=as.character(value), type="text", style="display:none;")
-    )
-    
-}
-
-inputIp <- function(inputId, value=''){
-    
-    tagList(
-        singleton(tags$head(tags$script(src = "js/md5.js", type='text/javascript'))),
-        singleton(tags$head(tags$script(src = "js/shinyBindings.js", type='text/javascript'))),
-        tags$body(onload="setvalues()"),
-        tags$input(id = inputId, class = "ipaddr", value=as.character(value), type="text", style="display:none;")
-    )
-    
-}
-
-
 # UI ------------------------
 
 shinyUI(fluidPage(theme = shinytheme('lumen'),
@@ -38,8 +13,6 @@ shinyUI(fluidPage(theme = shinytheme('lumen'),
                   titlePanel("NeuroExpresso"),
                   fluidRow(column(4,wellPanel(
                       tags$head(tags$script('$(function () { $("#expressionPlot").click(function(e){ $("#ggvis-tooltip").hide(); }); })')),
-                      #inputIp("ipid"),
-                      #inputUserid("fingerprint"),
                       tabsetPanel(id = 'tabs', 
                                   tabPanel('Gene Search', value = 'genes'),
                                   tabPanel('Diff. Expr', value = 'difExp'),
