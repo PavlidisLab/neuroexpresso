@@ -18,3 +18,7 @@ shinyjs.setDefaultTree = function(){
 shinyjs.openStaticTree = function(){
     $('#staticRegionTree').jstree(true).open_all();
 };
+
+shinyjs.hidePlotTooltip = function(){
+     $("#ggvis-tooltip").hide();
+};

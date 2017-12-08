@@ -177,6 +177,9 @@ shinyServer(function(input, output, session) {
         } else{
             frame$id = integer(0)
         }
+        delay(100,{
+            js$hidePlotTooltip()
+        })
         return(frame)
     })
     
@@ -360,7 +363,6 @@ shinyServer(function(input, output, session) {
         if('Fixed Y axis' %in% input$graphSettings){
             p = p %>% scale_numeric('y',domain = c(minValue,maxValue))
         }
-        
         return(p)
     }) %>%  bind_shiny('expressionPlot')
     
@@ -458,7 +460,7 @@ shinyServer(function(input, output, session) {
     })
     
     
-    
+    # hiearchy stuff ------------------
     observe({
         # print(get_selected(input$tree))
         region = 'Cortex'
@@ -482,7 +484,7 @@ shinyServer(function(input, output, session) {
         if (!is.null(input$treeChoice)){
             jsInput = toTreeJSON(vals$hierarchies[[input$treeChoice]])
             js$changeTree(jsInput) 
-            delay(500,{
+            delay(100,{
                 js$open()
                 js$deselect()
             })
