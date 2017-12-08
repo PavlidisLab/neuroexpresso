@@ -187,7 +187,9 @@ createFrame = function(gene,
                           color = character(0),
                           reference = character(0),
                           PMID = character(0),
-                          rnaSeq = character(0)))
+                          rnaSeq = character(0),
+                          `Data Source`= character(0),
+                          check.names = FALSE))
     }
     treeSelectedNames  = sapply(treeSelected,function(x){x[1]})
     names(treeSelected) = treeSelectedNames
@@ -264,6 +266,15 @@ createFrame = function(gene,
     if (!color){
         frame$color = "#000000"
     }
+    
+    frame$rnaSeq %<>%
+        replaceElement(c("FALSE" = 'Microarray', 'TRUE' = 'RNAseq')) %$% 
+        newVector %>% 
+        factor()
+    frame$`Data Source` = frame$rnaSeq
+    
+
+    
     # amygdala fix again
     if(nrow(frame)==0){
         frame = cbind(frame,data.frame(id=character(0)))

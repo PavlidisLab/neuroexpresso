@@ -163,20 +163,19 @@ shinyServer(function(input, output, session) {
                             'Color' %in% input$graphSettings,
                             input$ordering,
                             vals$treeChoice, vals$treeSelected)
-        frame$rnaSeq %<>% replaceElement(c("FALSE" = 'Microarray', 'TRUE' = 'RNAseq')) %$% newVector %>% factor()
-        frame$`Data Source` = frame$rnaSeq
         # display = input$display %>% replaceElement(c(Microarray=FALSE,RNAseq = TRUE)) %$% newVector
         frame %<>% filter( rnaSeq %in% input$display & !is.na(gene))
         
         # oldFrame <<- frame
         lb$set_keys(1:nrow(frame))
         
-        # this has to be unique because of gviss' key requirement and has to be ordered because
+        # this has to be unique because of gviss' key requirement and has to be ordered 
         if(nrow(frame)>0){
             frame$id = 1:nrow(frame)
         } else{
             frame$id = integer(0)
         }
+
         delay(100,{
             js$hidePlotTooltip()
         })
@@ -291,7 +290,9 @@ shinyServer(function(input, output, session) {
               stroke := 'black',
               opacity := 0.7,
               size.brush := 300) %>%
-        layer_points() %>% lb$input() %>%
+        layer_points() %>% 
+        scale_nominal('shape',c('Microarray', 'RNAseq')) %>% 
+        lb$input() %>%
         set_options(height = 700, width = 750) %>%
         add_axis('x',
                  #shame shame shame! but its mostly ggvis' fault
