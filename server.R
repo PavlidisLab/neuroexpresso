@@ -476,13 +476,7 @@ shinyServer(function(input, output, session) {
             hierarchize(levels,designs[[vals$platform]][!is.na(designs[[vals$platform]][,levels[len(levels)]]) & !is.na(regionGroups[[vals$platform]][[vals$region]]),])
         })
     })
-    
-    #     observe({
-    #         frame()
-    #         print('coinize')
-    #         delay(1000,
-    #               js$coinPlot())
-    #     })
+
     
     observe({
         if (!is.null(input$treeChoice)){

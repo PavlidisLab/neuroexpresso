@@ -1,8 +1,3 @@
-shinyjs.coinPlot = function(){
-    $.each($('#g64').children(),function(){$(this).attr('d','M0,4.675581A6.6755811781245455,1.6755811781245455 0 1,1 0,-3.675581A6.6755811781245455,1.6755811781245455 0 1,1 0,4.6755811781245455Z')});
-};
-
-
 shinyjs.changeTree = function(params){
     eval("$('#tree').jstree(true).settings.core.data="+params);
     $('#tree').jstree(true).refresh();
