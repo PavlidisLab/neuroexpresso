@@ -55,7 +55,10 @@ helpPage = function(){
               h4('9. Differential expression'),
               p('This tab allows you to assign samples into two groups to run a basic differential expression analysis. You pick samples by drawing
                 a box around them on the plot and clicking to "Save group" button. If no samples are selected when the button is pressed, all samples
-                on display are assigned to the group so you can use other sample filtering methods to pick your samples.')
+                on display are assigned to the group so you can use other sample filtering methods to pick your samples.'),
+              h4('Sharing with query strings'),
+              p('You can share links to specific genes using query strings. Gene, region and platform boxes can be filled this way.'),
+              a(href="http://neuroexpresso.org/?gene=Eno2&region=Midbrain&platform=GPL1261",target= '_blank' ,'http://neuroexpresso.org/?gene=Eno2&region=Midbrain&platform=GPL1261')
               )
 
 }
