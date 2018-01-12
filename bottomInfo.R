@@ -1,7 +1,7 @@
 bottomInfo = function(){
     wellPanel(
         h3('NeuroExpresso data and marker genes'),
-        p('The data in NeuroExpresso compiled as part of a project aiming to select marker genes for brain cell types
+        p('The data in NeuroExpresso compiled as part of a project aiming to select marker genes for mouse brain cell types
                                and calculate marker gene profiles.'),
         p('The data in neuroexpresso and marker genes identified in the study can be accessed ',
           a(href = 'http://pavlab.msl.ubc.ca/supplement-to-mancarci-et-al-neuroexpresso/', 
