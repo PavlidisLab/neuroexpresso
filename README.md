@@ -1,4 +1,5 @@
-# NeuroExpresso
+# NeuroExpresso <img src="www/neuroHex.png" align="right" height="100px"/>
+
 A shiny app to visualize gene expression in brain cell types. For detailed info about the annotations feel free to send a [mail](mailto:ogan.mancarci+cte@gmail.com). Hosted [here](http://neuroexpresso.org/).
 
 ## Data
