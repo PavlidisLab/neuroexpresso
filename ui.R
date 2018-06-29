@@ -15,7 +15,7 @@ shinyUI(fluidPage(theme = shinytheme('lumen'),
                                                                 'openStaticTree',
                                                                 'setStaticTree',
                                                                 'hidePlotTooltip')),
-                  titlePanel("NeuroExpresso"),
+                  titlePanel(div(img(src = 'neuroExp.png',height = 50,id='logo'),"NeuroExpresso")),
                   fluidRow(column(4,wellPanel(
                       tabsetPanel(id = 'tabs', 
                                   tabPanel('Gene Search', value = 'genes'),
