@@ -47,7 +47,7 @@ shinyUI(fluidPage(theme = shinytheme('lumen'),
                                                choices =  names(exprs)))
                       ),
                       
-                      
+                      textOutput(outputId = 'geneFound'),
                       htmlOutput(outputId = 'didYouMean'),
                       textOutput(outputId = 'synonyms'),
                       conditionalPanel(condition = 'input.graphSettings.indexOf("Is marker?")>-1',htmlOutput(outputId = 'tisAMarker')),
@@ -83,7 +83,6 @@ shinyUI(fluidPage(theme = shinytheme('lumen'),
                   ),
                   column(8,
                          conditionalPanel(condition = "input.tabs!='help'",
-                                          htmlOutput('warning'),
                                           ggvisOutput('difPlot'),
                                           ggvisOutput('expressionPlot'),
                                           wellPanel(id = 'difGenePanel',type='hidden',dataTableOutput('difGeneTable'))),

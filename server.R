@@ -182,6 +182,32 @@ shinyServer(function(input, output, session) {
         return(frame)
     })
     
+    output$geneFound = renderText({
+        if(length(vals$gene)>0){
+            platform = vals$platform
+            geneList = genes[[platform]]
+            geneToPlot = geneList %>% filter(Gene.Symbol == vals$gene)
+            if(!is.null(geneToPlot$GeneNames)){
+                out = glue('Plotting {vals$gene} ({geneToPlot$GeneNames})')
+            } else{
+                # if RNA seq get imaginative
+                # there are few genes that are in GPL339 but not in GPL1261 
+                # so look in both
+                gTPGPL339 = genes$GPL339 %>% filter(Gene.Symbol == vals$gene)
+                gTPGPL1261 = genes$GPL1261 %>% filter(Gene.Symbol == vals$gene)
+                if(nrow(gTPGPL339)!=1 & nrow(gTPGPL1261!=1)){
+                    out = glue('Plotting {vals$gene}')
+                } else if(nrow(gTPGPL1261==1)){
+                    out = glue('Plotting {vals$gene} ({gTPGPL1261$GeneNames})')
+                } else if(nrow(gTPGPL339==1)){
+                    out = glue('Plotting {vals$gene} ({gTPGPL339$GeneNames})')
+                }
+                
+            }
+            return(out)
+        }
+    })
+    
     # differential expression -----------------
     observe({
         print(input$group1Selected)
@@ -400,9 +426,9 @@ shinyServer(function(input, output, session) {
     
     # find if entered gene is a synonym of something else -------
     output$synonyms = renderText({
-        synos = mouseSyno(input$searchGenes)[[1]]
+        synos = mouseSyno(input$searchGenes,caseSensitive= FALSE)[[1]]
         synos = sapply(synos, function(x){
-            if(!x[1] == input$searchGenes){
+            if(!tolower(x[1]) == tolower(input$searchGenes)){
                 return(x[1])
             } else{
                 return(NULL)
@@ -450,14 +476,6 @@ shinyServer(function(input, output, session) {
             out = p('Not found in Allen Institute Mouse ISH data')
         }
         return(out)
-    })
-    
-    output$warning = renderText({
-        if(any(tolower(genes[[input$platform]]$Gene.Symbol) %in% tolower(input$searchGenes))){
-            return('')
-        } else{
-            stop('Gene symbol is not found!')
-        }
     })
     
     
