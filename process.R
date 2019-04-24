@@ -14,13 +14,22 @@ prop = 'ShinyNames'
 # expression =
 #     read.exp('/home/omancarci/wholeOtto/omancarci/brainGenesManuscript/data-raw/Mouse_Cell_Type_Data/n_expressoExpr.csv')
 
-designs = list(GPL339 = read.design('/home/omancarci/wholeOtto/omancarci/brainGenesManuscript/data-raw/Mouse_Cell_Type_Data/n_expressoSamplesWithRNAseq.tsv'),
-               GPL1261 = read.design('/home/omancarci/wholeOtto/omancarci/brainGenesManuscript/data-raw/Mouse_Cell_Type_Data/n_expressoSamplesWithRNAseq2.tsv'),
-               RNAseq = read.design('/home/omancarci/wholeOtto/omancarci/brainGenesManuscript/data-raw/Mouse_Cell_Type_Data/meltedSingleCells.tsv'))
+ogbox::getGithubFile(githubPath = 'PavlidisLab/neuroExpressoAnalysis/data-raw/Mouse_Cell_Type_Data/n_expressoSamplesWithRNAseq.tsv',downloadPath = 'Data/n_expressoSamplesWithRNAseq.tsv')
+ogbox::getGithubFile(githubPath = 'PavlidisLab/neuroExpressoAnalysis/data-raw/Mouse_Cell_Type_Data/n_expressoSamplesWithRNAseq2.tsv',downloadPath = 'Data/n_expressoSamplesWithRNAseq2.tsv')
+ogbox::getGithubFile(githubPath = 'PavlidisLab/neuroExpressoAnalysis/data-raw/Mouse_Cell_Type_Data/meltedSingleCells.tsv',downloadPath = 'Data/meltedSingleCells.tsv')
 
-exprs  = list(GPL339 = read.exp('/home/omancarci/wholeOtto/omancarci/brainGenesManuscript/data-raw/Mouse_Cell_Type_Data/n_expressoExprWithRNAseq.csv',check.names=FALSE),
-              GPL1261 =  read.exp('/home/omancarci/wholeOtto/omancarci/brainGenesManuscript/data-raw/Mouse_Cell_Type_Data/n_expressoExprWithRNAseq2.csv',check.names=FALSE),
-              RNAseq =  read.exp('/home/omancarci/wholeOtto/omancarci/brainGenesManuscript/data-raw/Mouse_Cell_Type_Data/TasicPrimaryMeanComparable.csv',check.names=FALSE))
+ogbox::getGithubFile(githubPath = 'PavlidisLab/neuroExpressoAnalysis/data-raw/Mouse_Cell_Type_Data/n_expressoExprWithRNAseq.csv',downloadPath = 'Data/n_expressoExprWithRNAseq.csv')
+ogbox::getGithubFile(githubPath = 'PavlidisLab/neuroExpressoAnalysis/data-raw/Mouse_Cell_Type_Data/n_expressoExprWithRNAseq2.csv',downloadPath = 'Data/n_expressoExprWithRNAseq2.csv')
+ogbox::getGithubFile(githubPath = 'PavlidisLab/neuroExpressoAnalysis/data-raw/Mouse_Cell_Type_Data/TasicPrimaryMeanComparable.csv',downloadPath = 'Data/TasicPrimaryMeanComparable.csv')
+
+
+designs = list(GPL339 = read.design('Data/n_expressoSamplesWithRNAseq.tsv'),
+               GPL1261 = read.design('Data/n_expressoSamplesWithRNAseq2.tsv'),
+               RNAseq = read.design('Data/meltedSingleCells.tsv'))
+
+exprs  = list(GPL339 = read.exp('Data/n_expressoExprWithRNAseq.csv',check.names=FALSE),
+              GPL1261 =  read.exp('Data/n_expressoExprWithRNAseq2.csv',check.names=FALSE),
+              RNAseq =  read.exp('Data/TasicPrimaryMeanComparable.csv',check.names=FALSE))
 
 
 
@@ -70,7 +79,9 @@ save(memoReg,regionHierarchy,file = 'memoReg.rda')
 
 # stuff to map tasic data to original source ------
 
-rnaSeqMap = read.design('/home/omancarci/wholeOtto/omancarci/brainGenesManuscript/data-raw/Mouse_Cell_Type_Data/singleCellMatchings.tsv')
+ogbox::getGithubFile(githubPath = 'PavlidisLab/neuroExpressoAnalysis/data-raw/Mouse_Cell_Type_Data/singleCellMatchings.tsv',downloadPath = 'Data/singleCellMatchings.tsv')
+
+rnaSeqMap = read.design('Data/singleCellMatchings.tsv')
 
 saveRDS(rnaSeqMap, file = 'Data/rnaSeqMap.rds')
 
