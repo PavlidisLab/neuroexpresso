@@ -31,6 +31,12 @@ exprs  = list(GPL339 = read.exp('Data/n_expressoExprWithRNAseq.csv',check.names=
               GPL1261 =  read.exp('Data/n_expressoExprWithRNAseq2.csv',check.names=FALSE),
               RNAseq =  read.exp('Data/TasicPrimaryMeanComparable.csv',check.names=FALSE))
 
+file.remove('Data/n_expressoSamplesWithRNAseq.tsv')
+file.remove('Data/n_expressoSamplesWithRNAseq2.tsv')
+file.remove('Data/meltedSingleCells.tsv')
+file.remove('Data/n_expressoExprWithRNAseq.csv')
+file.remove('Data/n_expressoExprWithRNAseq2.csv')
+file.remove('Data/TasicPrimaryMeanComparable.csv')
 
 
 exprs %<>% lapply(function(x){
