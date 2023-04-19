@@ -1,6 +1,6 @@
 # initialization -----------
 library(shiny)
-library(ggvis)
+library(ggvis) # version 4.7. linked_brushes are broken in 4.8
 # library(RCurl)
 # library(GGally)
 # library(data.table)
