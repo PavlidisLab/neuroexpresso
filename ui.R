@@ -7,9 +7,14 @@ shinyUI(fluidPage(theme = shinytheme('lumen'),
                   tags$head(tags$script('$(function () { $("#expressionPlot").click(function(e){ $("#ggvis-tooltip").hide(); }); })'),
                             tags$script('$(function () { $("#difPlot").click(function(e){ $("#ggvis-tooltip").hide(); }); })'),
                             tags$script('$(function () { $("#tabs").click(function(e){ $("#ggvis-tooltip").hide(); }); })'),
-                            includeScript("www/js/googleAnalytics.js")),
+                            tags$script("async src"="https://www.googletagmanager.com/gtag/js?id=G-08PL1XMYLD"),
+                            tags$script(" window.dataLayer = window.dataLayer || [];
+                            function gtag(){dataLayer.push(arguments);}
+                            gtag('js', new Date());
+                            gtag('config', 'G-08PL1XMYLD');")),
+                            # includeScript("www/js/googleAnalytics.js")),
                   includeCSS('www/style.css'),
-                  extendShinyjs(script = 'www/js/shinyjsFunctions.js',functions = c('changeTree',
+                  extendShinyjs(script = 'js/shinyjsFunctions.js',functions = c('changeTree',
                                                                 'open',
                                                                 'deselect',
                                                                 'setDefaultTree',
