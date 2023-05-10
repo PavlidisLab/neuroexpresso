@@ -26,16 +26,16 @@ bottomInfo = function(){
 acknowledge = function(){
     wellPanel(
         p('Developed and maintained by',
-          a(href="https://github.com/oganm/", 'Ogan Mancarci'), 'at',
-          a(href="https://pavlab.msl.ubc.ca/", 'Pavlidis Lab')
+          a(href="https://github.com/oganm/", 'Ogan Mancarci',target= '_blank'), 'at',
+          a(href="https://pavlab.msl.ubc.ca/", 'Pavlidis Lab',target= '_blank')
         ),
         br(),
         p('Supported by'),
-        a(href = 'http://neurodevnet.ca/',
+        a(href = 'http://neurodevnet.ca/',target= '_blank',
           img(src = 'NeuroDevNet.png',height = '100')),
-        a(href= 'http://www.nih.gov/',
+        a(href= 'http://www.nih.gov/',target= '_blank',
           img(src='NIH.png', height = '100')),
-        a(href = 'http://www.cihr-irsc.gc.ca/e/193.html',
+        a(href = 'http://www.cihr-irsc.gc.ca/e/193.html',target= '_blank',
           img(src = 'cihr.png', height = '100'))
     )
 }
