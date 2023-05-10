@@ -27,7 +27,7 @@ acknowledge = function(){
     wellPanel(
         p('Developed and maintained by',
           a(href="https://github.com/oganm/", 'Ogan Mancarci'), 'at',
-          a(href="http://www.chibi.ubc.ca/faculty/paul-pavlidis/pavlidis-lab/", 'Pavlidis Lab')
+          a(href="https://pavlab.msl.ubc.ca/", 'Pavlidis Lab')
         ),
         br(),
         p('Supported by'),
