@@ -14,9 +14,7 @@ shinyUI(fluidPage(theme = shinytheme('lumen'),
                             gtag('config', 'G-08PL1XMYLD');")),
                             # includeScript("www/js/googleAnalytics.js")),
                   includeCSS('www/style.css'),
-                  # in the latest version www isn't needed but I have not updated the packages in the
-                  # shiny server
-                  extendShinyjs(script = 'www/js/shinyjsFunctions.js',functions = c('changeTree',
+                  extendShinyjs(script = 'js/shinyjsFunctions.js',functions = c('changeTree',
                                                                 'open',
                                                                 'deselect',
                                                                 'setDefaultTree',

@@ -18,7 +18,7 @@ library(memoise)
 library(shinythemes)
 library(DT)
 library(shinyjs)
-library(shinyTree)
+library(shinyTree) # version 0.2.7. selecting all boxes under a parent is broken in the latest version
 library(glue)
 library(limma)
 library(readr)
