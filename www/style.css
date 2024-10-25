@@ -1,3 +1,7 @@
+.recalculating {
+    opacity:unset;
+}
+
 .nav-tabs>li>a{
     border-width:2px;
     border-color:#ddd;
